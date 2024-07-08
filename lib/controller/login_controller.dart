@@ -1,0 +1,98 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:xiaofanshu_flutter/apis/app.dart';
+import 'package:xiaofanshu_flutter/utils/parameter_verification.dart';
+import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
+
+class LoginController extends GetxController {
+  var phoneController = TextEditingController();
+  var codeController = TextEditingController();
+  var passwordController = TextEditingController();
+
+  var phone = ''.obs;
+  var code = ''.obs;
+  var password = ''.obs;
+  var passwordVisible = false.obs;
+
+  var isAllowLogin = false.obs;
+  var loginType = 'code'.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    phoneController.addListener(() {
+      phone.value = phoneController.text;
+      if (phone.value.isNotEmpty &&
+          ((loginType.value == 'code' && code.value.isNotEmpty) ||
+              (loginType.value == 'password' && password.value.isNotEmpty))) {
+        isAllowLogin.value = true;
+      } else {
+        isAllowLogin.value = false;
+      }
+    });
+    codeController.addListener(() {
+      code.value = codeController.text;
+      if (phone.value.isNotEmpty &&
+          ((loginType.value == 'code' && code.value.isNotEmpty) ||
+              (loginType.value == 'password' && password.value.isNotEmpty))) {
+        isAllowLogin.value = true;
+      } else {
+        isAllowLogin.value = false;
+      }
+    });
+    passwordController.addListener(() {
+      password.value = passwordController.text;
+      if (phone.value.isNotEmpty &&
+          ((loginType.value == 'code' && code.value.isNotEmpty) ||
+              (loginType.value == 'password' && password.value.isNotEmpty))) {
+        isAllowLogin.value = true;
+      } else {
+        isAllowLogin.value = false;
+      }
+    });
+  }
+
+  void changeLoginType() {
+    loginType.value == 'code'
+        ? codeController.clear()
+        : passwordController.clear();
+    loginType.value = loginType.value == 'code' ? 'password' : 'code';
+  }
+
+  Future<void> login() async {
+    // 校验值
+    if (phone.value.isEmpty) {
+      SnackbarUtil.show('请输入手机号', SnackbarUtil.error);
+      return;
+    }
+    if (!ParameterVerification.isPhoneNumber(phone.value)) {
+      SnackbarUtil.show('请输入正确的手机号', SnackbarUtil.error);
+      return;
+    }
+    if (loginType.value == 'code' && code.value.isEmpty) {
+      SnackbarUtil.show('请输入验证码', SnackbarUtil.error);
+      return;
+    }
+    if (loginType.value == 'password' && password.value.isEmpty) {
+      SnackbarUtil.show('请输入密码', SnackbarUtil.error);
+      return;
+    }
+    // 请求登录接口
+    var response = {};
+    switch (loginType.value) {
+      case 'code':
+        response = await AuthApi.loginByCode(phone.value, code.value);
+        break;
+      case 'password':
+        response = await AuthApi.loginByPassword(phone.value, password.value);
+        break;
+    }
+    if (response['code'] == 20020) {
+      // 登录成功
+      SnackbarUtil.show('登录成功', SnackbarUtil.success);
+    } else {
+      // 登录失败
+      SnackbarUtil.show(response['msg'], SnackbarUtil.error);
+    }
+  }
+}
