@@ -6,7 +6,6 @@ import 'package:xiaofanshu_flutter/config/custom_icon.dart';
 import 'package:xiaofanshu_flutter/controller/login_controller.dart';
 import 'package:xiaofanshu_flutter/utils/Adapt.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
-
 import '../../utils/request.dart';
 
 class LoginPage extends StatefulWidget {
@@ -241,12 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                           size: Adapt.setRpx(100),
                           color: const Color(0xff28DC70),
                         ),
-                        onPressed: () async {
-                          await Request().request(
-                            'https://www.baidu.com',
-                            method: DioMethod.get,
-                          );
-                        },
+                        onPressed: () {},
                       ),
                       Icon(
                         CustomIcon.qq,

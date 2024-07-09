@@ -15,7 +15,7 @@ class AuthApi {
     return await Request().request(
       "$prefix/loginByCode",
       method: DioMethod.post,
-      params: {"phoneNumber": phoneNumber, "code": code},
+      params: {"phoneNumber": phoneNumber, "smsCode": code},
     );
   }
 

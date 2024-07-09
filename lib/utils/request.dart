@@ -3,7 +3,6 @@ import 'package:super_network_logger/super_network_logger.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
 import '../config/base_request.dart';
-import 'package:colorize/colorize.dart';
 import 'loading_util.dart';
 
 /// 请求方法:枚举类型
