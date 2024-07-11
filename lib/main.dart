@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/pages/auth/login.dart';
+import 'package:xiaofanshu_flutter/pages/home/home.dart';
 import 'package:xiaofanshu_flutter/utils/Adapt.dart';
 
 import 'bindings/controller_binding.dart';
@@ -17,11 +18,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Adapt.initialize(context);
     return GetMaterialApp(
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        tabBarTheme: const TabBarTheme(dividerColor: Colors.transparent),
+      ),
       getPages: RouteConfig.routes,
       defaultTransition: Transition.rightToLeft,
       builder: EasyLoading.init(),
       initialBinding: ControllerBinding(),
-      home: const LoginPage(),
+      home: const HomePage(),
     );
   }
 }
