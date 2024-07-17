@@ -7,6 +7,7 @@ import 'package:xiaofanshu_flutter/controller/login_controller.dart';
 import 'package:xiaofanshu_flutter/utils/Adapt.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import '../../static/custom_color.dart';
+import '../../static/custom_string.dart';
 import '../../utils/request.dart';
 
 class LoginPage extends StatefulWidget {
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(
-              '帮助',
+              LoginString.help,
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -47,11 +48,11 @@ class _LoginPageState extends State<LoginPage> {
         scrollDirection: Axis.vertical,
         child: Column(
           children: [
-            const Text('手机号登录', style: TextStyle(fontSize: 25)).marginOnly(
+            const Text(LoginString.loginByPhone, style: TextStyle(fontSize: 25)).marginOnly(
               bottom: Adapt.setRpx(20),
             ),
             const Text(
-              '未注册的手机号验证后自动创建小番薯账号',
+              LoginString.loginTip,
               style: TextStyle(
                 color: Color(0xff999999),
                 fontSize: 12,
@@ -67,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                   Obx(() => TextField(
                         controller: loginController.phoneController,
                         decoration: InputDecoration(
-                          hintText: '请输入手机号',
+                          hintText: LoginString.inputPhone,
                           hintStyle: const TextStyle(
                             color: Color(0xffCDCDCD),
                             fontSize: 18,
@@ -99,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                           controller: loginController.codeController,
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
-                            hintText: '请输入验证码',
+                            hintText: LoginString.inputCode,
                             hintStyle: const TextStyle(
                               color: Color(0xffCDCDCD),
                               fontSize: 18,
@@ -131,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                           keyboardType: TextInputType.visiblePassword,
                           obscureText: !loginController.passwordVisible.value,
                           decoration: InputDecoration(
-                            hintText: '请输入密码',
+                            hintText: LoginString.inputPassword,
                             hintStyle: const TextStyle(
                               color: Color(0xffCDCDCD),
                               fontSize: 18,
@@ -177,8 +178,8 @@ class _LoginPageState extends State<LoginPage> {
                           },
                           child: Text(
                             loginController.loginType.value == 'code'
-                                ? '密码登录'
-                                : '验证码登录',
+                                ? LoginString.loginByPassword
+                                : LoginString.loginByCode,
                             style: const TextStyle(
                               fontSize: 12,
                               color: Color(0xff052583),
@@ -194,7 +195,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         child: const Text(
-                          '手机号无法使用',
+                          LoginString.phoneUnableLogin,
                           style: TextStyle(
                             fontSize: 12,
                             color: Color(0xff052583),
@@ -210,8 +211,8 @@ class _LoginPageState extends State<LoginPage> {
                             ? loginController.login()
                             : SnackbarUtil.show(
                                 loginController.loginType.value == 'code'
-                                    ? '请填写手机号和验证码'
-                                    : '请填写手机号和密码',
+                                    ? LoginErrorString.phoneAndCodeEmpty
+                                    : LoginErrorString.phoneAndPasswordEmpty,
                                 SnackbarUtil.info);
                       },
                       style: ButtonStyle(
@@ -224,7 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                           Size(Adapt.setRpx(700), Adapt.setRpx(100)),
                         ),
                       ),
-                      child: const Text('登录',
+                      child: const Text(LoginString.login,
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.white,

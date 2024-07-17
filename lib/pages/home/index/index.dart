@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/attention_controller.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/attention.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
+import 'package:xiaofanshu_flutter/static/custom_string.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({super.key});
@@ -72,14 +73,14 @@ class _IndexPageState extends State<IndexPage> {
               labelStyle: const TextStyle(fontSize: 16),
               onTap: (index) {
                 if (index == 0) {
-                  attentionController.onRefresh();
+                  attentionController.onTap();
                 } else if (index == 1) {
                   print('发现');
                 } else if (index == 2) {
                   print('南京');
                 }
               },
-              tabs: const [Tab(text: '关注'), Tab(text: '发现'), Tab(text: '南京')],
+              tabs: const [Tab(text: IndexTabName.attention), Tab(text: IndexTabName.recommend), Tab(text: IndexTabName.nearBy)],
             ),
             actions: [
               IconButton(

@@ -1,15 +1,22 @@
 class HttpResponse {
   int code;
-  String message;
+  String msg;
   dynamic data;
 
-  HttpResponse({required this.code, required this.message, this.data});
+  HttpResponse({required this.code, required this.msg, this.data});
 
   factory HttpResponse.fromJson(Map<String, dynamic> json) {
     return HttpResponse(
       code: json['code'],
-      message: json['message'],
+      msg: json['msg'],
       data: json['data'],
+    );
+  }
+  factory HttpResponse.defaultResponse() {
+    return HttpResponse(
+      code: 0,
+      msg: '',
+      data: null,
     );
   }
 }

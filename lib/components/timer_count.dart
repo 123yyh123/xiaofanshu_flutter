@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/utils/Adapt.dart';
 
+import '../static/custom_string.dart';
+
 // 发送验证码 按钮
 class SendSmsBtn extends StatefulWidget {
   final Future<bool> Function()? onTap;
@@ -65,7 +67,7 @@ class _SendSmsBtnState extends State<SendSmsBtn> {
               alignment: Alignment.center,
               padding: const EdgeInsets.all(5),
               child: const Text(
-                "发送验证码",
+                LoginString.getCode,
                 style: TextStyle(color: Color(0xff89c3eb), fontSize: 14),
               ),
             ).marginAll(4),
@@ -76,7 +78,7 @@ class _SendSmsBtnState extends State<SendSmsBtn> {
             alignment: Alignment.center,
             padding: const EdgeInsets.all(5),
             child: Text(
-              "$countdown s重新获取",
+              "$countdown${LoginString.beforeResend}",
               style: const TextStyle(color: Color(0xff999999), fontSize: 14),
             ),
           );

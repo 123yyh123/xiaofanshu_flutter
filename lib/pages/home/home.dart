@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/home_controller.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/index.dart';
+import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 
 import '../../static/custom_color.dart';
@@ -38,35 +39,35 @@ class _HomePageState extends State<HomePage> {
           showUnselectedLabels: false,
           items: [
             const BottomNavigationBarItem(
-                icon: Text("首页",
+                icon: Text(HomeTabName.index,
                     style: TextStyle(
                       fontSize: 16,
                       color: CustomColor.unselectedColor,
                     )),
-                activeIcon: Text("首页",
+                activeIcon: Text(HomeTabName.index,
                     style: TextStyle(
                       fontSize: 22,
                       color: Color(0xff2b2b2b),
                     )),
-                label: '首页'),
+                label: HomeTabName.index),
             const BottomNavigationBarItem(
-                icon: Text("购物",
+                icon: Text(HomeTabName.shopping,
                     style: TextStyle(
                       fontSize: 16,
                       color: CustomColor.unselectedColor,
                     )),
-                activeIcon: Text("购物",
+                activeIcon: Text(HomeTabName.shopping,
                     style: TextStyle(
                       fontSize: 22,
                       color: Color(0xff2b2b2b),
                     )),
-                label: '购物'),
+                label: HomeTabName.shopping),
             BottomNavigationBarItem(
                 icon: IconButton(
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onPressed: () {
-                    SnackbarUtil.show("发布", SnackbarUtil.info);
+                    SnackbarUtil.show(HomeTabName.release, SnackbarUtil.info);
                   },
                   icon: Center(
                     child: Container(
@@ -84,31 +85,31 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                label: '发布'),
+                label: HomeTabName.release),
             const BottomNavigationBarItem(
-                icon: Text("消息",
+                icon: Text(HomeTabName.message,
                     style: TextStyle(
                       fontSize: 16,
                       color: CustomColor.unselectedColor,
                     )),
-                activeIcon: Text("消息",
+                activeIcon: Text(HomeTabName.message,
                     style: TextStyle(
                       fontSize: 22,
                       color: Color(0xff2b2b2b),
                     )),
-                label: '消息'),
+                label: HomeTabName.message),
             const BottomNavigationBarItem(
-                icon: Text("我的",
+                icon: Text(HomeTabName.mine,
                     style: TextStyle(
                       fontSize: 16,
                       color: CustomColor.unselectedColor,
                     )),
-                activeIcon: Text("我的",
+                activeIcon: Text(HomeTabName.mine,
                     style: TextStyle(
                       fontSize: 22,
                       color: Color(0xff2b2b2b),
                     )),
-                label: '我的'),
+                label: HomeTabName.mine),
           ],
           currentIndex: homeController.currentIndex.value,
           onTap: homeController.changeIndex,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
+import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
+import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/parameter_verification.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
@@ -66,23 +68,23 @@ class LoginController extends GetxController {
   Future<void> login() async {
     // 校验值
     if (phone.value.isEmpty) {
-      SnackbarUtil.show('请输入手机号', SnackbarUtil.error);
+      SnackbarUtil.show(LoginErrorString.phoneEmpty, SnackbarUtil.error);
       return;
     }
     if (!ParameterVerification.isPhoneNumber(phone.value)) {
-      SnackbarUtil.show('请输入正确的手机号', SnackbarUtil.error);
+      SnackbarUtil.show(LoginErrorString.phoneError, SnackbarUtil.error);
       return;
     }
     if (loginType.value == 'code' && code.value.isEmpty) {
-      SnackbarUtil.show('请输入验证码', SnackbarUtil.error);
+      SnackbarUtil.show(LoginErrorString.codeEmpty, SnackbarUtil.error);
       return;
     }
     if (loginType.value == 'password' && password.value.isEmpty) {
-      SnackbarUtil.show('请输入密码', SnackbarUtil.error);
+      SnackbarUtil.show(LoginErrorString.passwordEmpty, SnackbarUtil.error);
       return;
     }
     // 请求登录接口
-    var response = {};
+    HttpResponse response=HttpResponse.defaultResponse();
     switch (loginType.value) {
       case 'code':
         response = await AuthApi.loginByCode(phone.value, code.value);
@@ -91,20 +93,21 @@ class LoginController extends GetxController {
         response = await AuthApi.loginByPassword(phone.value, password.value);
         break;
     }
-    if (response['code'] == 20020) {
+    response.code = 20020;
+    if (response.code == 20020) {
       // 登录成功
-      SnackbarUtil.show('登录成功', SnackbarUtil.success);
-      if (response['data']['token'] != null) {
+      SnackbarUtil.show(LoginString.loginSuccess, SnackbarUtil.success);
+      if (response.data['token'] != null) {
         // 保存token
-        await saveData('token', response['data']['token']);
+        await saveData('token', response.data['token']);
       } else {
-        SnackbarUtil.showError('服务器异常');
+        SnackbarUtil.showError(ErrorString.unknownError);
       }
       // 跳转到首页
       Get.off(const HomePage(), binding: ControllerBinding());
     } else {
       // 登录失败
-      SnackbarUtil.show(response['msg'], SnackbarUtil.error);
+      SnackbarUtil.show(response.msg, SnackbarUtil.error);
     }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:super_network_logger/super_network_logger.dart';
+import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
 import '../config/base_request.dart';
@@ -71,10 +72,10 @@ class Request {
     // 请求成功是对数据做基本处理
     if (response.statusCode == 200) {
       // 处理成功的响应
-      print("响应结果: $response");
+      Get.Get.log('响应结果: $response');
     } else {
       // 处理异常结果
-      print("响应异常: $response");
+      Get.Get.log('响应异常: $response');
     }
     handler.next(response);
   }
@@ -84,19 +85,19 @@ class Request {
     // 请求失败时，关闭loading
     LoadingUtil.hide();
     if (error.type == DioExceptionType.connectionTimeout) {
-      SnackbarUtil.show('连接超时', SnackbarUtil.error);
+      SnackbarUtil.show(ErrorString.connectTimeout, SnackbarUtil.error);
     } else if (error.type == DioExceptionType.sendTimeout) {
-      SnackbarUtil.show('发送超时', SnackbarUtil.error);
+      SnackbarUtil.show(ErrorString.sendTimeout, SnackbarUtil.error);
     } else if (error.type == DioExceptionType.receiveTimeout) {
-      SnackbarUtil.show('接收超时', SnackbarUtil.error);
+      SnackbarUtil.show(ErrorString.receiveTimeout, SnackbarUtil.error);
     } else if (error.type == DioExceptionType.badResponse) {
-      SnackbarUtil.show('响应错误', SnackbarUtil.error);
+      SnackbarUtil.show(ErrorString.badResponse, SnackbarUtil.error);
     } else if (error.type == DioExceptionType.cancel) {
-      SnackbarUtil.show('请求取消', SnackbarUtil.error);
+      SnackbarUtil.show(ErrorString.cancel, SnackbarUtil.error);
     } else if (error.type == DioExceptionType.connectionError) {
-      SnackbarUtil.show('连接错误', SnackbarUtil.error);
+      SnackbarUtil.show(ErrorString.connectionError, SnackbarUtil.error);
     } else {
-      SnackbarUtil.show('网络请求失败', SnackbarUtil.error);
+      SnackbarUtil.show(ErrorString.unknownError, SnackbarUtil.error);
     }
     handler.next(error);
   }
@@ -112,7 +113,7 @@ class Request {
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    const _methodValues = {
+    const methodValues = {
       DioMethod.get: 'get',
       DioMethod.post: 'post',
       DioMethod.put: 'put',
@@ -121,7 +122,7 @@ class Request {
       DioMethod.head: 'head'
     };
     // 默认配置选项
-    options ??= Options(method: _methodValues[method]);
+    options ??= Options(method: methodValues[method]);
     try {
       Response response;
       // 开始发送请求
@@ -138,10 +139,10 @@ class Request {
         if (e.response?.data['code'] == 40310 ||
             e.response?.data['code'] == 40320 ||
             e.response?.data['code'] == 40330) {
-          SnackbarUtil.showError('用户未认证或登录过期,请重新登录');
+          SnackbarUtil.showError(AuthErrorString.tokenExpired);
           Get.Get.offAllNamed('/login');
         } else if (e.response?.data['code'] == 10061) {
-          SnackbarUtil.showError('用户已在其他地方登录,请重新登录');
+          SnackbarUtil.showError(AuthErrorString.loginOnOtherDevice);
           Get.Get.offAllNamed('/login');
         } else {
           SnackbarUtil.showError(e.response?.data['msg']);
