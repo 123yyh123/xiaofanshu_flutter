@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/attention_controller.dart';
+import 'package:xiaofanshu_flutter/mapper/recommend_tab_mapper.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/attention.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/recommend.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
@@ -77,11 +78,18 @@ class _IndexPageState extends State<IndexPage> {
                   attentionController.onTap();
                 } else if (index == 1) {
                   print('发现');
+                  RecommendTabMapper.queryAll().then((value) {
+                    print(value);
+                  });
                 } else if (index == 2) {
                   print('南京');
                 }
               },
-              tabs: const [Tab(text: IndexTabName.attention), Tab(text: IndexTabName.recommend), Tab(text: IndexTabName.nearBy)],
+              tabs: const [
+                Tab(text: IndexTabName.attention),
+                Tab(text: IndexTabName.recommend),
+                Tab(text: IndexTabName.nearBy)
+              ],
             ),
             actions: [
               IconButton(

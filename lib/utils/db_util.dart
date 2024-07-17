@@ -1,4 +1,5 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
 import 'package:xiaofanshu_flutter/model/recommend_tab.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
@@ -17,6 +18,7 @@ class DBManager {
 
   Future<Database> init() async {
     // 初始化数据库
+    Get.log('初始化数据库');
     var path = await getDatabasesPath() + _dbName;
     return openDatabase(
       path,

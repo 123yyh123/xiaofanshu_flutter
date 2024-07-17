@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:xiaofanshu_flutter/model/recommend_tab.dart';
 import 'package:xiaofanshu_flutter/utils/db_util.dart';
+import 'package:get/get.dart';
 
 class RecommendTabMapper {
   static Future<int> insert(RecommendTab recommendTab) async {
@@ -11,6 +12,7 @@ class RecommendTabMapper {
 
   static Future<int> insertList(List<RecommendTab> recommendTabList) async {
     // 批量插入数据
+    Get.log('批量插入数据');
     Database database = await DBManager.instance.database;
     Batch batch = database.batch();
     for (var recommendTab in recommendTabList) {
@@ -36,7 +38,7 @@ class RecommendTabMapper {
     // 查询所有数据
     Database database = await DBManager.instance.database;
     List<Map<String, dynamic>> result =
-        await database.query(RecommendTab.tableName);
+        await database.query(RecommendTab.tableName, orderBy: 'sort ASC');
     return result.map((e) => RecommendTab.fromJson(e)).toList();
   }
 
