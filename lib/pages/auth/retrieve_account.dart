@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/retrieve_account_controller.dart';
 
+import '../../static/custom_color.dart';
 import '../../utils/Adapt.dart';
 
 class RetrieveAccountPage extends StatefulWidget {
@@ -13,8 +14,7 @@ class RetrieveAccountPage extends StatefulWidget {
 }
 
 class _RetrieveAccountPageState extends State<RetrieveAccountPage> {
-  RetrieveAccountController retrieveAccountController =
-  Get.find();
+  RetrieveAccountController retrieveAccountController = Get.find();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,8 +43,7 @@ class _RetrieveAccountPageState extends State<RetrieveAccountPage> {
               fontSize: 12,
             ),
           ),
-          Obx(() =>
-              TextField(
+          Obx(() => TextField(
                 controller: retrieveAccountController.phoneController,
                 decoration: InputDecoration(
                   hintText: '请输入手机号',
@@ -58,16 +57,15 @@ class _RetrieveAccountPageState extends State<RetrieveAccountPage> {
                       borderSide: BorderSide(color: Color(0xffEDEDED))),
                   suffixIcon: retrieveAccountController.phone.isNotEmpty
                       ? IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      retrieveAccountController.phoneController.clear();
-                    },
-                  )
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            retrieveAccountController.phoneController.clear();
+                          },
+                        )
                       : null,
                 ),
-                style: const TextStyle(
-                    fontSize: 20, color: Color(0xff333333)),
-                cursorColor: const Color(0xffFF2E4D),
+                style: const TextStyle(fontSize: 20, color: Color(0xff333333)),
+                cursorColor: CustomColor.primaryColor,
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
                   // 手机号校验，只允许输入数字

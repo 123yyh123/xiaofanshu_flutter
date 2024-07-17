@@ -29,3 +29,15 @@ class AuthApi {
 }
 
 class UserApi {}
+
+class NoteApi {
+  static String prefix = "/notes";
+
+  static Future getAttentionUserNotes(int page, int size) async {
+    return await Request().request(
+      "$prefix/getAttentionUserNotes",
+      method: DioMethod.get,
+      params: {"page": page, "pageSize": size},
+    );
+  }
+}

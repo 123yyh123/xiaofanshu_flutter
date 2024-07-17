@@ -4,6 +4,7 @@ import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
 import '../config/base_request.dart';
 import 'loading_util.dart';
+import 'package:get/get.dart' as Get;
 
 /// 请求方法:枚举类型
 enum DioMethod {
@@ -56,7 +57,7 @@ class Request {
     LoadingUtil.show();
     // 头部添加token
     String? token = await readData('token');
-    options.headers["token"] = token;
+    options.headers.addAll({'token': token ?? ''});
     // 更多业务需求
     handler.next(options);
     // super.onRequest(options, handler);
@@ -82,7 +83,21 @@ class Request {
   void _onError(DioException error, ErrorInterceptorHandler handler) {
     // 请求失败时，关闭loading
     LoadingUtil.hide();
-    SnackbarUtil.show('网络请求失败', SnackbarUtil.error);
+    if (error.type == DioExceptionType.connectionTimeout) {
+      SnackbarUtil.show('连接超时', SnackbarUtil.error);
+    } else if (error.type == DioExceptionType.sendTimeout) {
+      SnackbarUtil.show('发送超时', SnackbarUtil.error);
+    } else if (error.type == DioExceptionType.receiveTimeout) {
+      SnackbarUtil.show('接收超时', SnackbarUtil.error);
+    } else if (error.type == DioExceptionType.badResponse) {
+      SnackbarUtil.show('响应错误', SnackbarUtil.error);
+    } else if (error.type == DioExceptionType.cancel) {
+      SnackbarUtil.show('请求取消', SnackbarUtil.error);
+    } else if (error.type == DioExceptionType.connectionError) {
+      SnackbarUtil.show('连接错误', SnackbarUtil.error);
+    } else {
+      SnackbarUtil.show('网络请求失败', SnackbarUtil.error);
+    }
     handler.next(error);
   }
 
@@ -119,8 +134,22 @@ class Request {
           onReceiveProgress: onReceiveProgress);
       return response.data;
     } on DioException catch (e) {
-      print("发送请求异常: $e");
-      rethrow;
+      if (e.response?.data != null && e.response?.data['msg'] != null) {
+        if (e.response?.data['code'] == 40310 ||
+            e.response?.data['code'] == 40320 ||
+            e.response?.data['code'] == 40330) {
+          SnackbarUtil.showError('用户未认证或登录过期,请重新登录');
+          Get.Get.offAllNamed('/login');
+        } else if (e.response?.data['code'] == 10061) {
+          SnackbarUtil.showError('用户已在其他地方登录,请重新登录');
+          Get.Get.offAllNamed('/login');
+        } else {
+          SnackbarUtil.showError(e.response?.data['msg']);
+        }
+        return e.response?.data;
+      } else {
+        rethrow;
+      }
     }
   }
 

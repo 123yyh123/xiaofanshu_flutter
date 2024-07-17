@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:xiaofanshu_flutter/controller/attention_controller.dart';
 import '../controller/login_controller.dart';
 import '../controller/home_controller.dart';
 
@@ -7,5 +8,6 @@ class ControllerBinding extends Bindings {
   void dependencies() {
     Get.lazyPut(() => LoginController());
     Get.lazyPut(() => HomeController());
+    Get.lazyPut(() => AttentionController());
   }
 }

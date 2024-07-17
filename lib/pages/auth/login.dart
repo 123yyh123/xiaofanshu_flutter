@@ -6,6 +6,7 @@ import 'package:xiaofanshu_flutter/config/custom_icon.dart';
 import 'package:xiaofanshu_flutter/controller/login_controller.dart';
 import 'package:xiaofanshu_flutter/utils/Adapt.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
+import '../../static/custom_color.dart';
 import '../../utils/request.dart';
 
 class LoginPage extends StatefulWidget {
@@ -86,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         style: const TextStyle(
                             fontSize: 20, color: Color(0xff333333)),
-                        cursorColor: const Color(0xffFF2E4D),
+                        cursorColor: CustomColor.primaryColor,
                         keyboardType: TextInputType.phone,
                         inputFormatters: [
                           // 手机号校验，只允许输入数字
@@ -123,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 20,
                             color: Color(0xff333333),
                           ),
-                          cursorColor: const Color(0xffFF2E4D),
+                          cursorColor: CustomColor.primaryColor,
                         )
                       : TextField(
                           controller: loginController.passwordController,
@@ -159,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 20,
                             color: Color(0xff333333),
                           ),
-                          cursorColor: const Color(0xffFF2E4D),
+                          cursorColor: CustomColor.primaryColor,
                         )),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -216,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: ButtonStyle(
                         backgroundColor: WidgetStateProperty.all(
                           loginController.isAllowLogin.value
-                              ? const Color(0xffFF2E4D)
+                              ? CustomColor.primaryColor
                               : const Color(0xffF5F5F5),
                         ),
                         fixedSize: WidgetStateProperty.all(
@@ -250,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
                       Icon(
                         CustomIcon.weibo,
                         size: Adapt.setRpx(100),
-                        color: const Color(0xffFF2E4D),
+                        color: CustomColor.primaryColor,
                       ),
                     ],
                   ).marginOnly(top: 60),

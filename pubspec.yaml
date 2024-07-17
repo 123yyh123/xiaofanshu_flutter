@@ -39,6 +39,7 @@ dependencies:
   top_snackbar_flutter: ^3.1.0
   animations: ^2.0.11
   super_network_logger: ^1.0.2
+  flutter_staggered_grid_view: ^0.4.0
 
 
 
@@ -88,6 +89,8 @@ flutter:
     - family: myIcon
       fonts:
         - asset: fonts/iconfont.ttf
+  assets:
+    - images/
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
+import 'package:xiaofanshu_flutter/pages/home/home.dart';
 import 'package:xiaofanshu_flutter/utils/parameter_verification.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
+import 'package:xiaofanshu_flutter/utils/store_util.dart';
+
+import '../bindings/controller_binding.dart';
 
 class LoginController extends GetxController {
   var phoneController = TextEditingController();
@@ -90,6 +94,14 @@ class LoginController extends GetxController {
     if (response['code'] == 20020) {
       // 登录成功
       SnackbarUtil.show('登录成功', SnackbarUtil.success);
+      if (response['data']['token'] != null) {
+        // 保存token
+        await saveData('token', response['data']['token']);
+      } else {
+        SnackbarUtil.showError('服务器异常');
+      }
+      // 跳转到首页
+      Get.off(const HomePage(), binding: ControllerBinding());
     } else {
       // 登录失败
       SnackbarUtil.show(response['msg'], SnackbarUtil.error);

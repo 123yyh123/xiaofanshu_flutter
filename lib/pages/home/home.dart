@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/home_controller.dart';
-import 'package:xiaofanshu_flutter/pages/home/index.dart';
+import 'package:xiaofanshu_flutter/pages/home/index/index.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
+
+import '../../static/custom_color.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -39,7 +41,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Text("首页",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xffafafb0),
+                      color: CustomColor.unselectedColor,
                     )),
                 activeIcon: Text("首页",
                     style: TextStyle(
@@ -51,7 +53,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Text("购物",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xffafafb0),
+                      color: CustomColor.unselectedColor,
                     )),
                 activeIcon: Text("购物",
                     style: TextStyle(
@@ -71,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                       width: 55,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xffFF2E4D),
+                        color: CustomColor.primaryColor,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -87,7 +89,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Text("消息",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xffafafb0),
+                      color: CustomColor.unselectedColor,
                     )),
                 activeIcon: Text("消息",
                     style: TextStyle(
@@ -99,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Text("我的",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Color(0xffafafb0),
+                      color: CustomColor.unselectedColor,
                     )),
                 activeIcon: Text("我的",
                     style: TextStyle(

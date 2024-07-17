@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:xiaofanshu_flutter/controller/attention_controller.dart';
+import 'package:xiaofanshu_flutter/pages/home/index/attention.dart';
+import 'package:xiaofanshu_flutter/static/custom_color.dart';
 
 class IndexPage extends StatefulWidget {
   const IndexPage({super.key});
@@ -8,6 +12,8 @@ class IndexPage extends StatefulWidget {
 }
 
 class _IndexPageState extends State<IndexPage> {
+  AttentionController attentionController = Get.find();
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -44,7 +50,7 @@ class _IndexPageState extends State<IndexPage> {
                   icon: const Icon(
                     Icons.menu,
                     color: Colors.black87,
-                    size: 30,
+                    size: 25,
                   ),
                   onPressed: () {
                     Scaffold.of(context).openDrawer();
@@ -59,22 +65,21 @@ class _IndexPageState extends State<IndexPage> {
               overlayColor: WidgetStateProperty.all(Colors.transparent),
               enableFeedback: false,
               isScrollable: true,
-              indicatorColor: Color(0xffFF2E4D),
-              labelColor: Color(0xffFF2E4D),
-              unselectedLabelColor: Color(0xffafafb0),
+              indicatorColor: CustomColor.primaryColor,
+              labelColor: CustomColor.primaryColor,
+              unselectedLabelColor: CustomColor.unselectedColor,
               indicatorSize: TabBarIndicatorSize.label,
-              labelStyle: TextStyle(fontSize: 20),
-              tabs: [
-                Tab(
-                  text: '关注',
-                ),
-                Tab(
-                  text: '发现',
-                ),
-                Tab(
-                  text: '南京',
-                )
-              ],
+              labelStyle: const TextStyle(fontSize: 16),
+              onTap: (index) {
+                if (index == 0) {
+                  attentionController.onRefresh();
+                } else if (index == 1) {
+                  print('发现');
+                } else if (index == 2) {
+                  print('南京');
+                }
+              },
+              tabs: const [Tab(text: '关注'), Tab(text: '发现'), Tab(text: '南京')],
             ),
             actions: [
               IconButton(
@@ -84,46 +89,10 @@ class _IndexPageState extends State<IndexPage> {
             ],
             backgroundColor: const Color(0xffffffff),
           ),
-          body: TabBarView(children: [
-            ListView(
-              children: [
-                ListTile(
-                  title: Text('第1个界面'),
-                ),
-                ListTile(
-                  title: Text('第1个界面'),
-                ),
-                ListTile(
-                  title: Text('第1个界面'),
-                ),
-              ],
-            ),
-            ListView(
-              children: [
-                ListTile(
-                  title: Text('第2个界面'),
-                ),
-                ListTile(
-                  title: Text('第2个界面'),
-                ),
-                ListTile(
-                  title: Text('第2个界面'),
-                ),
-              ],
-            ),
-            ListView(
-              children: [
-                ListTile(
-                  title: Text('第3个界面'),
-                ),
-                ListTile(
-                  title: Text('第3个界面'),
-                ),
-                ListTile(
-                  title: Text('第3个界面'),
-                ),
-              ],
-            ),
+          body: const TabBarView(children: [
+            AttentionPage(),
+            Center(child: Text('发现')),
+            Center(child: Text('南京')),
           ]),
         ));
   }

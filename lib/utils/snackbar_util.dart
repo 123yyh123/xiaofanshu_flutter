@@ -29,6 +29,18 @@ class SnackbarUtil {
     );
   }
 
+  static void showInfo(String message) {
+    show(message, info);
+  }
+
+  static void showError(String message) {
+    show(message, error);
+  }
+
+  static void showSuccess(String message) {
+    show(message, success);
+  }
+
   static void hide() {
     localAnimationController?.reverse();
   }
