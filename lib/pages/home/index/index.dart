@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/attention_controller.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/attention.dart';
+import 'package:xiaofanshu_flutter/pages/home/index/recommend.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 
@@ -92,7 +93,7 @@ class _IndexPageState extends State<IndexPage> {
           ),
           body: const TabBarView(children: [
             AttentionPage(),
-            Center(child: Text('发现')),
+            RecommendPage(),
             Center(child: Text('南京')),
           ]),
         ));

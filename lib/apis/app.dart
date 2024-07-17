@@ -42,4 +42,11 @@ class NoteApi {
       params: {"page": page, "pageSize": size},
     ));
   }
+
+  static Future<HttpResponse> getNoteCategory() async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/category/getNotesCategoryList",
+      method: DioMethod.get,
+    ));
+  }
 }

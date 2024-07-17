@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
+import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/parameter_verification.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
@@ -93,8 +94,7 @@ class LoginController extends GetxController {
         response = await AuthApi.loginByPassword(phone.value, password.value);
         break;
     }
-    response.code = 20020;
-    if (response.code == 20020) {
+    if (response.code == StatusCode.postSuccess) {
       // 登录成功
       SnackbarUtil.show(LoginString.loginSuccess, SnackbarUtil.success);
       if (response.data['token'] != null) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
+import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 
@@ -73,7 +74,7 @@ class AttentionController extends GetxController {
 
   void getAttentionNotesList() {
     NoteApi.getAttentionUserNotes(page.value, size.value).then((res) {
-      if (res.code == 20010) {
+      if (res.code == StatusCode.getSuccess) {
         attentionNotesList.addAll(res.data['list']);
         page.value++;
       } else {
@@ -84,7 +85,7 @@ class AttentionController extends GetxController {
 
   void test() {
     NoteApi.getAttentionUserNotes(1, size.value).then((res) {
-      if (res.code == 20010) {
+      if (res.code == StatusCode.getSuccess) {
         attentionNotesList.addAll(res.data['list']);
         page.value++;
       } else {

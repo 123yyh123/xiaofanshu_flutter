@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:super_network_logger/super_network_logger.dart';
+import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
@@ -136,12 +137,12 @@ class Request {
       return response.data;
     } on DioException catch (e) {
       if (e.response?.data != null && e.response?.data['msg'] != null) {
-        if (e.response?.data['code'] == 40310 ||
-            e.response?.data['code'] == 40320 ||
-            e.response?.data['code'] == 40330) {
+        if (e.response?.data['code'] == StatusCode.notLogin ||
+            e.response?.data['code'] == StatusCode.tokenExpired ||
+            e.response?.data['code'] == StatusCode.tokenInvalid) {
           SnackbarUtil.showError(AuthErrorString.tokenExpired);
           Get.Get.offAllNamed('/login');
-        } else if (e.response?.data['code'] == 10061) {
+        } else if (e.response?.data['code'] == StatusCode.accountException) {
           SnackbarUtil.showError(AuthErrorString.loginOnOtherDevice);
           Get.Get.offAllNamed('/login');
         } else {
