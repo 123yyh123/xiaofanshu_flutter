@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
@@ -10,6 +12,7 @@ import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
 
 import '../bindings/controller_binding.dart';
+import '../model/user.dart';
 
 class LoginController extends GetxController {
   var phoneController = TextEditingController();
@@ -85,7 +88,7 @@ class LoginController extends GetxController {
       return;
     }
     // 请求登录接口
-    HttpResponse response=HttpResponse.defaultResponse();
+    HttpResponse response = HttpResponse.defaultResponse();
     switch (loginType.value) {
       case 'code':
         response = await AuthApi.loginByCode(phone.value, code.value);
@@ -100,6 +103,8 @@ class LoginController extends GetxController {
       if (response.data['token'] != null) {
         // 保存token
         await saveData('token', response.data['token']);
+        await saveData('userInfo', jsonEncode(response.data));
+        Get.log('userInfo: ${jsonEncode(response.data)}');
       } else {
         SnackbarUtil.showError(ErrorString.unknownError);
       }

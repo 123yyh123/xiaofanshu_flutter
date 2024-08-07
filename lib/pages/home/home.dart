@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/home_controller.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/index.dart';
+import 'package:xiaofanshu_flutter/pages/home/mine/mine.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 
@@ -21,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     Text('购物'),
     Text('发布'),
     Text('消息'),
-    Text('我的'),
+    MinePage(),
   ];
 
   @override

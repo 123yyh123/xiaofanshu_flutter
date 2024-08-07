@@ -25,6 +25,27 @@
       "font_class": "QQ",
       "unicode": "e73e",
       "unicode_decimal": 59198
+    },
+    {
+      "icon_id": "9996967",
+      "name": "分享",
+      "font_class": "share",
+      "unicode": "e6ed",
+      "unicode_decimal": 59117
+    },
+    {
+      "icon_id": "10015953",
+      "name": "扫码",
+      "font_class": "scan",
+      "unicode": "e71e",
+      "unicode_decimal": 59166
+    },
+    {
+      "icon_id": "1304947",
+      "name": "菜单",
+      "font_class": "caidan",
+      "unicode": "e62c",
+      "unicode_decimal": 58924
     }
   ]
 }

@@ -1,5 +1,3 @@
-
-
 /// 错误提示
 class ErrorString {
   static const String networkError = '网络错误';
@@ -51,13 +49,6 @@ class LoginErrorString {
   static const String phoneError = '请输入正确的手机号';
 }
 
-/// 首页
-class IndexTabName {
-  static const String attention = '关注';
-  static const String recommend = '推荐';
-  static const String nearBy = '附近';
-}
-
 /// 主页
 class HomeTabName {
   static const String index = '首页';
@@ -65,4 +56,19 @@ class HomeTabName {
   static const String release = '发布';
   static const String message = '消息';
   static const String mine = '我的';
+}
+
+/// 首页
+class IndexTabName {
+  static const String attention = '关注';
+  static const String recommend = '推荐';
+  static const String nearBy = '附近';
+}
+
+/// 我的
+class MineString {
+  static const String attention = '关注';
+  static const String fans = '粉丝';
+  static const String getPraiseAndCollect = '获赞与收藏';
+  static const String editInfo = '编辑资料';
 }

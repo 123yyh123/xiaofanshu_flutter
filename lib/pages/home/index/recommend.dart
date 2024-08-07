@@ -49,10 +49,11 @@ class _RecommendPageState extends State<RecommendPage> {
                   labelStyle: const TextStyle(fontSize: 13),
                   onTap: (index) {
                     recommendController.tabIndex.value = index;
+                    recommendController.onRefresh();
                   },
                   tabs: recommendController.tabBarList.map((e) {
                     return Tab(
-                      text: e,
+                      text: e.name,
                     );
                   }).toList(),
                 ),
@@ -63,31 +64,33 @@ class _RecommendPageState extends State<RecommendPage> {
           ];
         },
         body: RefreshIndicator(
-          onRefresh: () async {},
+          onRefresh: () async {
+            recommendController.onRefresh();
+          },
           color: CustomColor.primaryColor,
           child: Obx(
             () => StaggeredGridView.countBuilder(
-              controller: attentionController.scrollController,
+              controller: recommendController.scrollController,
               crossAxisCount: 2,
-              itemCount: attentionController.attentionNotesList.length,
+              itemCount: recommendController.recommendNotesList.length,
               mainAxisSpacing: 6,
               crossAxisSpacing: 8,
               padding: const EdgeInsets.all(10),
               itemBuilder: (BuildContext context, int index) {
                 return ItemView(
-                  coverPicture: attentionController.attentionNotesList[index]
+                  coverPicture: recommendController.recommendNotesList[index]
                       ['coverPicture'],
-                  noteTitle: attentionController.attentionNotesList[index]
+                  noteTitle: recommendController.recommendNotesList[index]
                       ['title'],
-                  authorAvatar: attentionController.attentionNotesList[index]
+                  authorAvatar: recommendController.recommendNotesList[index]
                       ['avatarUrl'],
-                  authorName: attentionController.attentionNotesList[index]
+                  authorName: recommendController.recommendNotesList[index]
                       ['nickname'],
-                  notesLikeNum: attentionController.attentionNotesList[index]
+                  notesLikeNum: recommendController.recommendNotesList[index]
                       ['notesLikeNum'],
-                  notesType: attentionController.attentionNotesList[index]
+                  notesType: recommendController.recommendNotesList[index]
                       ['notesType'],
-                  isLike: attentionController.attentionNotesList[index]
+                  isLike: recommendController.recommendNotesList[index]
                       ['isLike'],
                 );
               },

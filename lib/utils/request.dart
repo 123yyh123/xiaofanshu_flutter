@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:super_network_logger/super_network_logger.dart';
+import 'package:xiaofanshu_flutter/pages/auth/login.dart';
 import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
@@ -55,8 +56,6 @@ class Request {
   /// 请求拦截器
   void _onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    // 请求开始时，显示loading
-    LoadingUtil.show();
     // 头部添加token
     String? token = await readData('token');
     options.headers.addAll({'token': token ?? ''});
@@ -109,6 +108,7 @@ class Request {
     DioMethod method = DioMethod.get,
     Map<String, dynamic>? params,
     dynamic data,
+    bool? isShowLoading,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,
@@ -122,11 +122,15 @@ class Request {
       DioMethod.patch: 'patch',
       DioMethod.head: 'head'
     };
+    isShowLoading ??= false;
     // 默认配置选项
     options ??= Options(method: methodValues[method]);
     try {
       Response response;
       // 开始发送请求
+      if (isShowLoading) {
+        LoadingUtil.show();
+      }
       response = await _dio.request(path,
           data: data,
           queryParameters: params,
@@ -141,10 +145,14 @@ class Request {
             e.response?.data['code'] == StatusCode.tokenExpired ||
             e.response?.data['code'] == StatusCode.tokenInvalid) {
           SnackbarUtil.showError(AuthErrorString.tokenExpired);
-          Get.Get.offAllNamed('/login');
-        } else if (e.response?.data['code'] == StatusCode.accountException) {
+          await removeData('token');
+          await removeData('userInfo');
+          Get.Get.off(const LoginPage());
+        } else if (e.response?.data['code'] == StatusCode.accountOtherLogin) {
           SnackbarUtil.showError(AuthErrorString.loginOnOtherDevice);
-          Get.Get.offAllNamed('/login');
+          await removeData('token');
+          await removeData('userInfo');
+          Get.Get.off(const LoginPage());
         } else {
           SnackbarUtil.showError(e.response?.data['msg']);
         }

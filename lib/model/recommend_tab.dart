@@ -1,5 +1,5 @@
 class RecommendTab {
-  static const String tableName = 'recommend_tab';
+  static String tableName = 'recommend_tab';
 
   int? id;
   String name;

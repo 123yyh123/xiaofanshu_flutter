@@ -108,7 +108,7 @@ class _ItemViewState extends State<ItemView> {
                 style: const TextStyle(
                   fontSize: 16,
                   letterSpacing: 0.5,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -120,8 +120,8 @@ class _ItemViewState extends State<ItemView> {
                       ClipOval(
                         child: Image(
                           image: NetworkImage(authorAvatar.value),
-                          width: 25,
-                          height: 25,
+                          width: 20,
+                          height: 20,
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -129,7 +129,7 @@ class _ItemViewState extends State<ItemView> {
                       Text(
                         authorName.value,
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 10,
                           color: Colors.black54,
                         ),
                       ),
