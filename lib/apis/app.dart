@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 
 import '../utils/request.dart';
@@ -45,6 +46,23 @@ class UserApi {
       "$prefix/getUserInfo",
       method: DioMethod.get,
       params: {"userId": userId},
+    ));
+  }
+
+  static Future<HttpResponse> updateUserAvatar(String avatar, int id) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/updateAvatarUrl",
+      method: DioMethod.post,
+      data: {"id": id, "avatarUrl": avatar},
+    ));
+  }
+
+  static Future<HttpResponse> updateUserBackground(
+      String background, int id) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/updateBackgroundImage",
+      method: DioMethod.post,
+      data: {"id": id, "homePageBackground": background},
     ));
   }
 }
@@ -131,6 +149,18 @@ class NoteApi {
     return HttpResponse.fromJson(await Request().request(
       "$prefix/getAllNotesCountAndPraiseCountAndCollectCount",
       method: DioMethod.get,
+    ));
+  }
+}
+
+class ThirdApi {
+  static String prefix = "/third";
+
+  static Future<HttpResponse> uploadImage(FormData data) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/uploadImg",
+      method: DioMethod.post,
+      data: data,
     ));
   }
 }

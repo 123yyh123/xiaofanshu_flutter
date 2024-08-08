@@ -4,4 +4,10 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!--照片-->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <!--视频-->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!--音频-->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 </manifest>
