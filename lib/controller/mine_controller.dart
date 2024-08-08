@@ -35,6 +35,12 @@ class MineController extends GetxController {
   var myCollectsSize = 10;
   var myLikesSize = 10;
   var isNotesLoadMore = false;
+  var publishNotesNum = 0.obs;
+  var privateNotesNum = 0.obs;
+  var draftNotesNum = 0.obs;
+  var notesCount = 0.obs;
+  var praiseCount = 0.obs;
+  var collectCount = 0.obs;
 
   @override
   void onInit() async {
@@ -61,6 +67,24 @@ class MineController extends GetxController {
       myNotesPage = 1;
       getNotesList(0, notesPublishType.value);
     }
+    NoteApi.getAllNotesCountAndPraiseCountAndCollectCount().then((res) {
+      if (res.code == StatusCode.getSuccess) {
+        notesCount.value = res.data['notesCount'];
+        praiseCount.value = res.data['praiseCount'];
+        collectCount.value = res.data['collectCount'];
+      }
+    });
+    scrollController.addListener(() {
+      // appBar透明度最大值为0.9
+      double offset = scrollController.offset;
+      Get.log('offset: $offset');
+      double opacity = offset / 100;
+      appBarOpacity.value = opacity > 0.9 ? 0.9 : opacity;
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) {
+        onLoading();
+      }
+    });
   }
 
   Future<void> onRefresh() async {
@@ -85,6 +109,13 @@ class MineController extends GetxController {
       myLikes.clear();
       getNotesList(2, 0);
     }
+    NoteApi.getAllNotesCountAndPraiseCountAndCollectCount().then((res) {
+      if (res.code == StatusCode.getSuccess) {
+        notesCount.value = res.data['notesCount'];
+        praiseCount.value = res.data['praiseCount'];
+        collectCount.value = res.data['collectCount'];
+      }
+    });
   }
 
   bool judgeDoubleTap(String info) {
@@ -115,18 +146,17 @@ class MineController extends GetxController {
           }
           break;
         case 'notes':
-        case 'publish':
-        case 'private':
           if (myNotes.isEmpty) {
             myNotesPage = 1;
             getNotesList(0, notesPublishType.value);
           }
           break;
+        case 'publish':
+        case 'private':
         case 'draft':
-          if (myNotes.isEmpty) {
-            myNotesPage = 1;
-            getNotesList(0, 2);
-          }
+          myNotesPage = 1;
+          myNotes.clear();
+          getNotesList(0, notesPublishType.value);
           break;
         default:
           break;
@@ -170,6 +200,55 @@ class MineController extends GetxController {
       switch (notesTabType) {
         case 0:
           NoteApi.getMyNotes(notesPublishType, myNotesPage, myNotesSize)
+              .then((res) {
+            if (res.code == StatusCode.getSuccess) {
+              myNotes.addAll(res.data['list']);
+              myNotesPage++;
+              if (notesPublishType == 0) {
+                publishNotesNum.value = res.data['total'];
+              } else if (notesPublishType == 1) {
+                privateNotesNum.value = res.data['total'];
+              } else if (notesPublishType == 2) {
+                draftNotesNum.value = res.data['total'];
+              }
+            }
+          });
+          break;
+        case 1:
+          NoteApi.getMyCollects(myCollectsPage, myCollectsSize).then((res) {
+            if (res.code == StatusCode.getSuccess) {
+              myCollects.addAll(res.data['list']);
+              myCollectsPage++;
+            }
+          });
+          break;
+        case 2:
+          NoteApi.getMyLikes(myLikesPage, myLikesSize).then((res) {
+            if (res.code == StatusCode.getSuccess) {
+              myLikes.addAll(res.data['list']);
+              myLikesPage++;
+            }
+          });
+          break;
+        default:
+          break;
+      }
+    } catch (e) {
+      SnackbarUtil.showError(ErrorString.networkError);
+    } finally {
+      isNotesLoadMore = false;
+    }
+  }
+
+  void onLoading() {
+    if (isNotesLoadMore) {
+      return;
+    }
+    isNotesLoadMore = true;
+    try {
+      switch (notesTabType.value) {
+        case 0:
+          NoteApi.getMyNotes(notesPublishType.value, myNotesPage, myNotesSize)
               .then((res) {
             if (res.code == StatusCode.getSuccess) {
               myNotes.addAll(res.data['list']);

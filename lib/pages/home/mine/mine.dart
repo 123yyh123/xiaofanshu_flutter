@@ -26,12 +26,6 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
     super.initState();
     mineController.appBarOpacity.value = 0.0;
     _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
-    mineController.scrollController.addListener(() {
-      // appBar透明度最大值为0.9
-      double offset = mineController.scrollController.offset;
-      double opacity = offset / 100;
-      mineController.appBarOpacity.value = opacity > 0.9 ? 0.9 : opacity;
-    });
   }
 
   @override
@@ -46,23 +40,52 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent
-              .withOpacity(mineController.appBarOpacity.value), // 设置透明度
-          leading: Builder(builder: (context) {
-            return IconButton(
-              icon: const Icon(
-                CustomIcon.menu,
-                color: Colors.white,
-                size: 25,
-              ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
-          }),
+              .withOpacity(mineController.appBarOpacity.value),
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
+                children: [
+                  Builder(builder: (context) {
+                    return IconButton(
+                      icon: const Icon(
+                        CustomIcon.menu,
+                        color: Colors.white,
+                        size: 25,
+                      ),
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                    );
+                  }),
+                  IconButton(
+                    style: ButtonStyle(
+                      overlayColor: WidgetStateProperty.all(Colors.transparent),
+                    ),
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.catching_pokemon_rounded,
+                      color: Colors.transparent,
+                    ),
+                  ),
+                ],
+              ),
+              // Container(
+              //   width: 30,
+              //   height: 30,
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(40),
+              //     image: DecorationImage(
+              //       image:
+              //           NetworkImage(mineController.userInfo.value.avatarUrl),
+              //       fit: BoxFit.cover,
+              //     ),
+              //   ),
+              // ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   IconButton(
                     icon: const Icon(
@@ -88,6 +111,8 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
               ),
             ],
           ),
+          leadingWidth: 0,
+          leading: Container(),
         ),
         drawer: Drawer(
           child: ListView(
@@ -293,7 +318,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                             ).marginOnly(top: 10),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   width:
@@ -301,67 +326,204 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                   child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            '${mineController.userInfo.value.attentionNum}',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12),
-                                          ),
-                                          const Text(
-                                            MineString.attention,
-                                            style: TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 10),
-                                          ),
-                                        ],
-                                      ).marginOnly(right: 15),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            '${mineController.userInfo.value.fansNum}',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12),
-                                          ),
-                                          const Text(
-                                            MineString.fans,
-                                            style: TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 10),
-                                          ),
-                                        ],
-                                      ).marginOnly(right: 15),
-                                      Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            '${mineController.userInfo.value.attentionNum}',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 12),
-                                          ),
-                                          const Text(
-                                            MineString.getPraiseAndCollect,
-                                            style: TextStyle(
-                                                color: Colors.white70,
-                                                fontSize: 10),
-                                          ),
-                                        ],
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${mineController.userInfo.value.attentionNum}',
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
+                                            ),
+                                            const Text(
+                                              MineString.attention,
+                                              style: TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 10),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {},
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${mineController.userInfo.value.fansNum}',
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
+                                            ),
+                                            const Text(
+                                              MineString.fans,
+                                              style: TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 10),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Get.dialog(
+                                            SimpleDialog(
+                                              backgroundColor:
+                                                  const Color(0xfffffffc),
+                                              title: const Text('获赞和收藏',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 18,
+                                                  )),
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        const Text(
+                                                          '当前发布笔记数',
+                                                          style: TextStyle(
+                                                            color: CustomColor
+                                                                .unselectedColor,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ).marginOnly(right: 10),
+                                                        Text(
+                                                          '${mineController.notesCount.value}',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ).marginOnly(
+                                                        top: 10, bottom: 10),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        const Text(
+                                                          '当前获得点赞数',
+                                                          style: TextStyle(
+                                                            color: CustomColor
+                                                                .unselectedColor,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ).marginOnly(right: 10),
+                                                        Text(
+                                                          '${mineController.praiseCount.value}',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ).marginOnly(
+                                                        top: 10, bottom: 10),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        const Text(
+                                                          '当前获得收藏数',
+                                                          style: TextStyle(
+                                                            color: CustomColor
+                                                                .unselectedColor,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ).marginOnly(right: 10),
+                                                        Text(
+                                                          '${mineController.collectCount.value}',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: Colors.black,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ).marginOnly(
+                                                        top: 10, bottom: 10),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Get.back();
+                                                      },
+                                                      style: ButtonStyle(
+                                                        overlayColor:
+                                                            WidgetStateProperty
+                                                                .all(
+                                                          Colors.transparent,
+                                                        ),
+                                                      ),
+                                                      child: Container(
+                                                        width: double.infinity,
+                                                        height: 30,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: CustomColor
+                                                              .primaryColor,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(15),
+                                                        ),
+                                                        child: const Text(
+                                                          '我知道了',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12,
+                                                          ),
+                                                        ),
+                                                      ).marginOnly(top: 10),
+                                                    ),
+                                                  ],
+                                                ).marginOnly(
+                                                    left: 25, right: 25),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              '${mineController.praiseCount.value + mineController.collectCount.value}',
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12),
+                                            ),
+                                            const Text(
+                                              MineString.getPraiseAndCollect,
+                                              style: TextStyle(
+                                                  color: Colors.white70,
+                                                  fontSize: 10),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
-                                  ).paddingOnly(left: 15, right: 15),
+                                  ),
                                 ),
-                                SizedBox(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.5,
+                                Expanded(
+                                  flex: 1,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
@@ -695,7 +857,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                           mineController.onTap(TabsType.publish);
                         },
                         child: Text(
-                          '公开 • 4',
+                          '公开${mineController.publishNotesNum.value == 0 ? '' : ' • ${mineController.publishNotesNum.value}'}',
                           style: TextStyle(
                             color: mineController.notesPublishType.value == 0
                                 ? CustomColor.primaryColor
@@ -713,7 +875,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                           mineController.onTap(TabsType.private);
                         },
                         child: Text(
-                          '私密 • 4',
+                          '私密${mineController.privateNotesNum.value == 0 ? '' : ' • ${mineController.privateNotesNum.value}'}',
                           style: TextStyle(
                             color: mineController.notesPublishType.value == 1
                                 ? CustomColor.primaryColor
@@ -731,7 +893,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                           mineController.onTap(TabsType.draft);
                         },
                         child: Text(
-                          '草稿 • 4',
+                          '草稿${mineController.draftNotesNum.value == 0 ? '' : ' • ${mineController.draftNotesNum.value}'}',
                           style: TextStyle(
                             color: mineController.notesPublishType.value == 2
                                 ? CustomColor.primaryColor

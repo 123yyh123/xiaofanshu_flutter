@@ -43,7 +43,6 @@ dependencies:
   sqflite: ^2.3.3
   extended_nested_scroll_view: ^6.2.1
   easy_refresh: ^3.4.0
-  cached_network_image: ^3.4.0
 
 
 

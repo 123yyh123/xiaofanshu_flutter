@@ -125,4 +125,12 @@ class NoteApi {
       isShowLoading: true,
     ));
   }
+
+  static Future<HttpResponse>
+      getAllNotesCountAndPraiseCountAndCollectCount() async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getAllNotesCountAndPraiseCountAndCollectCount",
+      method: DioMethod.get,
+    ));
+  }
 }

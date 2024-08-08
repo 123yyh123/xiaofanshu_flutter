@@ -23,6 +23,7 @@ class _IndexPageState extends State<IndexPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
+        initialIndex: 1,
         length: 3,
         child: Scaffold(
           drawer: Drawer(
