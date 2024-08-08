@@ -92,4 +92,37 @@ class NoteApi {
       isShowLoading: true,
     ));
   }
+
+  static Future<HttpResponse> getMyNotes(
+      int publishType, int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getNotesByUserId",
+      method: DioMethod.get,
+      params: {
+        "page": page,
+        "pageSize": size,
+        "authority": publishType,
+        "type": 0
+      },
+      isShowLoading: true,
+    ));
+  }
+
+  static Future<HttpResponse> getMyCollects(int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getNotesByUserId",
+      method: DioMethod.get,
+      params: {"page": page, "pageSize": size, "type": 1, "authority": 0},
+      isShowLoading: true,
+    ));
+  }
+
+  static Future<HttpResponse> getMyLikes(int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getNotesByUserId",
+      method: DioMethod.get,
+      params: {"page": page, "pageSize": size, "type": 2, "authority": 0},
+      isShowLoading: true,
+    ));
+  }
 }

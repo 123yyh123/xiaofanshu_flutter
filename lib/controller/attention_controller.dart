@@ -34,8 +34,11 @@ class AttentionController extends GetxController {
   // 处理点击事件
   void onTap() {
     // 判断是否为双击
-    if (DateTime.now().difference(_lastPressedAt) < const Duration(milliseconds: 500)) {
+    if (DateTime.now().difference(_lastPressedAt) <
+        const Duration(milliseconds: 500)) {
       // 刷新
+      onRefresh();
+    } else if (attentionNotesList.isEmpty) {
       onRefresh();
     }
     _lastPressedAt = DateTime.now();
@@ -93,5 +96,4 @@ class AttentionController extends GetxController {
       }
     });
   }
-
 }

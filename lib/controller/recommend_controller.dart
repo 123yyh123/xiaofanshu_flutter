@@ -86,6 +86,8 @@ class RecommendController extends GetxController
         const Duration(milliseconds: 500)) {
       // 刷新
       onRefresh();
+    } else if (recommendNotesList.isEmpty) {
+      onRefresh();
     }
     _lastPressedAt = DateTime.now();
   }

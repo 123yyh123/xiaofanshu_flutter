@@ -7,15 +7,34 @@ import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/model/user.dart';
 import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/default_data.dart';
+import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
+
+import '../static/custom_string.dart';
 
 class MineController extends GetxController {
   var userInfo = DefaultData.user.obs;
   final ScrollController scrollController = ScrollController();
   var appBarOpacity = 0.0.obs;
   var tabs = ["笔记", "收藏", "赞过"];
-  // 0: 公开 1: 私密 3: 草稿
+
+  // 0: 公开 1: 私密 2: 草稿
   var notesPublishType = 0.obs;
+
+  // 0: 我的笔记 1: 我的收藏 2: 我的赞过
+  var notesTabType = 0.obs;
+  var myNotes = [].obs;
+  var myCollects = [].obs;
+  var myLikes = [].obs;
+  var lastPressedAt = DateTime.now();
+  var lastPressedInfo = '';
+  var myNotesPage = 1;
+  var myCollectsPage = 1;
+  var myLikesPage = 1;
+  var myNotesSize = 10;
+  var myCollectsSize = 10;
+  var myLikesSize = 10;
+  var isNotesLoadMore = false;
 
   @override
   void onInit() async {
@@ -38,6 +57,10 @@ class MineController extends GetxController {
       }
     }
     userInfo.refresh();
+    if (myNotes.isEmpty) {
+      myNotesPage = 1;
+      getNotesList(0, notesPublishType.value);
+    }
   }
 
   Future<void> onRefresh() async {
@@ -48,5 +71,145 @@ class MineController extends GetxController {
       await saveData('userInfo', jsonEncode(userInfo.value));
     }
     userInfo.refresh();
+    // 刷新笔记列表
+    if (notesTabType.value == 0) {
+      myNotesPage = 1;
+      myNotes.clear();
+      getNotesList(0, notesPublishType.value);
+    } else if (notesTabType.value == 1) {
+      myCollectsPage = 1;
+      myCollects.clear();
+      getNotesList(1, 0);
+    } else if (notesTabType.value == 2) {
+      myLikesPage = 1;
+      myLikes.clear();
+      getNotesList(2, 0);
+    }
   }
+
+  bool judgeDoubleTap(String info) {
+    if (DateTime.now().difference(lastPressedAt) <
+        const Duration(milliseconds: 500)) {
+      if (lastPressedInfo == info) {
+        return true;
+      }
+    }
+    lastPressedAt = DateTime.now();
+    lastPressedInfo = info;
+    return false;
+  }
+
+  void onTap(String info) {
+    if (!judgeDoubleTap(info)) {
+      switch (info) {
+        case 'collects':
+          if (myCollects.isEmpty) {
+            myNotesPage = 1;
+            getNotesList(1, 0);
+          }
+          break;
+        case 'likes':
+          if (myLikes.isEmpty) {
+            myLikesPage = 1;
+            getNotesList(2, 0);
+          }
+          break;
+        case 'notes':
+        case 'publish':
+        case 'private':
+          if (myNotes.isEmpty) {
+            myNotesPage = 1;
+            getNotesList(0, notesPublishType.value);
+          }
+          break;
+        case 'draft':
+          if (myNotes.isEmpty) {
+            myNotesPage = 1;
+            getNotesList(0, 2);
+          }
+          break;
+        default:
+          break;
+      }
+    } else {
+      switch (info) {
+        case 'collects':
+          myCollectsPage = 1;
+          myCollects.clear();
+          getNotesList(1, 0);
+          break;
+        case 'likes':
+          myLikesPage = 1;
+          myLikes.clear();
+          getNotesList(2, 0);
+          break;
+        case 'notes':
+        case 'publish':
+        case 'private':
+          myNotesPage = 1;
+          myNotes.clear();
+          getNotesList(0, notesPublishType.value);
+          break;
+        case 'draft':
+          myNotesPage = 1;
+          myNotes.clear();
+          getNotesList(0, 2);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  void getNotesList(int notesTabType, int notesPublishType) {
+    if (isNotesLoadMore) {
+      return;
+    }
+    isNotesLoadMore = true;
+    try {
+      switch (notesTabType) {
+        case 0:
+          NoteApi.getMyNotes(notesPublishType, myNotesPage, myNotesSize)
+              .then((res) {
+            if (res.code == StatusCode.getSuccess) {
+              myNotes.addAll(res.data['list']);
+              myNotesPage++;
+            }
+          });
+          break;
+        case 1:
+          NoteApi.getMyCollects(myCollectsPage, myCollectsSize).then((res) {
+            if (res.code == StatusCode.getSuccess) {
+              myCollects.addAll(res.data['list']);
+              myCollectsPage++;
+            }
+          });
+          break;
+        case 2:
+          NoteApi.getMyLikes(myLikesPage, myLikesSize).then((res) {
+            if (res.code == StatusCode.getSuccess) {
+              myLikes.addAll(res.data['list']);
+              myLikesPage++;
+            }
+          });
+          break;
+        default:
+          break;
+      }
+    } catch (e) {
+      SnackbarUtil.showError(ErrorString.networkError);
+    } finally {
+      isNotesLoadMore = false;
+    }
+  }
+}
+
+class TabsType {
+  // var tabsType = ['notes', 'collects', 'likes', 'publish', 'private', 'draft'];
+  static const notes = 'notes';
+  static const collects = 'collects';
+  static const likes = 'likes';
+  static const publish = 'publish';
+  static const private = 'private';
+  static const draft = 'draft';
 }

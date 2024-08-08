@@ -7,10 +7,7 @@ import 'package:xiaofanshu_flutter/controller/mine_controller.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:easy_refresh/easy_refresh.dart';
-
 import '../../../components/item.dart';
-import '../../../controller/recommend_controller.dart';
 
 class MinePage extends StatefulWidget {
   const MinePage({super.key});
@@ -21,13 +18,13 @@ class MinePage extends StatefulWidget {
 
 class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
   MineController mineController = Get.find();
-  RecommendController recommendController = Get.find();
   late TabController _tabController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    mineController.appBarOpacity.value = 0.0;
     _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
     mineController.scrollController.addListener(() {
       // appBar透明度最大值为0.9
@@ -322,7 +319,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                                 fontSize: 10),
                                           ),
                                         ],
-                                      ).marginOnly(right: 20),
+                                      ).marginOnly(right: 15),
                                       Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -340,7 +337,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                                 fontSize: 10),
                                           ),
                                         ],
-                                      ).marginOnly(right: 20),
+                                      ).marginOnly(right: 15),
                                       Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -591,13 +588,6 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
             body: SizedBox(
               width: double.infinity,
               height: double.infinity,
-              // decoration: const BoxDecoration(
-              //   color: Colors.redAccent,
-              //   borderRadius: BorderRadius.only(
-              //     topLeft: Radius.circular(10),
-              //     topRight: Radius.circular(10),
-              //   ),
-              // ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -652,6 +642,20 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
             onTap: (index) {
               // 切换tab
               _tabController.animateTo(index);
+              switch (index) {
+                case 0:
+                  mineController.notesTabType.value = 0;
+                  mineController.onTap(TabsType.notes);
+                  break;
+                case 1:
+                  mineController.notesTabType.value = 1;
+                  mineController.onTap(TabsType.collects);
+                  break;
+                case 2:
+                  mineController.notesTabType.value = 2;
+                  mineController.onTap(TabsType.likes);
+                  break;
+              }
             },
           ),
         ],
@@ -688,6 +692,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                         ),
                         onPressed: () {
                           mineController.notesPublishType.value = 0;
+                          mineController.onTap(TabsType.publish);
                         },
                         child: Text(
                           '公开 • 4',
@@ -705,6 +710,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                         ),
                         onPressed: () {
                           mineController.notesPublishType.value = 1;
+                          mineController.onTap(TabsType.private);
                         },
                         child: Text(
                           '私密 • 4',
@@ -721,12 +727,13 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                               Colors.transparent), // 按下时的背景色
                         ),
                         onPressed: () {
-                          mineController.notesPublishType.value = 3;
+                          mineController.notesPublishType.value = 2;
+                          mineController.onTap(TabsType.draft);
                         },
                         child: Text(
                           '草稿 • 4',
                           style: TextStyle(
-                            color: mineController.notesPublishType.value == 3
+                            color: mineController.notesPublishType.value == 2
                                 ? CustomColor.primaryColor
                                 : CustomColor.unselectedColor,
                           ),
@@ -743,27 +750,24 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                     child: Obx(
                       () => StaggeredGridView.countBuilder(
                         crossAxisCount: 2,
-                        itemCount:
-                            recommendController.recommendNotesList.length,
+                        itemCount: mineController.myNotes.length,
                         mainAxisSpacing: 6,
                         crossAxisSpacing: 8,
                         padding: const EdgeInsets.all(10),
                         itemBuilder: (BuildContext context, int index) {
                           return ItemView(
-                            coverPicture: recommendController
-                                .recommendNotesList[index]['coverPicture'],
-                            noteTitle: recommendController
-                                .recommendNotesList[index]['title'],
-                            authorAvatar: recommendController
-                                .recommendNotesList[index]['avatarUrl'],
-                            authorName: recommendController
-                                .recommendNotesList[index]['nickname'],
-                            notesLikeNum: recommendController
-                                .recommendNotesList[index]['notesLikeNum'],
-                            notesType: recommendController
-                                .recommendNotesList[index]['notesType'],
-                            isLike: recommendController
-                                .recommendNotesList[index]['isLike'],
+                            coverPicture: mineController.myNotes[index]
+                                ['coverPicture'],
+                            noteTitle: mineController.myNotes[index]['title'],
+                            authorAvatar: mineController.myNotes[index]
+                                ['avatarUrl'],
+                            authorName: mineController.myNotes[index]
+                                ['nickname'],
+                            notesLikeNum: mineController.myNotes[index]
+                                ['notesLikeNum'],
+                            notesType: mineController.myNotes[index]
+                                ['notesType'],
+                            isLike: mineController.myNotes[index]['isLike'],
                           );
                         },
                         staggeredTileBuilder: (int index) =>
@@ -781,26 +785,22 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
               child: Obx(
                 () => StaggeredGridView.countBuilder(
                   crossAxisCount: 2,
-                  itemCount: recommendController.recommendNotesList.length,
+                  itemCount: mineController.myCollects.length,
                   mainAxisSpacing: 6,
                   crossAxisSpacing: 8,
                   padding: const EdgeInsets.all(10),
                   itemBuilder: (BuildContext context, int index) {
                     return ItemView(
-                      coverPicture: recommendController
-                          .recommendNotesList[index]['coverPicture'],
-                      noteTitle: recommendController.recommendNotesList[index]
-                          ['title'],
-                      authorAvatar: recommendController
-                          .recommendNotesList[index]['avatarUrl'],
-                      authorName: recommendController.recommendNotesList[index]
-                          ['nickname'],
-                      notesLikeNum: recommendController
-                          .recommendNotesList[index]['notesLikeNum'],
-                      notesType: recommendController.recommendNotesList[index]
-                          ['notesType'],
-                      isLike: recommendController.recommendNotesList[index]
-                          ['isLike'],
+                      coverPicture: mineController.myCollects[index]
+                          ['coverPicture'],
+                      noteTitle: mineController.myCollects[index]['title'],
+                      authorAvatar: mineController.myCollects[index]
+                          ['avatarUrl'],
+                      authorName: mineController.myCollects[index]['nickname'],
+                      notesLikeNum: mineController.myCollects[index]
+                          ['notesLikeNum'],
+                      notesType: mineController.myCollects[index]['notesType'],
+                      isLike: mineController.myCollects[index]['isLike'],
                     );
                   },
                   staggeredTileBuilder: (int index) =>
@@ -815,26 +815,21 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
               child: Obx(
                 () => StaggeredGridView.countBuilder(
                   crossAxisCount: 2,
-                  itemCount: recommendController.recommendNotesList.length,
+                  itemCount: mineController.myLikes.length,
                   mainAxisSpacing: 6,
                   crossAxisSpacing: 8,
                   padding: const EdgeInsets.all(10),
                   itemBuilder: (BuildContext context, int index) {
                     return ItemView(
-                      coverPicture: recommendController
-                          .recommendNotesList[index]['coverPicture'],
-                      noteTitle: recommendController.recommendNotesList[index]
-                          ['title'],
-                      authorAvatar: recommendController
-                          .recommendNotesList[index]['avatarUrl'],
-                      authorName: recommendController.recommendNotesList[index]
-                          ['nickname'],
-                      notesLikeNum: recommendController
-                          .recommendNotesList[index]['notesLikeNum'],
-                      notesType: recommendController.recommendNotesList[index]
-                          ['notesType'],
-                      isLike: recommendController.recommendNotesList[index]
-                          ['isLike'],
+                      coverPicture: mineController.myLikes[index]
+                          ['coverPicture'],
+                      noteTitle: mineController.myLikes[index]['title'],
+                      authorAvatar: mineController.myLikes[index]['avatarUrl'],
+                      authorName: mineController.myLikes[index]['nickname'],
+                      notesLikeNum: mineController.myLikes[index]
+                          ['notesLikeNum'],
+                      notesType: mineController.myLikes[index]['notesType'],
+                      isLike: mineController.myLikes[index]['isLike'],
                     );
                   },
                   staggeredTileBuilder: (int index) =>

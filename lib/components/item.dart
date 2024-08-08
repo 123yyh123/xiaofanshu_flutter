@@ -106,7 +106,7 @@ class _ItemViewState extends State<ItemView> {
                 noteTitle.value.fixAutoLines(),
                 maxLines: 2,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   letterSpacing: 0.5,
                   fontWeight: FontWeight.w500,
                 ),

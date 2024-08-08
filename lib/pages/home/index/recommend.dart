@@ -22,6 +22,7 @@ class _RecommendPageState extends State<RecommendPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
   }
 
   @override
