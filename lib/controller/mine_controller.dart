@@ -17,6 +17,7 @@ class MineController extends GetxController {
   final ScrollController scrollController = ScrollController();
   var appBarOpacity = 0.0.obs;
   var tabs = ["笔记", "收藏", "赞过"];
+  var tabsEn = ["notes", "collects", "likes"];
 
   // 0: 公开 1: 私密 2: 草稿
   var notesPublishType = 0.obs;
@@ -35,6 +36,9 @@ class MineController extends GetxController {
   var myCollectsSize = 10;
   var myLikesSize = 10;
   var isNotesLoadMore = false;
+  var isHasMyNotesMore = true;
+  var isHasMyCollectsMore = true;
+  var isHasMyLikesMore = true;
   var publishNotesNum = 0.obs;
   var privateNotesNum = 0.obs;
   var draftNotesNum = 0.obs;
@@ -97,14 +101,17 @@ class MineController extends GetxController {
     userInfo.refresh();
     // 刷新笔记列表
     if (notesTabType.value == 0) {
+      isHasMyNotesMore = true;
       myNotesPage = 1;
       myNotes.clear();
       getNotesList(0, notesPublishType.value);
     } else if (notesTabType.value == 1) {
+      isHasMyCollectsMore = true;
       myCollectsPage = 1;
       myCollects.clear();
       getNotesList(1, 0);
     } else if (notesTabType.value == 2) {
+      isHasMyLikesMore = true;
       myLikesPage = 1;
       myLikes.clear();
       getNotesList(2, 0);
@@ -135,18 +142,21 @@ class MineController extends GetxController {
       switch (info) {
         case 'collects':
           if (myCollects.isEmpty) {
-            myNotesPage = 1;
+            isHasMyCollectsMore = true;
+            myCollectsPage = 1;
             getNotesList(1, 0);
           }
           break;
         case 'likes':
           if (myLikes.isEmpty) {
+            isHasMyLikesMore = true;
             myLikesPage = 1;
             getNotesList(2, 0);
           }
           break;
         case 'notes':
           if (myNotes.isEmpty) {
+            isHasMyNotesMore = true;
             myNotesPage = 1;
             getNotesList(0, notesPublishType.value);
           }
@@ -154,6 +164,7 @@ class MineController extends GetxController {
         case 'publish':
         case 'private':
         case 'draft':
+          isHasMyNotesMore = true;
           myNotesPage = 1;
           myNotes.clear();
           getNotesList(0, notesPublishType.value);
@@ -164,11 +175,13 @@ class MineController extends GetxController {
     } else {
       switch (info) {
         case 'collects':
+          isHasMyCollectsMore = true;
           myCollectsPage = 1;
           myCollects.clear();
           getNotesList(1, 0);
           break;
         case 'likes':
+          isHasMyLikesMore = true;
           myLikesPage = 1;
           myLikes.clear();
           getNotesList(2, 0);
@@ -176,11 +189,13 @@ class MineController extends GetxController {
         case 'notes':
         case 'publish':
         case 'private':
+          isHasMyNotesMore = true;
           myNotesPage = 1;
           myNotes.clear();
           getNotesList(0, notesPublishType.value);
           break;
         case 'draft':
+          isHasMyNotesMore = true;
           myNotesPage = 1;
           myNotes.clear();
           getNotesList(0, 2);
@@ -199,9 +214,15 @@ class MineController extends GetxController {
     try {
       switch (notesTabType) {
         case 0:
+          if (!isHasMyNotesMore) {
+            return;
+          }
           NoteApi.getMyNotes(notesPublishType, myNotesPage, myNotesSize)
               .then((res) {
             if (res.code == StatusCode.getSuccess) {
+              if (res.data['list'].length < myNotesSize) {
+                isHasMyNotesMore = false;
+              }
               myNotes.addAll(res.data['list']);
               myNotesPage++;
               if (notesPublishType == 0) {
@@ -215,16 +236,28 @@ class MineController extends GetxController {
           });
           break;
         case 1:
+          if (!isHasMyCollectsMore) {
+            return;
+          }
           NoteApi.getMyCollects(myCollectsPage, myCollectsSize).then((res) {
             if (res.code == StatusCode.getSuccess) {
+              if (res.data['list'].length < myCollectsSize) {
+                isHasMyCollectsMore = false;
+              }
               myCollects.addAll(res.data['list']);
               myCollectsPage++;
             }
           });
           break;
         case 2:
+          if (!isHasMyLikesMore) {
+            return;
+          }
           NoteApi.getMyLikes(myLikesPage, myLikesSize).then((res) {
             if (res.code == StatusCode.getSuccess) {
+              if (res.data['list'].length < myLikesSize) {
+                isHasMyLikesMore = false;
+              }
               myLikes.addAll(res.data['list']);
               myLikesPage++;
             }
@@ -248,25 +281,43 @@ class MineController extends GetxController {
     try {
       switch (notesTabType.value) {
         case 0:
+          if (!isHasMyNotesMore) {
+            return;
+          }
           NoteApi.getMyNotes(notesPublishType.value, myNotesPage, myNotesSize)
               .then((res) {
             if (res.code == StatusCode.getSuccess) {
+              if (res.data['list'].length < myNotesSize) {
+                isHasMyNotesMore = false;
+              }
               myNotes.addAll(res.data['list']);
               myNotesPage++;
             }
           });
           break;
         case 1:
+          if (!isHasMyCollectsMore) {
+            return;
+          }
           NoteApi.getMyCollects(myCollectsPage, myCollectsSize).then((res) {
             if (res.code == StatusCode.getSuccess) {
+              if (res.data['list'].length < myCollectsSize) {
+                isHasMyCollectsMore = false;
+              }
               myCollects.addAll(res.data['list']);
               myCollectsPage++;
             }
           });
           break;
         case 2:
+          if (!isHasMyLikesMore) {
+            return;
+          }
           NoteApi.getMyLikes(myLikesPage, myLikesSize).then((res) {
             if (res.code == StatusCode.getSuccess) {
+              if (res.data['list'].length < myLikesSize) {
+                isHasMyLikesMore = false;
+              }
               myLikes.addAll(res.data['list']);
               myLikesPage++;
             }

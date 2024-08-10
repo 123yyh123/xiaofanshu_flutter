@@ -26,6 +26,26 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
     super.initState();
     mineController.appBarOpacity.value = 0.0;
     _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) {
+        return;
+      }
+      Get.log('index: ${_tabController.index}');
+      switch (_tabController.index) {
+        case 0:
+          mineController.notesTabType.value = 0;
+          mineController.onTap(TabsType.notes);
+          break;
+        case 1:
+          mineController.notesTabType.value = 1;
+          mineController.onTap(TabsType.collects);
+          break;
+        case 2:
+          mineController.notesTabType.value = 2;
+          mineController.onTap(TabsType.likes);
+          break;
+      }
+    });
   }
 
   @override
@@ -833,20 +853,6 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
             onTap: (index) {
               // 切换tab
               _tabController.animateTo(index);
-              switch (index) {
-                case 0:
-                  mineController.notesTabType.value = 0;
-                  mineController.onTap(TabsType.notes);
-                  break;
-                case 1:
-                  mineController.notesTabType.value = 1;
-                  mineController.onTap(TabsType.collects);
-                  break;
-                case 2:
-                  mineController.notesTabType.value = 2;
-                  mineController.onTap(TabsType.likes);
-                  break;
-              }
             },
           ),
         ],

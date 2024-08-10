@@ -11,6 +11,7 @@ class AttentionController extends GetxController {
   var size = 10.obs;
   var isLoadMore = false.obs;
   var isRefresh = false.obs;
+  var isHasMore = true;
   var _lastPressedAt = DateTime.now();
   ScrollController scrollController = ScrollController();
 
@@ -51,6 +52,7 @@ class AttentionController extends GetxController {
     isRefresh.value = true;
     page.value = 1;
     size.value = 10;
+    isHasMore = true;
     attentionNotesList.value = [];
     try {
       getAttentionNotesList();
@@ -67,7 +69,7 @@ class AttentionController extends GetxController {
     }
     isLoadMore.value = true;
     try {
-      test();
+      getAttentionNotesList();
     } catch (e) {
       SnackbarUtil.showError(ErrorString.networkError);
     } finally {
@@ -76,8 +78,14 @@ class AttentionController extends GetxController {
   }
 
   void getAttentionNotesList() {
+    if (!isHasMore) {
+      return;
+    }
     NoteApi.getAttentionUserNotes(page.value, size.value).then((res) {
       if (res.code == StatusCode.getSuccess) {
+        if (res.data['list'].length < size.value) {
+          isHasMore = false;
+        }
         attentionNotesList.addAll(res.data['list']);
         page.value++;
       } else {

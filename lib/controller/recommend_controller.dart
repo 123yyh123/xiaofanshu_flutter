@@ -20,6 +20,7 @@ class RecommendController extends GetxController
   var size = 10.obs;
   var isLoadMore = false.obs;
   var isRefresh = false.obs;
+  var isHasMore = true;
   var _lastPressedAt = DateTime.now();
   ScrollController scrollController = ScrollController();
 
@@ -100,6 +101,7 @@ class RecommendController extends GetxController
     page.value = 1;
     size.value = 10;
     recommendNotesList.value = [];
+    isHasMore = true;
     try {
       getRecommendNotesList();
     } catch (e) {
@@ -124,9 +126,15 @@ class RecommendController extends GetxController
   }
 
   void getRecommendNotesList() {
+    if (!isHasMore) {
+      return;
+    }
     if (tabIndex.value == 0) {
       NoteApi.getRecommendNotesList(page.value, size.value).then((res) {
         if (res.code == StatusCode.getSuccess) {
+          if (res.data['list'].length < size.value) {
+            isHasMore = false;
+          }
           recommendNotesList.addAll(res.data['list']);
           page.value++;
         } else {
@@ -139,6 +147,9 @@ class RecommendController extends GetxController
               page.value, size.value, categoryId ?? 0)
           .then((res) {
         if (res.code == StatusCode.getSuccess) {
+          if (res.data['list'].length < size.value) {
+            isHasMore = false;
+          }
           recommendNotesList.addAll(res.data['list']);
           page.value++;
         } else {
