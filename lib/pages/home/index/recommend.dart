@@ -22,7 +22,6 @@ class _RecommendPageState extends State<RecommendPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
 
   @override
@@ -79,6 +78,9 @@ class _RecommendPageState extends State<RecommendPage> {
               padding: const EdgeInsets.all(10),
               itemBuilder: (BuildContext context, int index) {
                 return ItemView(
+                  id: recommendController.recommendNotesList[index]['id'],
+                  authorId: recommendController.recommendNotesList[index]
+                      ['belongUserId'],
                   coverPicture: recommendController.recommendNotesList[index]
                       ['coverPicture'],
                   noteTitle: recommendController.recommendNotesList[index]

@@ -34,6 +34,9 @@ class _AttentionPageState extends State<AttentionPage> {
             padding: const EdgeInsets.all(10),
             itemBuilder: (BuildContext context, int index) {
               return ItemView(
+                id: attentionController.attentionNotesList[index]['id'],
+                authorId: attentionController.attentionNotesList[index]
+                    ['belongUserId'],
                 coverPicture: attentionController.attentionNotesList[index]
                     ['coverPicture'],
                 noteTitle: attentionController.attentionNotesList[index]

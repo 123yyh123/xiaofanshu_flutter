@@ -111,6 +111,19 @@ class NoteApi {
     ));
   }
 
+  static Future<HttpResponse> praiseNotes(
+      int notesId, int userId, int targetUserId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/praiseNotes",
+      method: DioMethod.post,
+      params: {
+        "notesId": notesId,
+        "userId": userId,
+        "targetUserId": targetUserId
+      },
+    ));
+  }
+
   static Future<HttpResponse> getMyNotes(
       int publishType, int page, int size) async {
     return HttpResponse.fromJson(await Request().request(

@@ -953,6 +953,9 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                         padding: const EdgeInsets.all(10),
                         itemBuilder: (BuildContext context, int index) {
                           return ItemView(
+                            id: mineController.myNotes[index]['id'],
+                            authorId: mineController.myNotes[index]
+                                ['belongUserId'],
                             coverPicture: mineController.myNotes[index]
                                 ['coverPicture'],
                             noteTitle: mineController.myNotes[index]['title'],
@@ -988,6 +991,9 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(10),
                   itemBuilder: (BuildContext context, int index) {
                     return ItemView(
+                      id: mineController.myCollects[index]['id'],
+                      authorId: mineController.myCollects[index]
+                          ['belongUserId'],
                       coverPicture: mineController.myCollects[index]
                           ['coverPicture'],
                       noteTitle: mineController.myCollects[index]['title'],
@@ -1018,6 +1024,8 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                   padding: const EdgeInsets.all(10),
                   itemBuilder: (BuildContext context, int index) {
                     return ItemView(
+                      id: mineController.myLikes[index]['id'],
+                      authorId: mineController.myLikes[index]['belongUserId'],
                       coverPicture: mineController.myLikes[index]
                           ['coverPicture'],
                       noteTitle: mineController.myLikes[index]['title'],
