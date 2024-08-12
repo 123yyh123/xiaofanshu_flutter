@@ -48,6 +48,8 @@ dependencies:
   card_swiper: ^3.0.1
   cached_network_image: ^3.4.0
   path_provider: ^2.1.4
+  emoji_picker_flutter: ^2.2.0
+  extended_text_field: ^15.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

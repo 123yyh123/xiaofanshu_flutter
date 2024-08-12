@@ -74,6 +74,14 @@ class UserApi {
       params: {"userId": userId, "targetUserId": targetUserId},
     ));
   }
+
+  static Future<HttpResponse> viewUserInfo(int userId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/viewUserInfo",
+      method: DioMethod.get,
+      params: {"userId": userId},
+    ));
+  }
 }
 
 class NoteApi {

@@ -149,12 +149,13 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
         () => SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxHeight: Adapt.setRpx(1000),
+                    maxHeight: Adapt.setRpx(
+                        noteDetailsImageController.swiperHeight.value),
                     maxWidth: double.infinity,
                   ),
                   child: Swiper(
@@ -168,7 +169,6 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                           : CachedNetworkImage(
                               imageUrl: noteDetailsImageController
                                   .notes.value.notesResources[index].url,
-                              fit: BoxFit.contain,
                               progressIndicatorBuilder:
                                   (context, url, downloadProgress) {
                                 return Center(
@@ -191,6 +191,16 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                   ),
                 ),
               ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    noteDetailsImageController.notes.value.title.fixAutoLines(),
+                    textAlign: TextAlign.left,
+                    style: const TextStyle(fontSize: 18, color: Colors.black),
+                  ).paddingAll(10),
+                ],
+              )
             ],
           ),
         ),
