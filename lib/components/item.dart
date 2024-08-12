@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:like_button/like_button.dart';
@@ -88,47 +89,43 @@ class _ItemViewState extends State<ItemView> {
                       minWidth: double.infinity,
                       maxWidth: double.infinity,
                     ),
-                    child: Image(
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Container(
-                          height: 200,
-                          alignment: Alignment.center,
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 200,
-                          alignment: Alignment.center,
-                          child: const Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.running_with_errors_sharp,
-                                color: Colors.black45,
-                              ),
-                              Text(
-                                '加载失败了',
-                                style: TextStyle(
+                    child: Builder(builder: (context) {
+                      return CachedNetworkImage(
+                        imageUrl: coverPicture.value,
+                        fit: BoxFit.cover,
+                        // 缓存固定宽高的图片
+                        maxWidthDiskCache: context.width.toInt(),
+                        maxHeightDiskCache: context.height.toInt(),
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) {
+                          return Center(
+                            child: CircularProgressIndicator(
+                              value: downloadProgress.progress,
+                            ),
+                          );
+                        },
+                        errorWidget: (context, url, error) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.running_with_errors_sharp,
                                   color: Colors.black45,
-                                  fontSize: 12,
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      image: NetworkImage(coverPicture.value),
-                      fit: BoxFit.cover,
-                    ),
+                                Text(
+                                  '加载失败了',
+                                  style: TextStyle(
+                                    color: Colors.black45,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    }),
                   ),
                 ),
                 notesType.value == 0

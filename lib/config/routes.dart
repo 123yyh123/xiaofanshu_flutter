@@ -4,6 +4,7 @@ import 'package:xiaofanshu_flutter/pages/auth/login.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
 import 'package:xiaofanshu_flutter/pages/notesDetail/note_details_video.dart';
 
+import '../bindings/controller_binding.dart';
 import '../components/image_preview.dart';
 import '../pages/notesDetail/note_details_image.dart';
 
@@ -16,6 +17,7 @@ class RouteConfig {
     GetPage(
       name: '/home',
       page: () => const HomePage(),
+      binding: ControllerBinding(),
     ),
     GetPage(
       name: '/image/preview',
@@ -30,6 +32,7 @@ class RouteConfig {
     GetPage(
       name: '/notes/detail/image',
       page: () => const NoteDetailsImage(),
+      binding: ControllerBinding(),
     ),
     GetPage(
       name: '/notes/detail/video',

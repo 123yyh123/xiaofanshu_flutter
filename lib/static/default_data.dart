@@ -1,3 +1,4 @@
+import 'package:xiaofanshu_flutter/model/notes.dart';
 import 'package:xiaofanshu_flutter/model/recommend_tab.dart';
 import 'package:xiaofanshu_flutter/model/user.dart';
 
@@ -75,4 +76,26 @@ class DefaultData {
     attentionNum: 9999,
     fansNum: 9999,
   );
+
+  static Notes notes = Notes(
+      id: 1,
+      title: '标题',
+      content: '内容',
+      coverPicture: 'https://pmall-yyh.oss-cn-chengdu.aliyuncs.com/00001.jpg',
+      nickname: '小番薯',
+      avatarUrl: 'https://pmall-yyh.oss-cn-chengdu.aliyuncs.com/00001.jpg',
+      belongUserId: 1,
+      notesLikeNum: 9999,
+      notesCollectNum: 9999,
+      notesViewNum: 9999,
+      notesType: 1,
+      isLike: true,
+      isCollect: true,
+      isFollow: true,
+      notesResources: [
+        ResourcesDTO(url: ''),
+      ],
+      province: '北京市',
+      createTime: '2024-08-07 10:58:26',
+      updateTime: '2024-08-07 10:58:26');
 }

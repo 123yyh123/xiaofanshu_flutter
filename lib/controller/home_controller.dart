@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
-  var currentIndex = 4.obs;
+  var currentIndex = 0.obs;
 
   @override
   void onInit() {

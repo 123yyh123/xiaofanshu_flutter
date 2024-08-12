@@ -65,6 +65,15 @@ class UserApi {
       data: {"id": id, "homePageBackground": background},
     ));
   }
+
+  static Future<HttpResponse> attentionUser(
+      int userId, int targetUserId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/relation/attention",
+      method: DioMethod.post,
+      params: {"userId": userId, "targetUserId": targetUserId},
+    ));
+  }
 }
 
 class NoteApi {
@@ -162,6 +171,14 @@ class NoteApi {
     return HttpResponse.fromJson(await Request().request(
       "$prefix/getAllNotesCountAndPraiseCountAndCollectCount",
       method: DioMethod.get,
+    ));
+  }
+
+  static Future<HttpResponse> getNotesDetail(int notesId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getNotesByNotesId",
+      method: DioMethod.get,
+      params: {"notesId": notesId},
     ));
   }
 }

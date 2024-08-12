@@ -14,9 +14,9 @@ class RecommendPage extends StatefulWidget {
   State<RecommendPage> createState() => _RecommendPageState();
 }
 
-class _RecommendPageState extends State<RecommendPage> {
+class _RecommendPageState extends State<RecommendPage>
+    with AutomaticKeepAliveClientMixin {
   RecommendController recommendController = Get.find();
-  AttentionController attentionController = Get.find();
 
   @override
   void initState() {
@@ -26,6 +26,7 @@ class _RecommendPageState extends State<RecommendPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: const Color(0xfff3f3f2),
       body: NestedScrollView(
@@ -104,4 +105,8 @@ class _RecommendPageState extends State<RecommendPage> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

@@ -71,3 +71,7 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation "androidx.annotation:annotation:1.8.1"
+}
