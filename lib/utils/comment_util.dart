@@ -8,6 +8,7 @@ extension FixAutoLines on String {
   }
 }
 
+// 获取图片的宽度和高度
 Future<Size> getImageDimensions(String imageUrl) async {
   // 创建一个ImageProvider
   final ImageProvider provider = NetworkImage(imageUrl);
@@ -40,4 +41,18 @@ Future<Size> getImageDimensions(String imageUrl) async {
 
   // 返回Future，将在图片加载完成或发生错误时完成
   return completer.future;
+}
+
+// 日期字符串转时间戳
+int dateStringToTimestamp(String dateString) {
+  return DateTime.parse(dateString).millisecondsSinceEpoch;
+}
+
+// 时间戳转日期字符串 'yyyy-MM-dd HH:mm:ss'
+String timestampToDateString(int timestamp) {
+  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
+  String formattedDateTime =
+      "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} "
+      "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}";
+  return formattedDateTime;
 }

@@ -191,6 +191,54 @@ class NoteApi {
   }
 }
 
+class CommentApi {
+  static String prefix = "/comment";
+
+  static Future<HttpResponse> getCommentCountByNotesId(int notesId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getCommentCount",
+      method: DioMethod.get,
+      params: {"notesId": notesId},
+    ));
+  }
+
+  static Future<HttpResponse> getCommentFirstListByNotesId(
+      int notesId, int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getCommentFirstList",
+      method: DioMethod.get,
+      params: {"notesId": notesId, "page": page, "pageSize": size},
+    ));
+  }
+
+  static Future<HttpResponse> getCommentSecondListByNotesId(
+      int notesId, String parentId, int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getCommentSecondList",
+      method: DioMethod.get,
+      params: {
+        "notesId": notesId,
+        "parentId": parentId,
+        "page": page,
+        "pageSize": size
+      },
+    ));
+  }
+
+  static Future<HttpResponse> praiseComment(
+      String commentId, int userId, int targetUserId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/praiseComment",
+      method: DioMethod.post,
+      params: {
+        "commentId": commentId,
+        "userId": userId,
+        "targetUserId": targetUserId
+      },
+    ));
+  }
+}
+
 class ThirdApi {
   static String prefix = "/third";
 

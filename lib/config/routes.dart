@@ -30,6 +30,11 @@ class RouteConfig {
       transition: Transition.fadeIn,
     ),
     GetPage(
+      name: '/image/simple/pre',
+      page: () => const SimpleImagePre(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
       name: '/notes/detail/image',
       page: () => const NoteDetailsImage(),
       binding: ControllerBinding(),

@@ -1,61 +1,9 @@
-import 'dart:convert';
-
-import 'package:extended_text_field/extended_text_field.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:xiaofanshu_flutter/static/custom_color.dart';
-
+import 'package:extended_text_field/extended_text_field.dart';
+import 'dart:convert';
+import 'package:flutter/gestures.dart';
 import '../../static/emoji_map.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  TextEditingController emailController = TextEditingController();
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    emailController.addListener(() {
-      print(emailController.text);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Test'),
-        ),
-        body: Column(
-          children: [
-            ExtendedTextField(
-              controller: emailController,
-              specialTextSpanBuilder: MySpecialTextSpanBuilder(),
-              maxLines: 3,
-            ),
-            IconButton(
-              onPressed: () {
-                emailController.text = "Hello @somebody ";
-              },
-              icon: const Icon(Icons.add),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+import 'package:xiaofanshu_flutter/static/custom_color.dart';
 
 class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
   MySpecialTextSpanBuilder();
@@ -74,7 +22,7 @@ class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
     if (flag.isEmpty) return null;
 
     TextStyle effectiveTextStyle =
-        textStyle ?? const TextStyle(color: Colors.black);
+        textStyle ?? const TextStyle(color: Colors.black, fontSize: 12);
 
     if (isStart(flag, AtText.flag)) {
       return AtText(effectiveTextStyle, onTap,
