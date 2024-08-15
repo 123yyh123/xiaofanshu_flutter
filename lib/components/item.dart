@@ -196,6 +196,19 @@ class _ItemViewState extends State<ItemView> {
                             size: 16,
                           );
                         },
+                        countBuilder: (int? count, bool isLiked, String text) {
+                          count ??= 0;
+                          return count == 0
+                              ? const SizedBox()
+                              : Text(
+                                  text,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black54,
+                                  ),
+                                );
+                        },
                         isLiked: isLike.value,
                         likeCount: notesLikeNum.value,
                         onTap: (bool isLiked) async {

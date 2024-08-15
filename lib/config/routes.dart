@@ -37,6 +37,7 @@ class RouteConfig {
     GetPage(
       name: '/notes/detail/image',
       page: () => const NoteDetailsImage(),
+      transition: Transition.circularReveal,
       binding: ControllerBinding(),
     ),
     GetPage(

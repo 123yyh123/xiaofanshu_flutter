@@ -240,8 +240,10 @@ class _SimpleImagePreState extends State<SimpleImagePre> {
               const SizedBox(height: 30),
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  imageUrl,
+                child: Image(
+                  image: imageUrl.isURL
+                      ? NetworkImage(imageUrl)
+                      : FileImage(File(imageUrl)),
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.cover,
                 ),

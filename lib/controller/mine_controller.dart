@@ -45,6 +45,7 @@ class MineController extends GetxController {
   var notesCount = 0.obs;
   var praiseCount = 0.obs;
   var collectCount = 0.obs;
+  var isShowTopAvatar = false.obs;
 
   @override
   void onInit() async {
@@ -83,6 +84,11 @@ class MineController extends GetxController {
       double offset = scrollController.offset;
       Get.log('offset: $offset');
       double opacity = offset / 100;
+      if (offset > 100) {
+        isShowTopAvatar.value = true;
+      } else {
+        isShowTopAvatar.value = false;
+      }
       appBarOpacity.value = opacity > 0.9 ? 0.9 : opacity;
       if (scrollController.position.pixels ==
           scrollController.position.maxScrollExtent) {

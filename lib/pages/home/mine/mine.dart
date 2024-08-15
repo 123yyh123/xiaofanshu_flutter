@@ -1,3 +1,4 @@
+import 'package:animation_wrappers/animations/faded_slide_animation.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,18 +92,26 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                   ),
                 ],
               ),
-              // Container(
-              //   width: 30,
-              //   height: 30,
-              //   decoration: BoxDecoration(
-              //     borderRadius: BorderRadius.circular(40),
-              //     image: DecorationImage(
-              //       image:
-              //           NetworkImage(mineController.userInfo.value.avatarUrl),
-              //       fit: BoxFit.cover,
-              //     ),
-              //   ),
-              // ),
+              mineController.isShowTopAvatar.value
+                  ? FadedSlideAnimation(
+                      beginOffset: const Offset(0, 1),
+                      endOffset: Offset.zero,
+                      fadeDuration: const Duration(milliseconds: 300),
+                      slideDuration: const Duration(milliseconds: 300),
+                      child: Container(
+                        width: 35,
+                        height: 35,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(40),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                mineController.userInfo.value.avatarUrl),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Container(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.center,

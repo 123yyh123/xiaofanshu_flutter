@@ -58,7 +58,8 @@ class Request {
       RequestOptions options, RequestInterceptorHandler handler) async {
     // 头部添加token
     String? token = await readData('token');
-    options.headers.addAll({'token': token ?? ''});
+    int isFlutter = 1;
+    options.headers.addAll({'token': token ?? '', 'isFlutter': isFlutter});
     // 更多业务需求
     handler.next(options);
     // super.onRequest(options, handler);

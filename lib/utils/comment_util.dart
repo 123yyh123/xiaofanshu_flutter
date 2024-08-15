@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // 解决中文和英文提前自动换行问题
 extension FixAutoLines on String {
@@ -55,4 +56,34 @@ String timestampToDateString(int timestamp) {
       "${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} "
       "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}";
   return formattedDateTime;
+}
+
+// 插入文本
+void insertText(String text, TextEditingController controller) {
+  final textValue = controller.text;
+  final textSelection = controller.selection;
+  final newText = textValue.replaceRange(
+    textSelection.start,
+    textSelection.end,
+    text,
+  );
+
+  final newTextSelection = textSelection.copyWith(
+    baseOffset: textSelection.start + text.length,
+    extentOffset: textSelection.start + text.length,
+  );
+
+  controller.value = controller.value.copyWith(
+    text: newText,
+    selection: newTextSelection,
+    composing: TextRange.empty,
+  );
+}
+
+void closeKeyboardButKeepFocus() {
+  SystemChannels.textInput.invokeMethod('TextInput.hide');
+}
+
+void showKeyboard() {
+  SystemChannels.textInput.invokeMethod('TextInput.show');
 }

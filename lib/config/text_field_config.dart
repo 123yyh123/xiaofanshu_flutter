@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'dart:convert';
+import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
+import 'package:xiaofanshu_flutter/utils/comment_util.dart';
 import '../../static/emoji_map.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 
@@ -30,6 +32,9 @@ class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
     } else if (isStart(flag, TopicText.flag)) {
       return TopicText(effectiveTextStyle, onTap,
           start: index - (TopicText.flag.length - 1));
+    } else if (isStart(flag, ReplyText.flag)) {
+      return ReplyText(effectiveTextStyle, onTap,
+          start: index - (ReplyText.flag.length - 1));
     } else if (isStart(flag, EmojiText.flag)) {
       return EmojiText(effectiveTextStyle, onTap,
           start: index - (EmojiText.flag.length - 1));
@@ -57,9 +62,10 @@ class AtText extends SpecialText {
     //   "name": "somebody",
     // };
     // String realText='@${jsonEncode(map)} ';
-    final String realText = toString();
+    String realText = toString();
     String showText = '';
     try {
+      realText = realText.replaceAll('\u200B', '');
       Map<String, dynamic> map =
           jsonDecode(realText.substring(1, realText.length - 1));
       var nickName = map['name'] as String;
@@ -134,7 +140,8 @@ class EmojiText extends SpecialText {
 
   @override
   InlineSpan finishText() {
-    final String emojiText = toString();
+    String emojiText = toString();
+    emojiText = emojiText.replaceAll('\u200B', '');
     final String emojiUrl =
         EmojiMap.getEmojiUrl(emojiText.substring(1, emojiText.length - 1));
     if (emojiUrl.isEmpty) {
@@ -148,5 +155,49 @@ class EmojiText extends SpecialText {
       imageWidth: size,
       imageHeight: size,
     );
+  }
+}
+
+class ReplyText extends SpecialText {
+  static const String flag = "⟬";
+  static const String flag2 = "⟭";
+  final int start;
+
+  ReplyText(TextStyle textStyle, SpecialTextGestureTapCallback? onTap,
+      {required this.start})
+      : super(flag, flag2, textStyle, onTap: onTap);
+
+  @override
+  TextSpan finishText() {
+    TextStyle? textStyle = this
+        .textStyle
+        ?.copyWith(color: const Color(0xffadadad), fontSize: 16.0);
+    String realText = toString();
+    String showText = '';
+    try {
+      realText = realText.replaceAll('\u200B', '');
+      Map<String, dynamic> map =
+          jsonDecode(realText.substring(1, realText.length - 1));
+      var nickName = map['name'] as String;
+      showText = nickName.fixAutoLines();
+    } catch (e) {
+      Get.log('ReplyText error: $e');
+      showText = realText;
+    }
+    return SpecialTextSpan(
+      text: showText,
+      actualText: realText,
+      start: start,
+      deleteAll: true,
+      style: textStyle,
+      recognizer: TapGestureRecognizer()
+        ..onTap = () {
+          _handleTap(realText);
+        },
+    );
+  }
+
+  void _handleTap(String text) {
+    print("Tapped on: $text");
   }
 }

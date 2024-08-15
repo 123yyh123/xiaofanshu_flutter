@@ -9,8 +9,8 @@ class LoadingUtil {
       // 点击背景不关闭
       barrierDismissible: false,
       Center(
-        child: LoadingAnimationWidget.halfTriangleDot(
-          color: Colors.blue,
+        child: LoadingAnimationWidget.fourRotatingDots(
+          color: Colors.white,
           size: 100,
         ),
       ),

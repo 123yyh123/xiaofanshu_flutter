@@ -82,6 +82,15 @@ class UserApi {
       params: {"userId": userId},
     ));
   }
+
+  static Future<HttpResponse> getAttentionList(
+      int userId, int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/relation/attentionList",
+      method: DioMethod.get,
+      params: {"userId": userId, "pageNum": page, "pageSize": size},
+    ));
+  }
 }
 
 class NoteApi {
@@ -189,6 +198,19 @@ class NoteApi {
       params: {"notesId": notesId},
     ));
   }
+
+  static Future<HttpResponse> collectNotes(
+      int notesId, int userId, int targetUserId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/collectNotes",
+      method: DioMethod.post,
+      params: {
+        "notesId": notesId,
+        "userId": userId,
+        "targetUserId": targetUserId
+      },
+    ));
+  }
 }
 
 class CommentApi {
@@ -235,6 +257,14 @@ class CommentApi {
         "userId": userId,
         "targetUserId": targetUserId
       },
+    ));
+  }
+
+  static Future<HttpResponse> addComment(Map<String, dynamic> data) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/addComment",
+      method: DioMethod.post,
+      data: data,
     ));
   }
 }
