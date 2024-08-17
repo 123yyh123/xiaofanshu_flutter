@@ -1,86 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:video_editor/video_editor.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-
 import '../../components/crop_page.dart';
 import '../../components/export_result.dart';
 import '../../components/export_service.dart';
+import 'package:get/get.dart';
 
-void main() => runApp(
-      MaterialApp(
-        title: 'Flutter Video Editor Demo',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.grey,
-          brightness: Brightness.dark,
-          tabBarTheme: const TabBarTheme(
-            indicator: UnderlineTabIndicator(
-              borderSide: BorderSide(color: Colors.white),
-            ),
-          ),
-          dividerColor: Colors.white,
-        ),
-        home: const VideoEditorExample(),
-      ),
-    );
-
-class VideoEditorExample extends StatefulWidget {
-  const VideoEditorExample({super.key});
-
-  @override
-  State<VideoEditorExample> createState() => _VideoEditorExampleState();
-}
-
-class _VideoEditorExampleState extends State<VideoEditorExample> {
-  void _pickVideo() async {
-    List<AssetEntity>? pickAssets = await AssetPicker.pickAssets(
-      context,
-      pickerConfig: const AssetPickerConfig(
-        maxAssets: 1,
-        requestType: RequestType.video,
-      ),
-    );
-    if (mounted && pickAssets != null && pickAssets.isNotEmpty) {
-      final file = await pickAssets.first.originFile;
-      if (file == null) return;
-      Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => VideoEditor(file: file),
-        ),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Video Picker")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text("Click on the button to select video"),
-            ElevatedButton(
-              onPressed: _pickVideo,
-              child: const Text("Pick Video From Gallery"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-//-------------------//
-//VIDEO EDITOR SCREEN//
-//-------------------//
 class VideoEditor extends StatefulWidget {
-  const VideoEditor({super.key, required this.file});
-
-  final File file;
+  const VideoEditor({super.key});
 
   @override
   State<VideoEditor> createState() => _VideoEditorState();
@@ -90,22 +17,24 @@ class _VideoEditorState extends State<VideoEditor> {
   final _exportingProgress = ValueNotifier<double>(0.0);
   final _isExporting = ValueNotifier<bool>(false);
   final double height = 60;
-
-  late final VideoEditorController _controller = VideoEditorController.file(
-    widget.file,
-    minDuration: const Duration(seconds: 1),
-    maxDuration: const Duration(seconds: 10),
-  );
+  late final VideoEditorController _controller;
 
   @override
   void initState() {
     super.initState();
+    var arguments = Get.arguments as Map<String, dynamic>;
+    final File file = arguments['file'] as File;
+    final double aspectRatio = arguments['aspectRatio'] as double;
+    _controller = VideoEditorController.file(
+      file,
+      minDuration: const Duration(seconds: 1),
+      maxDuration: const Duration(seconds: 10),
+    );
     _controller
-        .initialize(aspectRatio: 9 / 16)
+        .initialize(aspectRatio: aspectRatio)
         .then((_) => setState(() {}))
         .catchError((error) {
-      // handle minumum duration bigger than video duration error
-      Navigator.pop(context);
+      Get.back();
     }, test: (e) => e is VideoMinDurationError);
   }
 
@@ -129,18 +58,9 @@ class _VideoEditorState extends State<VideoEditor> {
   void _exportVideo() async {
     _exportingProgress.value = 0;
     _isExporting.value = true;
-
     final config = VideoFFmpegVideoEditorConfig(
       _controller,
-      // format: VideoExportFormat.gif,
-      // commandBuilder: (config, videoPath, outputPath) {
-      //   final List<String> filters = config.getExportFilters();
-      //   filters.add('hflip'); // add horizontal flip
-
-      //   return '-i $videoPath ${config.filtersCmd(filters)} -preset ultrafast $outputPath';
-      // },
     );
-
     await ExportService.runFFmpegCommand(
       await config.getExecuteConfig(),
       onProgress: (stats) {
@@ -148,15 +68,30 @@ class _VideoEditorState extends State<VideoEditor> {
             config.getFFmpegProgress(stats.getTime().toInt());
       },
       onError: (e, s) => {
-        print(e),
-        print(s),
+        _isExporting.value = false,
+        _showErrorSnackBar("Error on video exportation :("),
       },
       onCompleted: (file) async {
         _isExporting.value = false;
         if (!mounted) return;
-        showDialog(
-          context: context,
-          builder: (_) => VideoResultPopup(video: file),
+        final config = CoverFFmpegVideoEditorConfig(_controller);
+        final execute = await config.getExecuteConfig();
+        if (execute == null) {
+          _showErrorSnackBar("Error on cover exportation initialization.");
+          return;
+        }
+        await ExportService.runFFmpegCommand(
+          execute,
+          onError: (e, s) =>
+              _showErrorSnackBar("Error on cover exportation :("),
+          onCompleted: (cover) {
+            if (!mounted) return;
+            Get.offAndToNamed('/publish/notes', arguments: {
+              'type': 'video',
+              'video': file,
+              'cover': cover,
+            });
+          },
         );
       },
     );
@@ -257,7 +192,7 @@ class _VideoEditorState extends State<VideoEditor> {
                                                     padding: EdgeInsets.all(5),
                                                     child: Icon(
                                                         Icons.content_cut)),
-                                                Text('Trim')
+                                                Text('剪辑')
                                               ]),
                                           Row(
                                             mainAxisAlignment:
@@ -267,7 +202,7 @@ class _VideoEditorState extends State<VideoEditor> {
                                                   padding: EdgeInsets.all(5),
                                                   child:
                                                       Icon(Icons.video_label)),
-                                              Text('Cover')
+                                              Text('封面')
                                             ],
                                           ),
                                         ],
@@ -364,20 +299,25 @@ class _VideoEditorState extends State<VideoEditor> {
             ),
             const VerticalDivider(endIndent: 22, indent: 22),
             Expanded(
-              child: PopupMenuButton(
-                tooltip: 'Open export menu',
+              child: IconButton(
+                onPressed: _exportVideo,
                 icon: const Icon(Icons.save),
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    onTap: _exportCover,
-                    child: const Text('Export cover'),
-                  ),
-                  PopupMenuItem(
-                    onTap: _exportVideo,
-                    child: const Text('Export video'),
-                  ),
-                ],
+                tooltip: 'Export video',
               ),
+              // child: PopupMenuButton(
+              //   tooltip: 'Open export menu',
+              //   icon: const Icon(Icons.save),
+              //   itemBuilder: (context) => [
+              //     PopupMenuItem(
+              //       onTap: _exportCover,
+              //       child: const Text('Export cover'),
+              //     ),
+              //     PopupMenuItem(
+              //       onTap: _exportVideo,
+              //       child: const Text('Export video'),
+              //     ),
+              //   ],
+              // ),
             ),
           ],
         ),
