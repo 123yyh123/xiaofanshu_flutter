@@ -1,204 +1,213 @@
-import 'dart:convert';
+import 'dart:async';
+import 'dart:math';
 
-import 'package:extended_text_field/extended_text_field.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:xiaofanshu_flutter/static/custom_color.dart';
 
-import '../../static/emoji_map.dart';
+/// 视频手势封装
+/// 单击：暂停
+/// 双击：点赞，双击后再次单击也是增加点赞爱心
+class TikTokVideoGesture extends StatefulWidget {
+  const TikTokVideoGesture({
+    required Key key,
+    required this.child,
+    required this.onAddFavorite,
+    required this.onSingleTap,
+  }) : super(key: key);
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  TextEditingController emailController = TextEditingController();
+  final Function onAddFavorite;
+  final Function onSingleTap;
+  final Widget child;
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    emailController.addListener(() {
-      print(emailController.text);
-    });
+  _TikTokVideoGestureState createState() => _TikTokVideoGestureState();
+}
+
+class _TikTokVideoGestureState extends State<TikTokVideoGesture> {
+  final GlobalKey _key = GlobalKey();
+
+  // 内部转换坐标点
+  Offset _p(Offset p) {
+    RenderBox getBox = _key.currentContext?.findRenderObject() as RenderBox;
+    return getBox.globalToLocal(p);
   }
+
+  List<Offset> icons = [];
+
+  bool canAddFavorite = false;
+  bool justAddFavorite = false;
+  late Timer timer;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Test'),
-        ),
-        body: Column(
-          children: [
-            ExtendedTextField(
-              controller: emailController,
-              specialTextSpanBuilder: MySpecialTextSpanBuilder(),
-              maxLines: 3,
-            ),
-            IconButton(
-              onPressed: () {
-                emailController.text = "Hello @somebody ";
+    var iconStack = Stack(
+      children: icons
+          .map<Widget>(
+            (p) => TikTokFavoriteAnimationIcon(
+              key: Key(p.toString()),
+              position: p,
+              onAnimationComplete: () {
+                icons.remove(p);
               },
-              icon: const Icon(Icons.add),
             ),
-          ],
-        ),
+          )
+          .toList(),
+    );
+    return GestureDetector(
+      key: _key,
+      onTapDown: (detail) {
+        setState(() {
+          if (canAddFavorite) {
+            print('添加爱心，当前爱心数量:${icons.length}');
+            icons.add(_p(detail.globalPosition));
+            widget.onAddFavorite?.call();
+            justAddFavorite = true;
+          } else {
+            justAddFavorite = false;
+          }
+        });
+      },
+      onTapUp: (detail) {
+        timer?.cancel();
+        var delay = canAddFavorite ? 1200 : 600;
+        timer = Timer(Duration(milliseconds: delay), () {
+          canAddFavorite = false;
+          timer.cancel();
+          if (!justAddFavorite) {
+            widget.onSingleTap?.call();
+          }
+        });
+        canAddFavorite = true;
+      },
+      onTapCancel: () {
+        print('onTapCancel');
+      },
+      child: Stack(
+        children: <Widget>[
+          widget.child,
+          iconStack,
+        ],
       ),
     );
   }
 }
 
-class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
-  MySpecialTextSpanBuilder();
+class TikTokFavoriteAnimationIcon extends StatefulWidget {
+  final Offset position;
+  final double size;
+  final Function onAnimationComplete;
+
+  const TikTokFavoriteAnimationIcon({
+    required Key key,
+    required this.onAnimationComplete,
+    required this.position,
+    this.size = 100,
+  }) : super(key: key);
 
   @override
-  TextSpan build(String data, {TextStyle? textStyle, onTap}) {
-    var textSpan = super.build(data, textStyle: textStyle, onTap: onTap);
-    return textSpan;
-  }
-
-  @override
-  SpecialText? createSpecialText(String flag,
-      {TextStyle? textStyle,
-      SpecialTextGestureTapCallback? onTap,
-      required int index}) {
-    if (flag.isEmpty) return null;
-
-    TextStyle effectiveTextStyle =
-        textStyle ?? const TextStyle(color: Colors.black);
-
-    if (isStart(flag, AtText.flag)) {
-      return AtText(effectiveTextStyle, onTap,
-          start: index - (AtText.flag.length - 1));
-    } else if (isStart(flag, TopicText.flag)) {
-      return TopicText(effectiveTextStyle, onTap,
-          start: index - (TopicText.flag.length - 1));
-    } else if (isStart(flag, EmojiText.flag)) {
-      return EmojiText(effectiveTextStyle, onTap,
-          start: index - (EmojiText.flag.length - 1));
-    }
-    return null;
-  }
+  _TikTokFavoriteAnimationIconState createState() =>
+      _TikTokFavoriteAnimationIconState();
 }
 
-/// @somebody，showText: @somebody，realText: @{"id":"123456","name":"somebody"}
-class AtText extends SpecialText {
-  static const String flag = "@";
-  final int start;
-
-  AtText(TextStyle textStyle, SpecialTextGestureTapCallback? onTap,
-      {required this.start})
-      : super(flag, " ", textStyle, onTap: onTap);
+class _TikTokFavoriteAnimationIconState
+    extends State<TikTokFavoriteAnimationIcon> with TickerProviderStateMixin {
+  late AnimationController _animationController;
 
   @override
-  TextSpan finishText() {
-    TextStyle? textStyle = this
-        .textStyle
-        ?.copyWith(color: CustomColor.primaryColor, fontSize: 16.0);
-    // Map<String, String> map = {
-    //   "id": "123456",
-    //   "name": "somebody",
-    // };
-    // String realText='@${jsonEncode(map)} ';
-    final String realText = toString();
-    String showText = '';
-    try {
-      Map<String, dynamic> map =
-          jsonDecode(realText.substring(1, realText.length - 1));
-      var nickName = map['name'] as String;
-      showText = '@$nickName ';
-    } catch (e) {
-      showText = realText;
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    print('didChangeDependencies');
+    super.didChangeDependencies();
+  }
+
+  @override
+  void initState() {
+    _animationController = AnimationController(
+      lowerBound: 0,
+      upperBound: 1,
+      duration: const Duration(milliseconds: 1600),
+      vsync: this,
+    );
+
+    _animationController.addListener(() {
+      setState(() {});
+    });
+    startAnimation();
+    super.initState();
+  }
+
+  startAnimation() async {
+    await _animationController.forward();
+    widget.onAnimationComplete.call();
+  }
+
+  double rotate = pi / 10.0 * (2 * Random().nextDouble() - 1);
+
+  double get value => _animationController.value;
+
+  double appearDuration = 0.1;
+  double dismissDuration = 0.8;
+
+  double get opa {
+    if (value < appearDuration) {
+      return 0.99 / appearDuration * value;
     }
-    return SpecialTextSpan(
-      // 昵称
-      text: showText,
-      // id
-      actualText: realText,
-      start: start,
-      deleteAll: true,
-      style: textStyle,
-      recognizer: TapGestureRecognizer()
-        ..onTap = () {
-          _handleTap(realText);
-        },
-    );
-  }
-
-  void _handleTap(String text) {
-    print("Tapped on: $text");
-  }
-}
-
-/// #topic
-class TopicText extends SpecialText {
-  static const String flag = "#";
-  final int start;
-
-  TopicText(TextStyle textStyle, SpecialTextGestureTapCallback? onTap,
-      {required this.start})
-      : super(flag, " ", textStyle, onTap: onTap);
-
-  @override
-  TextSpan finishText() {
-    TextStyle? textStyle = this
-        .textStyle
-        ?.copyWith(color: const Color(0xff007bbb), fontSize: 16.0);
-
-    final String atText = toString();
-    return SpecialTextSpan(
-      text: atText,
-      actualText: atText,
-      start: start,
-      deleteAll: true,
-      style: textStyle,
-      recognizer: TapGestureRecognizer()
-        ..onTap = () {
-          _handleTap(atText);
-        },
-    );
-  }
-
-  void _handleTap(String text) {
-    print("Tapped on: $text");
-  }
-}
-
-/// 『emoji』
-class EmojiText extends SpecialText {
-  static const String flag = "『";
-  static const String flag2 = "』";
-  static const double size = 20.0;
-  final int start;
-
-  EmojiText(TextStyle textStyle, SpecialTextGestureTapCallback? onTap,
-      {required this.start})
-      : super(flag, flag2, textStyle, onTap: onTap);
-
-  @override
-  InlineSpan finishText() {
-    final String emojiText = toString();
-    final String emojiUrl =
-        EmojiMap.getEmojiUrl(emojiText.substring(1, emojiText.length - 1));
-    if (emojiUrl.isEmpty) {
-      return TextSpan(text: emojiText, style: textStyle);
+    if (value < dismissDuration) {
+      return 0.99;
     }
-    return ImageSpan(
-      NetworkImage(emojiUrl),
-      actualText: emojiText,
-      start: start,
-      fit: BoxFit.fill,
-      imageWidth: size,
-      imageHeight: size,
+    var res = 0.99 - (value - dismissDuration) / (1 - dismissDuration);
+    return res < 0 ? 0 : res;
+  }
+
+  double get scale {
+    if (value < appearDuration) {
+      return 1 + appearDuration - value;
+    }
+    if (value < dismissDuration) {
+      return 1;
+    }
+    return (value - dismissDuration) / (1 - dismissDuration) + 1;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget content = Icon(
+      Icons.favorite,
+      size: widget.size,
+      color: Colors.redAccent,
     );
+    content = ShaderMask(
+      blendMode: BlendMode.srcATop,
+      shaderCallback: (Rect bounds) => RadialGradient(
+        center: Alignment.topLeft.add(const Alignment(0.66, 0.66)),
+        colors: const [
+          Color(0xffEF6F6F),
+          Color(0xffF03E3E),
+        ],
+      ).createShader(bounds),
+      child: content,
+    );
+    Widget body = Transform.rotate(
+      angle: rotate,
+      child: Opacity(
+        opacity: opa,
+        child: Transform.scale(
+          alignment: Alignment.bottomCenter,
+          scale: scale,
+          child: content,
+        ),
+      ),
+    );
+    return widget.position == null
+        ? Container()
+        : Positioned(
+            left: widget.position.dx - widget.size / 2,
+            top: widget.position.dy - widget.size / 2,
+            child: body,
+          );
   }
 }

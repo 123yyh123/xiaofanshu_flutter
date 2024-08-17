@@ -87,3 +87,7 @@ void closeKeyboardButKeepFocus() {
 void showKeyboard() {
   SystemChannels.textInput.invokeMethod('TextInput.show');
 }
+
+void copyToClipboard(String text) {
+  Clipboard.setData(ClipboardData(text: text));
+}

@@ -267,6 +267,24 @@ class CommentApi {
       data: data,
     ));
   }
+
+  static Future<HttpResponse> setTopComment(String commentId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/setTopComment",
+      method: DioMethod.post,
+      isShowLoading: true,
+      params: {"commentId": commentId},
+    ));
+  }
+
+  static Future<HttpResponse> deleteComment(String commentId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/deleteComment",
+      method: DioMethod.delete,
+      isShowLoading: true,
+      params: {"commentId": commentId},
+    ));
+  }
 }
 
 class ThirdApi {

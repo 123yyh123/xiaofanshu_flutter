@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/components/background_image_pre.dart';
+import 'package:xiaofanshu_flutter/components/video_horizontal_pre.dart';
 import 'package:xiaofanshu_flutter/pages/auth/login.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
 import 'package:xiaofanshu_flutter/pages/notesDetail/note_details_video.dart';
@@ -43,6 +44,14 @@ class RouteConfig {
     GetPage(
       name: '/notes/detail/video',
       page: () => const NoteDetailsVideo(),
+      transition: Transition.circularReveal,
+      binding: ControllerBinding(),
+    ),
+    GetPage(
+      name: '/videoPlayer',
+      page: () => const VideoHorizontalPre(),
+      transition: Transition.fadeIn,
+      binding: ControllerBinding(),
     ),
   ];
 }

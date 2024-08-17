@@ -201,3 +201,14 @@ class ReplyText extends SpecialText {
     print("Tapped on: $text");
   }
 }
+
+// 用于复制时将特殊处理后的文本恢复到原始文本
+String parseSpecialText(String text) {
+  text = text.replaceAll('\u200B', '');
+  // 将@{"name":"xxx","id":"xxx"} 转为 @xxx
+  text = text.replaceAllMapped(RegExp(r'@\{"name":"(.+?)","id":"\d+"\}'),
+      (Match match) => '@${match.group(1)}');
+  text = text.replaceAllMapped(RegExp(r'⟬{"userId":"\d+","name":"(.+?)"}⟭'),
+      (Match match) => '${match.group(1)}');
+  return text;
+}

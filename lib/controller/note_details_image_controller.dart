@@ -17,6 +17,7 @@ import 'package:xiaofanshu_flutter/static/default_data.dart';
 import 'package:xiaofanshu_flutter/utils/date_show_util.dart';
 import 'package:xiaofanshu_flutter/utils/loading_util.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
+import 'package:xiaofanshu_flutter/utils/toast_util.dart';
 
 import '../config/text_field_config.dart';
 import '../model/emoji.dart';
@@ -49,6 +50,7 @@ class NoteDetailsImageController extends GetxController {
   var replyUserInfo = ''.obs;
   var hintText = '';
   var commentParentId = ''.obs;
+  var lastChickCommentId = ''.obs;
   TextEditingController contentController = TextEditingController();
   ScrollController scrollController = ScrollController();
   TextEditingController commentController = TextEditingController();
@@ -166,7 +168,7 @@ class NoteDetailsImageController extends GetxController {
     });
   }
 
-  void loadSendComment(int notesId, String parentId) {
+  void loadSecondComment(int notesId, String parentId) {
     for (var element in commentList) {
       if (element.comment.id == parentId) {
         if (element.isLoadMore) {
@@ -235,8 +237,8 @@ class NoteDetailsImageController extends GetxController {
     });
   }
 
-  void judgeSameReply(String replyUserInfo, String parentId) {
-    if (commentParentId.value != parentId) {
+  void judgeSameReply(String replyUserInfo, String parentId, String commentId) {
+    if (lastChickCommentId.value != commentId) {
       this.replyUserInfo.value = replyUserInfo;
       commentParentId.value = parentId;
       commentController.text = '';
@@ -494,6 +496,7 @@ class NoteDetailsImageController extends GetxController {
                         HttpResponse httpResponse =
                             await CommentApi.addComment(map);
                         if (httpResponse.code == StatusCode.postSuccess) {
+                          commentCount.value++;
                           Comment comment = Comment.fromJson(httpResponse.data);
                           if (comment.parentId == '0') {
                             // 添加在commentList的头部
@@ -535,27 +538,9 @@ class NoteDetailsImageController extends GetxController {
                           }
                           commentList.refresh();
                           LoadingUtil.hide();
-                          showToast(
-                            '评论成功',
-                            context: Get.context,
-                            position: const StyledToastPosition(
-                              align: Alignment.center,
-                            ),
-                            animation: StyledToastAnimation.slideFromBottomFade,
-                            duration: const Duration(milliseconds: 1500),
-                            animDuration: const Duration(milliseconds: 200),
-                          );
+                          ToastUtil.showSimpleToast('评论成功');
                         } else {
-                          showToast(
-                            '评论失败',
-                            context: Get.context,
-                            position: const StyledToastPosition(
-                              align: Alignment.center,
-                            ),
-                            animation: StyledToastAnimation.slideFromBottomFade,
-                            duration: const Duration(milliseconds: 1500),
-                            animDuration: const Duration(milliseconds: 200),
-                          );
+                          ToastUtil.showSimpleToast('评论失败');
                         }
                         commentController.text = '';
                         selectImage.value = '';

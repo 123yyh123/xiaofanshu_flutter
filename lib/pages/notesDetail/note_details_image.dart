@@ -2,17 +2,18 @@ import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:extended_text_field/extended_text_field.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:image_pickers/image_pickers.dart';
 import 'package:like_button/like_button.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
 import 'package:xiaofanshu_flutter/config/custom_icon.dart';
 import 'package:xiaofanshu_flutter/controller/note_details_image_controller.dart';
 import 'package:get/get.dart';
+import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/utils/Adapt.dart';
 import 'package:xiaofanshu_flutter/utils/comment_util.dart';
+import 'package:xiaofanshu_flutter/utils/toast_util.dart';
 
 import '../../config/text_field_config.dart';
 import '../../model/emoji.dart';
@@ -250,25 +251,13 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                           children: [
                             Text(
                               maxLines: 1,
-                              noteDetailsImageController.notes.value.createTime,
+                              "${noteDetailsImageController.notes.value.createTime}   ${noteDetailsImageController.notes.value.province}",
                               textAlign: TextAlign.end,
                               style: const TextStyle(
                                 height: 1.2,
                                 fontSize: 12,
                                 color: CustomColor.unselectedColor,
                               ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              maxLines: 1,
-                              noteDetailsImageController.notes.value.province,
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                  height: 1.2,
-                                  fontSize: 12,
-                                  color: CustomColor.unselectedColor),
                             ),
                           ],
                         ).paddingOnly(left: 10, right: 10),
@@ -321,7 +310,7 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                               child: GestureDetector(
                                 onTap: () {
                                   noteDetailsImageController.judgeSameReply(
-                                      '', '');
+                                      '', '', '');
                                   noteDetailsImageController.showBottomInput();
                                 },
                                 child: Container(
@@ -421,11 +410,362 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                       noteDetailsImageController
                                                           .commentList[index]
                                                           .comment
+                                                          .id,
+                                                      noteDetailsImageController
+                                                          .commentList[index]
+                                                          .comment
                                                           .id);
                                               noteDetailsImageController
                                                   .replyUserInfo.value = '';
                                               noteDetailsImageController
                                                   .showBottomInput();
+                                            },
+                                            onLongPress: () {
+                                              Get.bottomSheet(
+                                                SingleChildScrollView(
+                                                  child: Container(
+                                                    width: double.infinity,
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius:
+                                                          BorderRadius.only(
+                                                        topLeft:
+                                                            Radius.circular(10),
+                                                        topRight:
+                                                            Radius.circular(10),
+                                                      ),
+                                                    ),
+                                                    child: Column(
+                                                      children: [
+                                                        noteDetailsImageController
+                                                                    .notes
+                                                                    .value
+                                                                    .belongUserId ==
+                                                                noteDetailsImageController
+                                                                    .userInfo
+                                                                    .value
+                                                                    .id
+                                                            ? GestureDetector(
+                                                                onTap: () {
+                                                                  if (Get
+                                                                      .isBottomSheetOpen!) {
+                                                                    Get.back();
+                                                                  }
+                                                                  CommentApi.setTopComment(noteDetailsImageController
+                                                                          .commentList[
+                                                                              index]
+                                                                          .comment
+                                                                          .id)
+                                                                      .then(
+                                                                          (value) {
+                                                                    if (value
+                                                                            .code ==
+                                                                        StatusCode
+                                                                            .postSuccess) {
+                                                                      noteDetailsImageController
+                                                                          .commentList[
+                                                                              0]
+                                                                          .comment
+                                                                          .isTop = false;
+                                                                      noteDetailsImageController
+                                                                          .commentList[
+                                                                              index]
+                                                                          .comment
+                                                                          .isTop = true;
+                                                                      noteDetailsImageController
+                                                                          .commentList
+                                                                          .insert(
+                                                                              0,
+                                                                              noteDetailsImageController.commentList.removeAt(index));
+                                                                      noteDetailsImageController
+                                                                          .commentList
+                                                                          .refresh();
+                                                                      ToastUtil
+                                                                          .showSimpleToast(
+                                                                              '置顶成功');
+                                                                    } else {
+                                                                      ToastUtil
+                                                                          .showSimpleToast(
+                                                                              '置顶失败');
+                                                                    }
+                                                                  });
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  width: double
+                                                                      .infinity,
+                                                                  decoration:
+                                                                      const BoxDecoration(
+                                                                    border:
+                                                                        Border(
+                                                                      bottom:
+                                                                          BorderSide(
+                                                                        color: Color(
+                                                                            0xffe5e5e5),
+                                                                        width:
+                                                                            0.5,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      Expanded(
+                                                                    flex: 1,
+                                                                    child:
+                                                                        const Text(
+                                                                      "置顶",
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        color: Colors
+                                                                            .black,
+                                                                      ),
+                                                                    ).paddingAll(
+                                                                            10),
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : const SizedBox(),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            if (Get
+                                                                .isBottomSheetOpen!) {
+                                                              Get.back();
+                                                            }
+                                                            Map<String, String>
+                                                                map = {};
+                                                            map['id'] =
+                                                                noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .comment
+                                                                    .commentUserId
+                                                                    .toString();
+                                                            map['name'] =
+                                                                noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .comment
+                                                                    .commentUserName;
+                                                            noteDetailsImageController.judgeSameReply(
+                                                                jsonEncode(map),
+                                                                noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .comment
+                                                                    .id,
+                                                                noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .comment
+                                                                    .id);
+                                                            noteDetailsImageController
+                                                                .replyUserInfo
+                                                                .value = '';
+                                                            noteDetailsImageController
+                                                                .showBottomInput();
+                                                          },
+                                                          child: Container(
+                                                            width:
+                                                                double.infinity,
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                              border: Border(
+                                                                bottom:
+                                                                    BorderSide(
+                                                                  color: Color(
+                                                                      0xffe5e5e5),
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child: Expanded(
+                                                              flex: 1,
+                                                              child: const Text(
+                                                                "回复",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ).paddingAll(10),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            if (Get
+                                                                .isBottomSheetOpen!) {
+                                                              Get.back();
+                                                            }
+                                                            copyToClipboard(parseSpecialText(
+                                                                noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .comment
+                                                                    .content));
+                                                          },
+                                                          child: Container(
+                                                            width:
+                                                                double.infinity,
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                              border: Border(
+                                                                bottom:
+                                                                    BorderSide(
+                                                                  color: Color(
+                                                                      0xffe5e5e5),
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child: Expanded(
+                                                              flex: 1,
+                                                              child: const Text(
+                                                                "复制",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ).paddingAll(10),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        (noteDetailsImageController
+                                                                        .notes
+                                                                        .value
+                                                                        .belongUserId ==
+                                                                    noteDetailsImageController
+                                                                        .userInfo
+                                                                        .value
+                                                                        .id) ||
+                                                                (noteDetailsImageController
+                                                                        .commentList[
+                                                                            index]
+                                                                        .comment
+                                                                        .commentUserId ==
+                                                                    noteDetailsImageController
+                                                                        .userInfo
+                                                                        .value
+                                                                        .id)
+                                                            ? GestureDetector(
+                                                                onTap: () {
+                                                                  if (Get
+                                                                      .isBottomSheetOpen!) {
+                                                                    Get.back();
+                                                                  }
+                                                                  CommentApi.deleteComment(noteDetailsImageController
+                                                                      .commentList[
+                                                                          index]
+                                                                      .comment
+                                                                      .id);
+                                                                  noteDetailsImageController
+                                                                      .commentList
+                                                                      .removeAt(
+                                                                          index);
+                                                                  noteDetailsImageController
+                                                                      .commentList
+                                                                      .refresh();
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  width: double
+                                                                      .infinity,
+                                                                  decoration:
+                                                                      const BoxDecoration(
+                                                                    border:
+                                                                        Border(
+                                                                      bottom:
+                                                                          BorderSide(
+                                                                        color: Color(
+                                                                            0xffe5e5e5),
+                                                                        width:
+                                                                            0.5,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  child:
+                                                                      Expanded(
+                                                                    flex: 1,
+                                                                    child:
+                                                                        const Text(
+                                                                      "删除",
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .center,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            16,
+                                                                        color: Colors
+                                                                            .black,
+                                                                      ),
+                                                                    ).paddingAll(
+                                                                            10),
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : const SizedBox(),
+                                                        Container(
+                                                          height: 15,
+                                                          width:
+                                                              double.infinity,
+                                                          color: const Color(
+                                                              0xfff3f3f2),
+                                                        ),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            Get.back();
+                                                          },
+                                                          child: Container(
+                                                            width:
+                                                                double.infinity,
+                                                            decoration:
+                                                                const BoxDecoration(
+                                                              border: Border(
+                                                                bottom:
+                                                                    BorderSide(
+                                                                  color: Color(
+                                                                      0xffe5e5e5),
+                                                                  width: 0.5,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            child: Expanded(
+                                                              flex: 1,
+                                                              child: const Text(
+                                                                "取消",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize: 16,
+                                                                  color: Colors
+                                                                      .black,
+                                                                ),
+                                                              ).paddingAll(10),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
                                             },
                                             behavior: HitTestBehavior.opaque,
                                             child: Column(
@@ -524,6 +864,11 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                     noteDetailsImageController
                                                         .judgeSameReply(
                                                             jsonEncode(map),
+                                                            noteDetailsImageController
+                                                                .commentList[
+                                                                    index]
+                                                                .comment
+                                                                .id,
                                                             noteDetailsImageController
                                                                 .commentList[
                                                                     index]
@@ -672,10 +1017,7 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                   children: [
                                                     Text(
                                                       maxLines: 1,
-                                                      noteDetailsImageController
-                                                          .commentList[index]
-                                                          .comment
-                                                          .showTime,
+                                                      "${noteDetailsImageController.commentList[index].comment.showTime}   ${noteDetailsImageController.commentList[index].comment.province}   回复",
                                                       textAlign: TextAlign.end,
                                                       style: const TextStyle(
                                                         height: 1.2,
@@ -683,35 +1025,6 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                         color: CustomColor
                                                             .unselectedColor,
                                                       ),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Text(
-                                                      maxLines: 1,
-                                                      noteDetailsImageController
-                                                          .commentList[index]
-                                                          .comment
-                                                          .province,
-                                                      textAlign: TextAlign.end,
-                                                      style: const TextStyle(
-                                                          height: 1.2,
-                                                          fontSize: 12,
-                                                          color: CustomColor
-                                                              .unselectedColor),
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    const Text(
-                                                      '回复',
-                                                      maxLines: 1,
-                                                      textAlign: TextAlign.end,
-                                                      style: TextStyle(
-                                                          height: 1.2,
-                                                          fontSize: 12,
-                                                          color: Color(
-                                                              0xff7d7d7d)),
                                                     ),
                                                   ],
                                                 ).paddingOnly(top: 10),
@@ -862,9 +1175,289 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                               .commentList[
                                                                   index]
                                                               .comment
+                                                              .id,
+                                                          noteDetailsImageController
+                                                              .commentList[
+                                                                  index]
+                                                              .childCommentList[
+                                                                  i]
                                                               .id);
                                                   noteDetailsImageController
                                                       .showBottomInput();
+                                                },
+                                                onLongPress: () {
+                                                  Get.bottomSheet(
+                                                    SingleChildScrollView(
+                                                      child: Container(
+                                                        width: double.infinity,
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius:
+                                                              BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    10),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    10),
+                                                          ),
+                                                        ),
+                                                        child: Column(
+                                                          children: [
+                                                            GestureDetector(
+                                                              onTap: () {
+                                                                if (Get
+                                                                    .isBottomSheetOpen!) {
+                                                                  Get.back();
+                                                                }
+                                                                Map<String,
+                                                                        String>
+                                                                    map = {};
+                                                                map['id'] = noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .childCommentList[
+                                                                        i]
+                                                                    .commentUserId
+                                                                    .toString();
+                                                                map['name'] = noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .childCommentList[
+                                                                        i]
+                                                                    .commentUserName;
+                                                                noteDetailsImageController.judgeSameReply(
+                                                                    jsonEncode(
+                                                                        map),
+                                                                    noteDetailsImageController
+                                                                        .commentList[
+                                                                            index]
+                                                                        .comment
+                                                                        .id,
+                                                                    noteDetailsImageController
+                                                                        .commentList[
+                                                                            index]
+                                                                        .childCommentList[
+                                                                            i]
+                                                                        .id);
+                                                                noteDetailsImageController
+                                                                    .showBottomInput();
+                                                              },
+                                                              child: Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  border:
+                                                                      Border(
+                                                                    bottom:
+                                                                        BorderSide(
+                                                                      color: Color(
+                                                                          0xffe5e5e5),
+                                                                      width:
+                                                                          0.5,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                child: Expanded(
+                                                                  flex: 1,
+                                                                  child:
+                                                                      const Text(
+                                                                    "回复",
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                  ).paddingAll(
+                                                                          10),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            GestureDetector(
+                                                              onTap: () {
+                                                                if (Get
+                                                                    .isBottomSheetOpen!) {
+                                                                  Get.back();
+                                                                }
+                                                                copyToClipboard(parseSpecialText(noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .childCommentList[
+                                                                        i]
+                                                                    .content));
+                                                              },
+                                                              child: Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  border:
+                                                                      Border(
+                                                                    bottom:
+                                                                        BorderSide(
+                                                                      color: Color(
+                                                                          0xffe5e5e5),
+                                                                      width:
+                                                                          0.5,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                child: Expanded(
+                                                                  flex: 1,
+                                                                  child:
+                                                                      const Text(
+                                                                    "复制",
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                  ).paddingAll(
+                                                                          10),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            (noteDetailsImageController
+                                                                            .notes
+                                                                            .value
+                                                                            .belongUserId ==
+                                                                        noteDetailsImageController
+                                                                            .userInfo
+                                                                            .value
+                                                                            .id) ||
+                                                                    (noteDetailsImageController
+                                                                            .commentList[
+                                                                                index]
+                                                                            .childCommentList[
+                                                                                i]
+                                                                            .commentUserId ==
+                                                                        noteDetailsImageController
+                                                                            .userInfo
+                                                                            .value
+                                                                            .id)
+                                                                ? GestureDetector(
+                                                                    onTap: () {
+                                                                      if (Get
+                                                                          .isBottomSheetOpen!) {
+                                                                        Get.back();
+                                                                      }
+                                                                      CommentApi.deleteComment(noteDetailsImageController
+                                                                          .commentList[
+                                                                              index]
+                                                                          .childCommentList[
+                                                                              i]
+                                                                          .id);
+                                                                      noteDetailsImageController
+                                                                          .commentList[
+                                                                              index]
+                                                                          .childCommentList
+                                                                          .removeAt(
+                                                                              i);
+                                                                      noteDetailsImageController
+                                                                          .commentList
+                                                                          .refresh();
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      width: double
+                                                                          .infinity,
+                                                                      decoration:
+                                                                          const BoxDecoration(
+                                                                        border:
+                                                                            Border(
+                                                                          bottom:
+                                                                              BorderSide(
+                                                                            color:
+                                                                                Color(0xffe5e5e5),
+                                                                            width:
+                                                                                0.5,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      child:
+                                                                          Expanded(
+                                                                        flex: 1,
+                                                                        child:
+                                                                            const Text(
+                                                                          "删除",
+                                                                          textAlign:
+                                                                              TextAlign.center,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            color:
+                                                                                Colors.black,
+                                                                          ),
+                                                                        ).paddingAll(10),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : const SizedBox(),
+                                                            Container(
+                                                              height: 15,
+                                                              width: double
+                                                                  .infinity,
+                                                              color: const Color(
+                                                                  0xfff3f3f2),
+                                                            ),
+                                                            GestureDetector(
+                                                              onTap: () {
+                                                                Get.back();
+                                                              },
+                                                              child: Container(
+                                                                width: double
+                                                                    .infinity,
+                                                                decoration:
+                                                                    const BoxDecoration(
+                                                                  border:
+                                                                      Border(
+                                                                    bottom:
+                                                                        BorderSide(
+                                                                      color: Color(
+                                                                          0xffe5e5e5),
+                                                                      width:
+                                                                          0.5,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                child: Expanded(
+                                                                  flex: 1,
+                                                                  child:
+                                                                      const Text(
+                                                                    "取消",
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      color: Colors
+                                                                          .black,
+                                                                    ),
+                                                                  ).paddingAll(
+                                                                          10),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
                                                 },
                                                 behavior:
                                                     HitTestBehavior.opaque,
@@ -980,6 +1573,12 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                                     .commentList[
                                                                         index]
                                                                     .comment
+                                                                    .id,
+                                                                noteDetailsImageController
+                                                                    .commentList[
+                                                                        index]
+                                                                    .childCommentList[
+                                                                        i]
                                                                     .id);
                                                         noteDetailsImageController
                                                             .showBottomInput();
@@ -1124,12 +1723,7 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                       children: [
                                                         Text(
                                                           maxLines: 1,
-                                                          noteDetailsImageController
-                                                              .commentList[
-                                                                  index]
-                                                              .childCommentList[
-                                                                  i]
-                                                              .showTime,
+                                                          "${noteDetailsImageController.commentList[index].childCommentList[i].showTime}   ${noteDetailsImageController.commentList[index].childCommentList[i].province}   回复",
                                                           textAlign:
                                                               TextAlign.end,
                                                           style:
@@ -1139,39 +1733,6 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                             color: CustomColor
                                                                 .unselectedColor,
                                                           ),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Text(
-                                                          maxLines: 1,
-                                                          noteDetailsImageController
-                                                              .commentList[
-                                                                  index]
-                                                              .childCommentList[
-                                                                  i]
-                                                              .province,
-                                                          textAlign:
-                                                              TextAlign.end,
-                                                          style: const TextStyle(
-                                                              height: 1.2,
-                                                              fontSize: 12,
-                                                              color: CustomColor
-                                                                  .unselectedColor),
-                                                        ),
-                                                        const SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        const Text(
-                                                          '回复',
-                                                          maxLines: 1,
-                                                          textAlign:
-                                                              TextAlign.end,
-                                                          style: TextStyle(
-                                                              height: 1.2,
-                                                              fontSize: 12,
-                                                              color: Color(
-                                                                  0xff7d7d7d)),
                                                         ),
                                                       ],
                                                     ).paddingOnly(top: 10),
@@ -1264,7 +1825,7 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                         ? GestureDetector(
                                             onTap: () {
                                               noteDetailsImageController
-                                                  .loadSendComment(
+                                                  .loadSecondComment(
                                                 noteDetailsImageController
                                                     .notes.value.id,
                                                 noteDetailsImageController
@@ -1295,14 +1856,27 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                     noteDetailsImageController
                                                         .commentList[index]
                                                         .hasMore
-                                                ? const Text(
-                                                    "—— 展开更多 ——",
-                                                    style: TextStyle(
-                                                        color:
-                                                            Color(0xff89c3eb),
-                                                        fontSize: 14),
-                                                  ).paddingOnly(
-                                                    top: 10, left: 60)
+                                                ? GestureDetector(
+                                                    onTap: () {
+                                                      noteDetailsImageController
+                                                          .loadSecondComment(
+                                                        noteDetailsImageController
+                                                            .notes.value.id,
+                                                        noteDetailsImageController
+                                                            .commentList[index]
+                                                            .comment
+                                                            .id,
+                                                      );
+                                                    },
+                                                    child: const Text(
+                                                      "—— 展开更多 ——",
+                                                      style: TextStyle(
+                                                          color:
+                                                              Color(0xff89c3eb),
+                                                          fontSize: 14),
+                                                    ).paddingOnly(
+                                                        top: 10, left: 60),
+                                                  )
                                                 : const SizedBox(),
                                     Container(
                                       height: 1,
@@ -1366,7 +1940,8 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                         flex: 1,
                         child: GestureDetector(
                           onTap: () {
-                            noteDetailsImageController.judgeSameReply('', '');
+                            noteDetailsImageController.judgeSameReply(
+                                '', '', '');
                             noteDetailsImageController.showBottomInput();
                           },
                           child: Container(
@@ -1509,7 +2084,7 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                         likeCount:
                             noteDetailsImageController.commentCount.value,
                         onTap: (bool isLiked) async {
-                          noteDetailsImageController.judgeSameReply('', '');
+                          noteDetailsImageController.judgeSameReply('', '', '');
                           noteDetailsImageController.showBottomInput();
                         },
                       ),
