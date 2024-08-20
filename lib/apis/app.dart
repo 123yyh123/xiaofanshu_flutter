@@ -91,10 +91,27 @@ class UserApi {
       params: {"userId": userId, "pageNum": page, "pageSize": size},
     ));
   }
+
+  static Future<HttpResponse> getFansList(
+      int userId, int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/relation/fansList",
+      method: DioMethod.get,
+      params: {"userId": userId, "pageNum": page, "pageSize": size},
+    ));
+  }
 }
 
 class NoteApi {
   static String prefix = "/notes";
+
+  static Future<HttpResponse> publishNotes(Map<String, dynamic> data) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/publish",
+      method: DioMethod.post,
+      data: data,
+    ));
+  }
 
   static Future<HttpResponse> getAttentionUserNotes(int page, int size) async {
     return HttpResponse.fromJson(await Request().request(
@@ -296,5 +313,32 @@ class ThirdApi {
       method: DioMethod.post,
       data: data,
     ));
+  }
+
+  static Future<HttpResponse> uploadVideo(FormData data) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/uploadVideo",
+      method: DioMethod.post,
+      data: data,
+      reactiveTime: const Duration(seconds: 2000),
+    ));
+  }
+
+  // 获取周边信息，location 经度和纬度用","分割，经度在前，纬度在后，经纬度小数点后不得超过6位
+  static Future<Map<String, dynamic>> getPeripheralInformation(
+      String location, int page,
+      {String keywords = ''}) async {
+    Dio dio = Dio();
+    Response response = await dio.get(
+      "https://restapi.amap.com/v3/place/around",
+      queryParameters: {
+        "key": "3b68169ed0fc463234db5491ab18c95e",
+        "location": location,
+        "keywords": keywords,
+        "radius": 10000,
+        "page": page,
+      },
+    );
+    return response.data;
   }
 }

@@ -1,14 +1,18 @@
 import 'dart:io';
 
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animated_progress_bar/flutter_animated_progress_bar.dart';
 import 'package:get/get.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_pickers/image_pickers.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:xiaofanshu_flutter/controller/mine_controller.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 
@@ -166,97 +170,266 @@ class SimpleImagePre extends StatefulWidget {
 }
 
 class _SimpleImagePreState extends State<SimpleImagePre> {
-  String imageUrl = '';
+  late List<String> urls;
+  int currentIndex = 0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    imageUrl = Get.arguments as String;
-    Get.log('ImagePreview imageUrl: $imageUrl');
+    urls = Get.arguments as List<String>;
+    if (Get.parameters['index'] != null) {
+      setState(() {
+        currentIndex = int.parse(Get.parameters['index']!);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Get.back();
+      },
+      onLongPress: () {
+        Get.dialog(
+          AlertDialog(
+            title: const Text('提示'),
+            content: const Text('是否保存图片到相册？'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text('取消'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  LoadingUtil.show();
+                  if (await Permission.photos.status.isLimited ||
+                      await Permission.photos.status.isGranted) {
+                    if (urls[currentIndex].isURL) {
+                      var response = await Dio().get(urls[currentIndex],
+                          options: Options(responseType: ResponseType.bytes));
+                      final result = await ImageGallerySaver.saveImage(
+                        Uint8List.fromList(response.data),
+                      );
+                    } else {
+                      Uint8List bytes =
+                          File(urls[currentIndex]).readAsBytesSync();
+                      final result = await ImageGallerySaver.saveImage(
+                        bytes,
+                      );
+                    }
+                    LoadingUtil.hide();
+                    SnackbarUtil.showSuccess("保存成功");
+                    Get.back();
+                  } else {
+                    LoadingUtil.hide();
+                    await Permission.photos.request();
+                  }
+                },
+                child: const Text('确定'),
+              ),
+            ],
+          ),
+        );
+      },
+      child: Stack(
+        children: [
+          PhotoViewGallery.builder(
+            scrollPhysics: const BouncingScrollPhysics(),
+            builder: (BuildContext context, int index) {
+              return PhotoViewGalleryPageOptions(
+                imageProvider: urls[index].isURL
+                    ? NetworkImage(urls[index])
+                    : FileImage(File(urls[index])),
+                initialScale: PhotoViewComputedScale.contained,
+                heroAttributes: PhotoViewHeroAttributes(tag: urls[index]),
+              );
+            },
+            itemCount: urls.length,
+            loadingBuilder: (context, event) => Center(
+              child: SizedBox(
+                width: 20.0,
+                height: 20.0,
+                child: CircularProgressIndicator(
+                  value: event == null
+                      ? 0
+                      : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                ),
+              ),
+            ),
+            pageController: PageController(
+              initialPage: currentIndex,
+            ),
+            onPageChanged: (index) {
+              Get.log('SimpleImagePre onPageChanged: $index');
+              setState(() {
+                currentIndex = index;
+              });
+            },
+          ),
+          Positioned(
+            top: 100,
+            right: 10,
+            child: Container(
+              decoration: BoxDecoration(
+                color: const Color(0xff2b2b2b),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${currentIndex + 1}/${urls.length}',
+                style: const TextStyle(color: Colors.white, fontSize: 16),
+              ).paddingOnly(left: 5, right: 5, top: 2, bottom: 2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SimpleVideoPre extends StatefulWidget {
+  const SimpleVideoPre({super.key});
+
+  @override
+  State<SimpleVideoPre> createState() => _SimpleVideoPreState();
+}
+
+class _SimpleVideoPreState extends State<SimpleVideoPre>
+    with TickerProviderStateMixin {
+  late CachedVideoPlayerPlusController videoController;
+  late ProgressBarController progressBarController;
+  bool isInitVideo = false;
+  Duration videoTotalTime = Duration.zero;
+  Duration videoCurrentTime = Duration.zero;
+  Duration videoBuffered = Duration.zero;
+  double videoSpeed = 1.0;
+  bool isVideoPause = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    progressBarController = ProgressBarController(vsync: this);
+    videoController = CachedVideoPlayerPlusController.file(
+      File(Get.arguments as String),
+    )..initialize().then((value) async {
+        setState(() {
+          isInitVideo = true;
+          videoTotalTime = videoController.value.duration;
+        });
+        videoController.play();
+        videoController.setLooping(true);
+        videoController.addListener(() {
+          setState(() {
+            videoCurrentTime = videoController.value.position;
+            videoBuffered = videoController.value.buffered.isNotEmpty
+                ? videoController.value.buffered.last.end
+                : Duration.zero;
+            videoSpeed = videoController.value.playbackSpeed;
+            if (videoController.value.isPlaying) {
+              isVideoPause = false;
+            } else {
+              isVideoPause = true;
+            }
+          });
+        });
+      });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    videoController.dispose();
+    progressBarController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.black,
-      child: SingleChildScrollView(
-        child: GestureDetector(
-          onTap: () {
-            Get.back();
-          },
-          onLongPress: () {
-            Get.dialog(
-              AlertDialog(
-                title: const Text('提示'),
-                content: const Text('是否保存图片到相册？'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    child: const Text('取消'),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      LoadingUtil.show();
-                      if (await Permission.photos.status.isLimited ||
-                          await Permission.photos.status.isGranted) {
-                        var response = await Dio().get(imageUrl,
-                            options: Options(responseType: ResponseType.bytes));
-                        final result = await ImageGallerySaver.saveImage(
-                            Uint8List.fromList(response.data),
-                            quality: 60,
-                            name: "hello");
-                        LoadingUtil.hide();
-                        SnackbarUtil.showSuccess("保存成功");
-                        Get.back();
-                      } else {
-                        LoadingUtil.hide();
-                        await Permission.photos.request();
-                      }
-                    },
-                    child: const Text('确定'),
-                  ),
-                ],
-              ),
-            );
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Stack(
             children: [
-              // 头部
-              IconButton(
-                onPressed: () {
-                  Get.back();
-                },
-                icon: const Icon(
-                  Icons.close,
-                  color: CustomColor.unselectedColor,
-                  size: 30,
-                ),
+              Center(
+                child: isInitVideo
+                    ? ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height - 56,
+                        ),
+                        child: AspectRatio(
+                          aspectRatio: videoController.value.aspectRatio,
+                          child: CachedVideoPlayerPlus(videoController),
+                        ),
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator.adaptive(),
+                      ),
               ),
-              const SizedBox(height: 30),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image(
-                  image: imageUrl.isURL
-                      ? NetworkImage(imageUrl)
-                      : FileImage(File(imageUrl)),
-                  width: MediaQuery.of(context).size.width,
-                  fit: BoxFit.cover,
-                ),
-              ).paddingAll(10),
-              const SizedBox(height: 30),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 10,
+                child: isInitVideo
+                    ? Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (isVideoPause) {
+                                videoController.play();
+                              } else {
+                                videoController.pause();
+                              }
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.circular(40),
+                              ),
+                              child: Icon(
+                                isVideoPause
+                                    ? Icons.play_circle_fill
+                                    : Icons.pause,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ).marginOnly(right: 10),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: ProgressBar(
+                              barCapShape: BarCapShape.round,
+                              collapsedProgressBarColor:
+                                  const Color(0xffadadad),
+                              collapsedBufferedBarColor: Colors.transparent,
+                              backgroundBarColor: const Color(0xff595857),
+                              expandedProgressBarColor: Colors.white,
+                              expandedBufferedBarColor: Colors.transparent,
+                              collapsedBarHeight: 1,
+                              expandedBarHeight: 3,
+                              controller: progressBarController,
+                              progress: videoCurrentTime,
+                              buffered: videoBuffered,
+                              total: videoTotalTime,
+                              onSeek: (position) {
+                                videoController.seekTo(position);
+                              },
+                            ),
+                          ),
+                        ],
+                      ).paddingOnly(left: 10, right: 10)
+                    : const SizedBox(),
+              )
             ],
-          ).paddingOnly(
-            top: MediaQuery.of(context).padding.top,
-            left: 10,
-            right: 10,
-            bottom: 10,
           ),
-        ),
+        ],
       ),
     );
   }

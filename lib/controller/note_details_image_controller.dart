@@ -361,6 +361,8 @@ class NoteDetailsImageController extends GetxController {
                                   fontSize: 16,
                                   color: Colors.black,
                                 ),
+                                selectionControls:
+                                    CustomTextSelectionControls(),
                                 autofocus: true,
                                 minLines: 1,
                                 maxLines: 3,

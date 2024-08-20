@@ -39,7 +39,7 @@ class Request {
     BaseOptions options = BaseOptions(
         baseUrl: BaseRequest.baseUrl,
         connectTimeout: BaseRequest.timeout,
-        receiveTimeout: BaseRequest.timeout);
+        receiveTimeout: BaseRequest.receiveTimeout);
     _instance = this;
     // 初始化dio
     _dio = Dio(options);
@@ -110,6 +110,7 @@ class Request {
     Map<String, dynamic>? params,
     dynamic data,
     bool? isShowLoading,
+    Duration? reactiveTime,
     CancelToken? cancelToken,
     Options? options,
     ProgressCallback? onSendProgress,
@@ -124,8 +125,11 @@ class Request {
       DioMethod.head: 'head'
     };
     isShowLoading ??= false;
+    // 特殊长接收时间
+    reactiveTime ??= BaseRequest.receiveTimeout;
     // 默认配置选项
-    options ??= Options(method: methodValues[method]);
+    options ??=
+        Options(method: methodValues[method], receiveTimeout: reactiveTime);
     try {
       Response response;
       // 开始发送请求

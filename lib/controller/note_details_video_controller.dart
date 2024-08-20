@@ -359,6 +359,8 @@ class NoteDetailsVideoController extends GetxController {
                                   isShowAtUser.value = false;
                                   isShowEmoji.value = false;
                                 },
+                                selectionControls:
+                                    CustomTextSelectionControls(),
                                 decoration: InputDecoration(
                                   hintText:
                                       hintText == '' ? '说点什么...' : hintText,
@@ -808,6 +810,8 @@ class NoteDetailsVideoController extends GetxController {
                                       ExtendedTextField(
                                         readOnly: true,
                                         maxLines: null,
+                                        selectionControls:
+                                            CustomTextSelectionControls(),
                                         textAlignVertical:
                                             TextAlignVertical.top,
                                         decoration: const InputDecoration(
@@ -1326,6 +1330,8 @@ class NoteDetailsVideoController extends GetxController {
                                                     },
                                                     readOnly: true,
                                                     maxLines: null,
+                                                    selectionControls:
+                                                        CustomTextSelectionControls(),
                                                     textAlignVertical:
                                                         TextAlignVertical.top,
                                                     decoration:
@@ -1359,13 +1365,15 @@ class NoteDetailsVideoController extends GetxController {
                                                       ? const SizedBox()
                                                       : GestureDetector(
                                                           onTap: () {
+                                                            List<String> list =
+                                                                [];
+                                                            list.add(commentList[
+                                                                    index]
+                                                                .comment
+                                                                .pictureUrl);
                                                             Get.toNamed(
                                                               '/image/simple/pre',
-                                                              arguments:
-                                                                  commentList[
-                                                                          index]
-                                                                      .comment
-                                                                      .pictureUrl,
+                                                              arguments: list,
                                                             );
                                                           },
                                                           child: ConstrainedBox(
@@ -1960,6 +1968,8 @@ class NoteDetailsVideoController extends GetxController {
                                                         },
                                                         readOnly: true,
                                                         maxLines: null,
+                                                        selectionControls:
+                                                            CustomTextSelectionControls(),
                                                         textAlignVertical:
                                                             TextAlignVertical
                                                                 .top,
@@ -1998,13 +2008,17 @@ class NoteDetailsVideoController extends GetxController {
                                                           ? const SizedBox()
                                                           : GestureDetector(
                                                               onTap: () {
+                                                                List<String>
+                                                                    list = [];
+                                                                list.add(commentList[
+                                                                        index]
+                                                                    .childCommentList[
+                                                                        i]
+                                                                    .pictureUrl);
                                                                 Get.toNamed(
                                                                   '/image/simple/pre',
-                                                                  arguments: commentList[
-                                                                          index]
-                                                                      .childCommentList[
-                                                                          i]
-                                                                      .pictureUrl,
+                                                                  arguments:
+                                                                      list,
                                                                 );
                                                               },
                                                               child:

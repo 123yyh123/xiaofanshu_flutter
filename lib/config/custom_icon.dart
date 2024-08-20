@@ -15,4 +15,6 @@ class CustomIcon {
       IconData(0xe62c, fontFamily: "myIcon", matchTextDirection: true);
   static const IconData comment =
       IconData(0xe8b4, fontFamily: "myIcon", matchTextDirection: true);
+  static const IconData commentActive =
+      IconData(0xe6b8, fontFamily: "myIcon", matchTextDirection: true);
 }

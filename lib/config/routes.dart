@@ -1,8 +1,10 @@
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/components/background_image_pre.dart';
+import 'package:xiaofanshu_flutter/components/location_picker.dart';
 import 'package:xiaofanshu_flutter/components/video_horizontal_pre.dart';
 import 'package:xiaofanshu_flutter/pages/auth/login.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
+import 'package:xiaofanshu_flutter/pages/home/mine/attention_fans.dart';
 import 'package:xiaofanshu_flutter/pages/notesDetail/note_details_video.dart';
 import 'package:xiaofanshu_flutter/pages/publish/publish_note.dart';
 
@@ -65,6 +67,23 @@ class RouteConfig {
       name: '/video/clip',
       page: () => const VideoEditor(),
       transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: '/video/simple/pre',
+      page: () => const SimpleVideoPre(),
+      transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: '/location/picker',
+      page: () => const LocationPicker(),
+      transition: Transition.fadeIn,
+      binding: ControllerBinding(),
+    ),
+    GetPage(
+      name: '/relation',
+      page: () => const AttentionFans(),
+      transition: Transition.fadeIn,
+      binding: ControllerBinding(),
     ),
   ];
 }

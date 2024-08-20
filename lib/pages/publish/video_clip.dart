@@ -28,7 +28,7 @@ class _VideoEditorState extends State<VideoEditor> {
     _controller = VideoEditorController.file(
       file,
       minDuration: const Duration(seconds: 1),
-      maxDuration: const Duration(seconds: 10),
+      maxDuration: const Duration(minutes: 5),
     );
     _controller
         .initialize(aspectRatio: aspectRatio)
@@ -87,7 +87,7 @@ class _VideoEditorState extends State<VideoEditor> {
           onCompleted: (cover) {
             if (!mounted) return;
             Get.offAndToNamed('/publish/notes', arguments: {
-              'type': 'video',
+              'type': 1,
               'video': file,
               'cover': cover,
             });

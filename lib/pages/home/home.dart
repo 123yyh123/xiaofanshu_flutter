@@ -6,6 +6,7 @@ import 'package:image_pickers/image_pickers.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xiaofanshu_flutter/controller/home_controller.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/index.dart';
+import 'package:xiaofanshu_flutter/pages/home/message/recently_message.dart';
 import 'package:xiaofanshu_flutter/pages/home/mine/mine.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage> {
     IndexPage(),
     Text('购物'),
     Text('发布'),
-    Text('消息'),
+    RecentlyMessage(),
     MinePage(),
   ];
 
@@ -101,7 +102,7 @@ class _HomePageState extends State<HomePage> {
                                   Get.toNamed(
                                     '/publish/notes',
                                     arguments: {
-                                      'type': 'image',
+                                      'type': 0,
                                       'files': files,
                                     },
                                   );

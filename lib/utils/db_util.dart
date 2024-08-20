@@ -1,9 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:get/get.dart';
-import 'package:xiaofanshu_flutter/apis/app.dart';
-import 'package:xiaofanshu_flutter/model/recommend_tab.dart';
-import 'package:xiaofanshu_flutter/model/response.dart';
-import 'package:xiaofanshu_flutter/static/custom_code.dart';
 
 class DBManager {
   static DBManager? _instance;
@@ -35,6 +31,20 @@ class DBManager {
             updateTime TIMESTAMP DEFAULT (datetime('now', 'localtime'))
           );
         ''');
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS draft_notes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT DEFAULT NULL,
+            content TEXT DEFAULT NULL,
+            type INTEGER DEFAULT 0,
+            filesPath TEXT NOT NULL,
+            coverPath TEXT DEFAULT NULL,
+            authority INTEGER DEFAULT 0,
+            address TEXT DEFAULT NULL,
+            createTime TIMESTAMP DEFAULT (datetime('now', 'localtime'))
+          );
+        ''');
+        Get.log('数据库初始化完成');
       },
     );
   }

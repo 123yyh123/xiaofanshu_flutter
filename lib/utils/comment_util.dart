@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_z_location/flutter_z_location.dart';
 
 // 解决中文和英文提前自动换行问题
 extension FixAutoLines on String {
@@ -46,7 +47,10 @@ Future<Size> getImageDimensions(String imageUrl) async {
 
 // 日期字符串转时间戳
 int dateStringToTimestamp(String dateString) {
-  return DateTime.parse(dateString).millisecondsSinceEpoch;
+  // dateString格式为'yyyy-MM-dd HH:mm:ss'，是UTC时间字符串，需要转换为UTC+8
+  DateTime utcDateTime = DateTime.parse(dateString).toUtc();
+  DateTime localDateTime = utcDateTime.add(const Duration(hours: 8));
+  return localDateTime.millisecondsSinceEpoch;
 }
 
 // 时间戳转日期字符串 'yyyy-MM-dd HH:mm:ss'
@@ -90,4 +94,10 @@ void showKeyboard() {
 
 void copyToClipboard(String text) {
   Clipboard.setData(ClipboardData(text: text));
+}
+
+// 获取经纬度
+Future<String> getLocation() async {
+  final coordinate = await FlutterZLocation.getCoordinate();
+  return '${coordinate.latitude},${coordinate.longitude}';
 }

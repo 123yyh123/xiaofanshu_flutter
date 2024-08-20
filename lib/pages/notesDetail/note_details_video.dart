@@ -306,52 +306,66 @@ class _NoteDetailsVideoState extends State<NoteDetailsVideo>
                                         style: const TextStyle(
                                             color: Colors.white, fontSize: 16),
                                       ).marginOnly(left: 15),
-                                      GestureDetector(
-                                        onTap: () {
-                                          noteDetailsVideoController
-                                                  .notes.value.isFollow =
-                                              !noteDetailsVideoController
-                                                  .notes.value.isFollow;
-                                          noteDetailsVideoController.notes
-                                              .refresh();
-                                          UserApi.attentionUser(
-                                            noteDetailsVideoController
-                                                .userInfo.value.id,
-                                            noteDetailsVideoController
-                                                .notes.value.belongUserId,
-                                          );
-                                        },
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            border: Border.all(
-                                              color: noteDetailsVideoController
-                                                      .notes.value.isFollow
-                                                  ? CustomColor.unselectedColor
-                                                  : CustomColor.primaryColor,
-                                              width: 1,
+                                      noteDetailsVideoController
+                                                  .notes.value.belongUserId ==
+                                              noteDetailsVideoController
+                                                  .userInfo.value.id
+                                          ? const SizedBox()
+                                          : GestureDetector(
+                                              onTap: () {
+                                                noteDetailsVideoController
+                                                        .notes.value.isFollow =
+                                                    !noteDetailsVideoController
+                                                        .notes.value.isFollow;
+                                                noteDetailsVideoController.notes
+                                                    .refresh();
+                                                UserApi.attentionUser(
+                                                  noteDetailsVideoController
+                                                      .userInfo.value.id,
+                                                  noteDetailsVideoController
+                                                      .notes.value.belongUserId,
+                                                );
+                                              },
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                  border: Border.all(
+                                                    color:
+                                                        noteDetailsVideoController
+                                                                .notes
+                                                                .value
+                                                                .isFollow
+                                                            ? CustomColor
+                                                                .unselectedColor
+                                                            : CustomColor
+                                                                .primaryColor,
+                                                    width: 1,
+                                                  ),
+                                                  color:
+                                                      noteDetailsVideoController
+                                                              .notes
+                                                              .value
+                                                              .isFollow
+                                                          ? Colors.transparent
+                                                          : CustomColor
+                                                              .primaryColor,
+                                                ),
+                                                child: Text(
+                                                  noteDetailsVideoController
+                                                          .notes.value.isFollow
+                                                      ? '已关注'
+                                                      : '关注',
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white),
+                                                ).paddingOnly(
+                                                    left: 20,
+                                                    right: 20,
+                                                    top: 5,
+                                                    bottom: 5),
+                                              ).marginOnly(left: 15),
                                             ),
-                                            color: noteDetailsVideoController
-                                                    .notes.value.isFollow
-                                                ? Colors.transparent
-                                                : CustomColor.primaryColor,
-                                          ),
-                                          child: Text(
-                                            noteDetailsVideoController
-                                                    .notes.value.isFollow
-                                                ? '已关注'
-                                                : '关注',
-                                            style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white),
-                                          ).paddingOnly(
-                                              left: 20,
-                                              right: 20,
-                                              top: 5,
-                                              bottom: 5),
-                                        ).marginOnly(left: 15),
-                                      ),
                                     ],
                                   ).paddingOnly(
                                       left: 15, right: 15, bottom: 15),
@@ -362,6 +376,8 @@ class _NoteDetailsVideoState extends State<NoteDetailsVideo>
                                   },
                                   scrollPhysics:
                                       const NeverScrollableScrollPhysics(),
+                                  selectionControls:
+                                      CustomTextSelectionControls(),
                                   decoration: const InputDecoration(
                                     isCollapsed: true,
                                     border: InputBorder.none,

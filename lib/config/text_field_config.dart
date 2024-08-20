@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:extended_text_field/extended_text_field.dart';
+import 'package:flutter/services.dart';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter/gestures.dart';
@@ -107,7 +108,6 @@ class TopicText extends SpecialText {
     TextStyle? textStyle = this
         .textStyle
         ?.copyWith(color: const Color(0xff007bbb), fontSize: 16.0);
-
     final String atText = toString();
     return SpecialTextSpan(
       text: atText,
@@ -211,4 +211,34 @@ String parseSpecialText(String text) {
   text = text.replaceAllMapped(RegExp(r'⟬{"userId":"\d+","name":"(.+?)"}⟭'),
       (Match match) => '${match.group(1)}');
   return text;
+}
+
+class CustomTextSelectionControls extends MaterialTextSelectionControls {
+  @override
+  void handleCopy(TextSelectionDelegate delegate) {
+    final text = delegate.textEditingValue.text;
+    final textToCopy = parseSpecialText(text.substring(
+        delegate.textEditingValue.selection.start,
+        delegate.textEditingValue.selection.end));
+    Get.log('textToCopy: $textToCopy');
+    Clipboard.setData(ClipboardData(text: textToCopy));
+  }
+
+  @override
+  void handleCut(TextSelectionDelegate delegate) {
+    final text = delegate.textEditingValue.text;
+    final textToCopy = parseSpecialText(text.substring(
+        delegate.textEditingValue.selection.start,
+        delegate.textEditingValue.selection.end));
+    Clipboard.setData(ClipboardData(text: textToCopy));
+    delegate.userUpdateTextEditingValue(
+      delegate.textEditingValue.copyWith(
+        text: text.replaceRange(delegate.textEditingValue.selection.start,
+            delegate.textEditingValue.selection.end, ''),
+        selection: TextSelection.collapsed(
+            offset: delegate.textEditingValue.selection.start),
+      ),
+      SelectionChangedCause.toolbar,
+    );
+  }
 }

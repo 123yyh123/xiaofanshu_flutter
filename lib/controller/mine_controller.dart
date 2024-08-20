@@ -3,9 +3,11 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
+import 'package:xiaofanshu_flutter/mapper/draft_notes_mapper.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/model/user.dart';
 import 'package:xiaofanshu_flutter/static/custom_code.dart';
+import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/static/default_data.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
@@ -223,23 +225,35 @@ class MineController extends GetxController {
           if (!isHasMyNotesMore) {
             return;
           }
-          NoteApi.getMyNotes(notesPublishType, myNotesPage, myNotesSize)
-              .then((res) {
-            if (res.code == StatusCode.getSuccess) {
-              if (res.data['list'].length < myNotesSize) {
-                isHasMyNotesMore = false;
+          if (notesPublishType == 0 || notesPublishType == 1) {
+            NoteApi.getMyNotes(notesPublishType, myNotesPage, myNotesSize)
+                .then((res) {
+              if (res.code == StatusCode.getSuccess) {
+                if (res.data['list'].length < myNotesSize) {
+                  isHasMyNotesMore = false;
+                }
+                myNotes.addAll(res.data['list']);
+                myNotesPage++;
+                if (notesPublishType == 0) {
+                  publishNotesNum.value = res.data['total'];
+                } else if (notesPublishType == 1) {
+                  privateNotesNum.value = res.data['total'];
+                }
               }
-              myNotes.addAll(res.data['list']);
+            });
+          } else if (notesPublishType == 2) {
+            DraftNotesMapper.queryAll().then((value) {
+              draftNotesNum.value = value.length;
+              myNotes.clear();
+              myNotes.addAll(value);
+              isHasMyNotesMore = false;
               myNotesPage++;
-              if (notesPublishType == 0) {
-                publishNotesNum.value = res.data['total'];
-              } else if (notesPublishType == 1) {
-                privateNotesNum.value = res.data['total'];
-              } else if (notesPublishType == 2) {
-                draftNotesNum.value = res.data['total'];
+              for (var element in myNotes) {
+                Get.log('element.filesPath: ${element.filesPath}');
+                Get.log('element.coverPath: ${element.coverPath}');
               }
-            }
-          });
+            });
+          }
           break;
         case 1:
           if (!isHasMyCollectsMore) {
@@ -337,6 +351,33 @@ class MineController extends GetxController {
     } finally {
       isNotesLoadMore = false;
     }
+  }
+
+  void onDeleteDraft(id) {
+    Get.defaultDialog(
+      title: '提示',
+      titleStyle: const TextStyle(fontSize: 16, color: Colors.black),
+      middleText: '确定删除这篇草稿吗？',
+      textConfirm: '确定',
+      textCancel: '取消',
+      buttonColor: CustomColor.primaryColor,
+      confirmTextColor: Colors.white,
+      onCancel: () {
+        Get.back();
+      },
+      onConfirm: () {
+        DraftNotesMapper.delete(id).then((value) {
+          if (value > 0) {
+            SnackbarUtil.showSuccess('删除成功');
+            draftNotesNum.value--;
+            myNotes.removeWhere((element) => element.id == id);
+          } else {
+            SnackbarUtil.showError('删除失败');
+          }
+        });
+        Get.back();
+      },
+    );
   }
 }
 

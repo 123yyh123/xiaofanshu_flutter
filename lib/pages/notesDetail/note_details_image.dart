@@ -184,13 +184,21 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                   )
                                 : GestureDetector(
                                     onTap: () {
+                                      List<String> urls = [];
+                                      for (int i = 0;
+                                          i <
+                                              noteDetailsImageController.notes
+                                                  .value.notesResources.length;
+                                          i++) {
+                                        urls.add(noteDetailsImageController
+                                            .notes.value.notesResources[i].url);
+                                      }
                                       Get.toNamed(
                                         '/image/simple/pre',
-                                        arguments: noteDetailsImageController
-                                            .notes
-                                            .value
-                                            .notesResources[index]
-                                            .url,
+                                        arguments: urls,
+                                        parameters: {
+                                          'index': index.toString(),
+                                        },
                                       );
                                     },
                                     child: CachedNetworkImage(
@@ -242,6 +250,7 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                               fontSize: 16, color: Colors.black),
                           readOnly: true,
                           maxLines: null,
+                          selectionControls: CustomTextSelectionControls(),
                           controller:
                               noteDetailsImageController.contentController,
                           specialTextSpanBuilder: MySpecialTextSpanBuilder(),
@@ -882,6 +891,8 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                   },
                                                   readOnly: true,
                                                   maxLines: null,
+                                                  selectionControls:
+                                                      CustomTextSelectionControls(),
                                                   textAlignVertical:
                                                       TextAlignVertical.top,
                                                   decoration:
@@ -918,14 +929,17 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                     ? const SizedBox()
                                                     : GestureDetector(
                                                         onTap: () {
+                                                          List<String> urls =
+                                                              [];
+                                                          urls.add(
+                                                              noteDetailsImageController
+                                                                  .commentList[
+                                                                      index]
+                                                                  .comment
+                                                                  .pictureUrl);
                                                           Get.toNamed(
                                                             '/image/simple/pre',
-                                                            arguments:
-                                                                noteDetailsImageController
-                                                                    .commentList[
-                                                                        index]
-                                                                    .comment
-                                                                    .pictureUrl,
+                                                            arguments: urls,
                                                           );
                                                         },
                                                         child: ConstrainedBox(
@@ -1585,6 +1599,8 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                       },
                                                       readOnly: true,
                                                       maxLines: null,
+                                                      selectionControls:
+                                                          CustomTextSelectionControls(),
                                                       textAlignVertical:
                                                           TextAlignVertical.top,
                                                       decoration:
@@ -1626,14 +1642,17 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                                                         ? const SizedBox()
                                                         : GestureDetector(
                                                             onTap: () {
+                                                              List<String>
+                                                                  urls = [];
+                                                              urls.add(noteDetailsImageController
+                                                                  .commentList[
+                                                                      index]
+                                                                  .childCommentList[
+                                                                      i]
+                                                                  .pictureUrl);
                                                               Get.toNamed(
                                                                 '/image/simple/pre',
-                                                                arguments: noteDetailsImageController
-                                                                    .commentList[
-                                                                        index]
-                                                                    .childCommentList[
-                                                                        i]
-                                                                    .pictureUrl,
+                                                                arguments: urls,
                                                               );
                                                             },
                                                             child:

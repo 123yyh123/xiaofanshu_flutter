@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:animation_wrappers/animations/faded_slide_animation.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'package:xiaofanshu_flutter/controller/mine_controller.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:xiaofanshu_flutter/utils/date_show_util.dart';
 import '../../../components/item.dart';
 
 class MinePage extends StatefulWidget {
@@ -381,7 +384,12 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                         CrossAxisAlignment.center,
                                     children: [
                                       GestureDetector(
-                                          onTap: () {},
+                                          onTap: () {
+                                            Get.toNamed(
+                                              '/relation',
+                                              arguments: 0,
+                                            );
+                                          },
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
@@ -401,7 +409,12 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                             ],
                                           ).paddingOnly(left: 10, right: 10)),
                                       GestureDetector(
-                                          onTap: () {},
+                                          onTap: () {
+                                            Get.toNamed(
+                                              '/relation',
+                                              arguments: 1,
+                                            );
+                                          },
                                           child: Column(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
@@ -961,23 +974,129 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                         crossAxisSpacing: 8,
                         padding: const EdgeInsets.all(10),
                         itemBuilder: (BuildContext context, int index) {
-                          return ItemView(
-                            id: mineController.myNotes[index]['id'],
-                            authorId: mineController.myNotes[index]
-                                ['belongUserId'],
-                            coverPicture: mineController.myNotes[index]
-                                ['coverPicture'],
-                            noteTitle: mineController.myNotes[index]['title'],
-                            authorAvatar: mineController.myNotes[index]
-                                ['avatarUrl'],
-                            authorName: mineController.myNotes[index]
-                                ['nickname'],
-                            notesLikeNum: mineController.myNotes[index]
-                                ['notesLikeNum'],
-                            notesType: mineController.myNotes[index]
-                                ['notesType'],
-                            isLike: mineController.myNotes[index]['isLike'],
-                          );
+                          return mineController.notesPublishType.value == 2
+                              ? GestureDetector(
+                                  onTap: () {
+                                    Get.log('点击了草稿');
+                                    Map<String, dynamic> args = {
+                                      'id': mineController.myNotes[index].id,
+                                      'draft': true,
+                                    };
+                                    Get.toNamed('/publish/notes',
+                                        arguments: args);
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          ConstrainedBox(
+                                            constraints: const BoxConstraints(
+                                              minHeight: 0,
+                                              maxHeight: 200,
+                                              minWidth: double.infinity,
+                                              maxWidth: double.infinity,
+                                            ),
+                                            child: Builder(builder: (context) {
+                                              return Container(
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(10)),
+                                                  image: mineController
+                                                              .myNotes[index]
+                                                              .type ==
+                                                          0
+                                                      ? DecorationImage(
+                                                          image: FileImage(
+                                                            // 以逗号分割，取第一个
+                                                            File(mineController
+                                                                    .myNotes[
+                                                                        index]
+                                                                    .filesPath
+                                                                    .contains(
+                                                                        ',')
+                                                                ? mineController
+                                                                    .myNotes[
+                                                                        index]
+                                                                    .filesPath
+                                                                    .split(
+                                                                        ',')[0]
+                                                                : mineController
+                                                                    .myNotes[
+                                                                        index]
+                                                                    .filesPath),
+                                                          ),
+                                                          fit: BoxFit.cover,
+                                                        )
+                                                      : DecorationImage(
+                                                          image: FileImage(
+                                                            File(mineController
+                                                                .myNotes[index]
+                                                                .coverPath),
+                                                          ),
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                ),
+                                              );
+                                            }),
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                DateShowUtil.showDateWithTime(
+                                                    mineController
+                                                        .myNotes[index]
+                                                        .createTime),
+                                                style: const TextStyle(
+                                                  color: Color(0xffa3a3a2),
+                                                  fontSize: 10,
+                                                ),
+                                              ),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  mineController.onDeleteDraft(
+                                                      mineController
+                                                          .myNotes[index].id);
+                                                },
+                                                child: const Icon(
+                                                  Icons.delete_forever_rounded,
+                                                  color: Color(0xffa3a3a2),
+                                                  size: 16,
+                                                ),
+                                              ),
+                                            ],
+                                          ).paddingAll(5),
+                                        ]),
+                                  ),
+                                )
+                              : ItemView(
+                                  id: mineController.myNotes[index]['id'],
+                                  authorId: mineController.myNotes[index]
+                                      ['belongUserId'],
+                                  coverPicture: mineController.myNotes[index]
+                                      ['coverPicture'],
+                                  noteTitle: mineController.myNotes[index]
+                                      ['title'],
+                                  authorAvatar: mineController.myNotes[index]
+                                      ['avatarUrl'],
+                                  authorName: mineController.myNotes[index]
+                                      ['nickname'],
+                                  notesLikeNum: mineController.myNotes[index]
+                                      ['notesLikeNum'],
+                                  notesType: mineController.myNotes[index]
+                                      ['notesType'],
+                                  isLike: mineController.myNotes[index]
+                                      ['isLike'],
+                                );
                         },
                         staggeredTileBuilder: (int index) =>
                             const StaggeredTile.fit(1),
