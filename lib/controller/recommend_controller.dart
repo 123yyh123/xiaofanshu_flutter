@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/mapper/recommend_tab_mapper.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/static/default_data.dart';
+import 'package:xiaofanshu_flutter/utils/db_util.dart';
 
 import '../apis/app.dart';
 import '../model/recommend_tab.dart';
@@ -29,6 +30,7 @@ class RecommendController extends GetxController
     super.onInit();
     // 从本地数据库获取tabBarList
     tabController = TabController(length: tabBarList.length, vsync: this);
+    await DBManager.instance.createRecommendTabTable();
     List<RecommendTab> recommendTabList = await RecommendTabMapper.queryAll();
     if (recommendTabList.isNotEmpty) {
       tabBarList.value = recommendTabList.map((e) => e).toList();
@@ -78,6 +80,13 @@ class RecommendController extends GetxController
         onLoading();
       }
     });
+  }
+
+  @override
+  void onClose() {
+    // TODO: implement onClose
+    super.onClose();
+    tabController.dispose();
   }
 
   // 处理点击事件

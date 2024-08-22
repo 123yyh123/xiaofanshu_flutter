@@ -5,6 +5,7 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animated_progress_bar/flutter_animated_progress_bar.dart';
 import 'package:get/get.dart';
+import 'package:heart_overlay/heart_overlay.dart';
 import 'package:like_button/like_button.dart';
 
 import '../../apis/app.dart';
@@ -105,19 +106,6 @@ class _NoteDetailsVideoState extends State<NoteDetailsVideo>
                         noteDetailsVideoController.isVideoPause.value = true;
                       }
                     },
-                    // onDoubleTap: () {
-                    //   noteDetailsVideoController.notes.value.isLike =
-                    //       !noteDetailsVideoController.notes.value.isLike;
-                    //   noteDetailsVideoController.notes.value.isLike
-                    //       ? noteDetailsVideoController
-                    //           .notes.value.notesLikeNum++
-                    //       : noteDetailsVideoController
-                    //           .notes.value.notesLikeNum--;
-                    //   NoteApi.praiseNotes(
-                    //       noteDetailsVideoController.notes.value.id,
-                    //       noteDetailsVideoController.userInfo.value.id,
-                    //       noteDetailsVideoController.notes.value.belongUserId);
-                    // },
                     onLongPressStart: (details) {
                       // 2倍速播放
                       if (noteDetailsVideoController
@@ -189,6 +177,42 @@ class _NoteDetailsVideoState extends State<NoteDetailsVideo>
                                 ),
                               ),
                             ),
+                          ),
+                          HeartOverlay(
+                            controller: noteDetailsVideoController
+                                .heartOverlayController,
+                            duration: const Duration(milliseconds: 2500),
+                            backgroundColor: Colors.transparent,
+                            tapDownType: TapDownType.double,
+                            // verticalOffset: 20,
+                            // horizontalOffset: -100,
+                            enableGestures: true,
+                            cacheExtent: 30,
+                            splashAnimationDetails:
+                                const SplashAnimationDetails(
+                              enableSplash: true,
+                              animationDuration: Duration(milliseconds: 1000),
+                            ),
+                            icon: const Icon(
+                              Icons.favorite,
+                              color: Colors.redAccent,
+                              size: 100,
+                            ),
+                            onPressed: (numberOfHearts) {
+                              if (!noteDetailsVideoController
+                                  .notes.value.isLike) {
+                                noteDetailsVideoController.notes.value.isLike =
+                                    true;
+                                noteDetailsVideoController
+                                    .notes.value.notesLikeNum++;
+                                NoteApi.praiseNotes(
+                                    noteDetailsVideoController.notes.value.id,
+                                    noteDetailsVideoController
+                                        .userInfo.value.id,
+                                    noteDetailsVideoController
+                                        .notes.value.belongUserId);
+                              }
+                            },
                           ),
                           // 当宽大于高时，显示全屏按钮
                           noteDetailsVideoController.isInitVideo.value &&

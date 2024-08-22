@@ -9,6 +9,7 @@ import 'package:xiaofanshu_flutter/model/user.dart';
 import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/static/default_data.dart';
+import 'package:xiaofanshu_flutter/utils/db_util.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
 
@@ -74,6 +75,7 @@ class MineController extends GetxController {
       myNotesPage = 1;
       getNotesList(0, notesPublishType.value);
     }
+    await DBManager.instance.createDraftNotesTable();
     NoteApi.getAllNotesCountAndPraiseCountAndCollectCount().then((res) {
       if (res.code == StatusCode.getSuccess) {
         notesCount.value = res.data['notesCount'];

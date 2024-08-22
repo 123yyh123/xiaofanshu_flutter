@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/apis/app.dart';
+import 'package:xiaofanshu_flutter/controller/websocket_controller.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
 import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
+import 'package:xiaofanshu_flutter/utils/db_util.dart';
 import 'package:xiaofanshu_flutter/utils/parameter_verification.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
@@ -104,6 +106,8 @@ class LoginController extends GetxController {
         // 保存token
         await saveData('token', response.data['token']);
         await saveData('userInfo', jsonEncode(response.data));
+        Get.delete<WebsocketController>(force: true);
+        DBManager.dispose();
         Get.log('userInfo: ${jsonEncode(response.data)}');
       } else {
         SnackbarUtil.showError(ErrorString.unknownError);

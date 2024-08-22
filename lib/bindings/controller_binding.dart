@@ -6,9 +6,12 @@ import 'package:xiaofanshu_flutter/controller/mine_controller.dart';
 import 'package:xiaofanshu_flutter/controller/note_details_image_controller.dart';
 import 'package:xiaofanshu_flutter/controller/note_details_video_controller.dart';
 import 'package:xiaofanshu_flutter/controller/publish_notes_controller.dart';
+import 'package:xiaofanshu_flutter/controller/recently_message_controller.dart';
 import 'package:xiaofanshu_flutter/controller/recommend_controller.dart';
+import '../controller/chat_controller.dart';
 import '../controller/login_controller.dart';
 import '../controller/home_controller.dart';
+import '../controller/other_mine_controller.dart';
 
 class ControllerBinding extends Bindings {
   @override
@@ -23,5 +26,8 @@ class ControllerBinding extends Bindings {
     Get.lazyPut(() => PublishNotesController());
     Get.lazyPut(() => LocationController());
     Get.lazyPut(() => AttentionFansController());
+    Get.lazyPut(() => OtherMineController());
+    Get.lazyPut(() => ChatController());
+    Get.lazyPut(() => RecentlyMessageController());
   }
 }

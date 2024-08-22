@@ -1,10 +1,12 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <!--照片-->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!--视频-->
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <!--音频-->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!--允许获取精确位置，精准定位必选-->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -32,7 +34,9 @@
     <application
         android:label="xiaofanshu_flutter"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        tools:replace="android:label"
+        android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:exported="true"

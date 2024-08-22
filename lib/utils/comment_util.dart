@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_z_location/flutter_z_location.dart';
+import 'package:xiaofanshu_flutter/utils/Adapt.dart';
 
 // 解决中文和英文提前自动换行问题
 extension FixAutoLines on String {
@@ -66,9 +67,12 @@ String timestampToDateString(int timestamp) {
 void insertText(String text, TextEditingController controller) {
   final textValue = controller.text;
   final textSelection = controller.selection;
+// 确保光标位置有效
+  final start = textSelection.start < 0 ? 0 : textSelection.start;
+  final end = textSelection.end < 0 ? 0 : textSelection.end;
   final newText = textValue.replaceRange(
-    textSelection.start,
-    textSelection.end,
+    start,
+    end,
     text,
   );
 
@@ -100,4 +104,14 @@ void copyToClipboard(String text) {
 Future<String> getLocation() async {
   final coordinate = await FlutterZLocation.getCoordinate();
   return '${coordinate.latitude},${coordinate.longitude}';
+}
+
+// 根据语音时长来计算组件宽度
+double calculateAudioWidth(int audioTime) {
+  final double maxWidth = Adapt.setRpx(450);
+  final double minWidth = Adapt.setRpx(150);
+  // 语音时长超出60秒的，按60秒计算
+  final int time = audioTime > 60 ? 60 : audioTime;
+  final double width = minWidth + (maxWidth - minWidth) * time / 60;
+  return width;
 }

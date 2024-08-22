@@ -29,6 +29,21 @@ class SnackbarUtil {
     );
   }
 
+  static void showNewMessage(
+      String avatar, String nickname, String message, String userId) {
+    showTopSnackBar(
+      Overlay.of(Get.context!),
+      _messageWidget(avatar, nickname, message),
+      onTap: () {
+        Get.log('userId: $userId');
+        Get.toNamed('/chat', arguments: userId);
+      },
+      displayDuration: const Duration(milliseconds: 500),
+      onAnimationControllerInit: (controller) =>
+          localAnimationController = controller,
+    );
+  }
+
   static void showInfo(String message) {
     show(message, info);
   }
@@ -43,5 +58,56 @@ class SnackbarUtil {
 
   static void hide() {
     localAnimationController?.reverse();
+  }
+
+  static Widget _messageWidget(String avatar, String nickname, String message) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundImage: NetworkImage(avatar),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nickname,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  message,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:super_network_logger/super_network_logger.dart';
+import 'package:xiaofanshu_flutter/controller/websocket_controller.dart';
 import 'package:xiaofanshu_flutter/pages/auth/login.dart';
 import 'package:xiaofanshu_flutter/static/custom_code.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
@@ -153,10 +154,12 @@ class Request {
           await removeData('token');
           await removeData('userInfo');
           Get.Get.off(const LoginPage());
+          Get.Get.delete<WebsocketController>(force: true);
         } else if (e.response?.data['code'] == StatusCode.accountOtherLogin) {
           SnackbarUtil.showError(AuthErrorString.loginOnOtherDevice);
           await removeData('token');
           await removeData('userInfo');
+          Get.Get.delete<WebsocketController>(force: true);
           Get.Get.off(const LoginPage());
         } else {
           SnackbarUtil.showError(e.response?.data['msg']);

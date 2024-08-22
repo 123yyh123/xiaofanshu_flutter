@@ -598,21 +598,27 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Container(
-                                        height: 30,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
-                                        child: const Text(
-                                          '编辑资料',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
+                                      GestureDetector(
+                                        onTap: () {
+                                          Get.toNamed('/test');
+                                        },
+                                        child: Container(
+                                          height: 30,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(15),
                                           ),
-                                        ).paddingOnly(left: 15, right: 15),
+                                          child: const Text(
+                                            '编辑资料',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                            ),
+                                          ).paddingOnly(left: 15, right: 15),
+                                        ),
                                       ),
                                       Container(
                                         height: 30,

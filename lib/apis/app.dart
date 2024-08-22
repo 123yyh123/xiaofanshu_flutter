@@ -71,6 +71,7 @@ class UserApi {
     return HttpResponse.fromJson(await Request().request(
       "$prefix/relation/attention",
       method: DioMethod.post,
+      isShowLoading: true,
       params: {"userId": userId, "targetUserId": targetUserId},
     ));
   }
@@ -321,6 +322,14 @@ class ThirdApi {
       method: DioMethod.post,
       data: data,
       reactiveTime: const Duration(seconds: 2000),
+    ));
+  }
+
+  static Future<HttpResponse> uploadAudio(FormData data) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/uploadAudio",
+      method: DioMethod.post,
+      data: data,
     ));
   }
 

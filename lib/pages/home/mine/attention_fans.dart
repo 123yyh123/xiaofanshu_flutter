@@ -81,6 +81,13 @@ class _AttentionFansState extends State<AttentionFans>
                     itemCount: attentionFansController.attentionList.length,
                     itemBuilder: (context, index) {
                       return ListTile(
+                        onTap: () {
+                          Get.toNamed(
+                            "/other/mine",
+                            arguments: attentionFansController
+                                .attentionList[index]["userId"],
+                          );
+                        },
                         leading: Container(
                           width: 50,
                           height: 50,
@@ -202,6 +209,13 @@ class _AttentionFansState extends State<AttentionFans>
                     itemCount: attentionFansController.fansList.length,
                     itemBuilder: (context, index) {
                       return ListTile(
+                        onTap: () {
+                          Get.toNamed(
+                            "/other/mine",
+                            arguments: attentionFansController.fansList[index]
+                                ["userId"],
+                          );
+                        },
                         leading: Container(
                           width: 50,
                           height: 50,

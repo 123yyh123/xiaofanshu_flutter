@@ -240,17 +240,18 @@ class _HomePageState extends State<HomePage> {
                 ),
                 label: HomeTabName.release),
             const BottomNavigationBarItem(
-                icon: Text(HomeTabName.message,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: CustomColor.unselectedColor,
-                    )),
-                activeIcon: Text(HomeTabName.message,
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Color(0xff2b2b2b),
-                    )),
-                label: HomeTabName.message),
+              icon: Text(HomeTabName.message,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: CustomColor.unselectedColor,
+                  )),
+              activeIcon: Text(HomeTabName.message,
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Color(0xff2b2b2b),
+                  )),
+              label: HomeTabName.message,
+            ),
             const BottomNavigationBarItem(
                 icon: Text(HomeTabName.mine,
                     style: TextStyle(

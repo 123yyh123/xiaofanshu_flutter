@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animated_progress_bar/flutter_animated_progress_bar.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:get/get.dart';
+import 'package:heart_overlay/heart_overlay.dart';
 import 'package:image_pickers/image_pickers.dart';
 import 'package:like_button/like_button.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
@@ -64,6 +65,7 @@ class NoteDetailsVideoController extends GetxController {
   var videoCurrentTime = Duration.zero.obs;
   var videoBuffered = Duration.zero.obs;
   var videoSpeed = 1.0.obs;
+  late HeartOverlayController heartOverlayController;
 
   // TODO 评论滚动控制监听
 
@@ -73,6 +75,7 @@ class NoteDetailsVideoController extends GetxController {
     super.onInit();
     var notesId = Get.arguments as int;
     Get.log('controller init: $notesId');
+    heartOverlayController = HeartOverlayController();
     CommentApi.getCommentCountByNotesId(notesId).then((value) {
       if (value.code == StatusCode.getSuccess) {
         commentCount.value = value.data;
@@ -138,6 +141,14 @@ class NoteDetailsVideoController extends GetxController {
         loadAttentionList();
       }
     });
+  }
+
+  @override
+  void onClose() {
+    // TODO: implement onClose
+    super.onClose();
+    videoController.dispose();
+    progressBarController.dispose();
   }
 
   void loadComment(int notesId) {
