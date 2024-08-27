@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:get/get.dart';
 
 class AudioPlayManager {
   static AudioPlayManager? _instance;
@@ -14,9 +15,13 @@ class AudioPlayManager {
 
   // 释放资源
   static void dispose() {
-    _audioPlayer?.stop();
-    _audioPlayer?.release();
-    _audioPlayer?.dispose();
+    try {
+      _audioPlayer?.stop();
+      _audioPlayer?.release();
+      _audioPlayer?.dispose();
+    } catch (e) {
+      Get.log('音频播放器关闭');
+    }
     _audioPlayer = null;
     _instance = null;
   }

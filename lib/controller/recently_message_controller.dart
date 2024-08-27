@@ -4,6 +4,7 @@ import 'package:xiaofanshu_flutter/mapper/recently_message_mapper.dart';
 import 'package:xiaofanshu_flutter/model/recently_message.dart';
 
 import '../utils/db_util.dart';
+import 'home_controller.dart';
 
 class RecentlyMessageController extends GetxController {
   var recentlyMessageList = List<RecentlyMessage>.empty().obs;
@@ -46,5 +47,7 @@ class RecentlyMessageController extends GetxController {
     RecentlyMessageMapper.updateRead(recentlyMessageList[index].id!);
     recentlyMessageList[index].unreadNum = 0;
     recentlyMessageList.refresh();
+    // 通知HomeController更新角标
+    Get.find<HomeController>().refreshUnReadCount();
   }
 }

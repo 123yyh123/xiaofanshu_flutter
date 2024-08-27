@@ -2,15 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:image_pickers/image_pickers.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xiaofanshu_flutter/controller/home_controller.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/index.dart';
 import 'package:xiaofanshu_flutter/pages/home/message/recently_message.dart';
 import 'package:xiaofanshu_flutter/pages/home/mine/mine.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
-import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
-
+import 'package:badges/badges.dart' as badges;
 import '../../static/custom_color.dart';
 
 class HomePage extends StatefulWidget {
@@ -214,13 +212,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     );
-                    // List<AssetEntity>? pickAssets =
-                    //     await AssetPicker.pickAssets(
-                    //   context,
-                    //   pickerConfig: const AssetPickerConfig(
-                    //     maxAssets: 9,
-                    //   ),
-                    // );
                   },
                   icon: Center(
                     child: Container(
@@ -239,17 +230,49 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 label: HomeTabName.release),
-            const BottomNavigationBarItem(
-              icon: Text(HomeTabName.message,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: CustomColor.unselectedColor,
-                  )),
-              activeIcon: Text(HomeTabName.message,
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: Color(0xff2b2b2b),
-                  )),
+            BottomNavigationBarItem(
+              icon: homeController.unReadCount.value == 0
+                  ? const Text(HomeTabName.message,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: CustomColor.unselectedColor,
+                      ))
+                  : badges.Badge(
+                      badgeContent: Text(
+                        homeController.unReadCount.value.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                      badgeAnimation: const badges.BadgeAnimation.scale(),
+                      child: const Text(HomeTabName.message,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: CustomColor.unselectedColor,
+                          )),
+                    ),
+              activeIcon: homeController.unReadCount.value == 0
+                  ? const Text(HomeTabName.message,
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Color(0xff2b2b2b),
+                      ))
+                  : badges.Badge(
+                      badgeContent: Text(
+                        homeController.unReadCount.value.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                      badgeAnimation: const badges.BadgeAnimation.scale(),
+                      child: const Text(HomeTabName.message,
+                          style: TextStyle(
+                            fontSize: 22,
+                            color: Color(0xff2b2b2b),
+                          )),
+                    ),
               label: HomeTabName.message,
             ),
             const BottomNavigationBarItem(

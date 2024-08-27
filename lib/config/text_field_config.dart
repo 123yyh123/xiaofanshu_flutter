@@ -90,7 +90,16 @@ class AtText extends SpecialText {
   }
 
   void _handleTap(String text) {
-    print("Tapped on: $text");
+    // 解析id  @{"name":"测试用户1","id":"1675532564583455936"}
+    Get.log("Tapped on: $text");
+    try {
+      String json = text.replaceAll('\u200B', '');
+      Map<String, dynamic> map = jsonDecode(json.substring(1, text.length - 1));
+      Get.log('id: ${map['id']}');
+      Get.toNamed('/other/mine', arguments: map['id'].toString());
+    } catch (e) {
+      Get.log('不是有效的json格式');
+    }
   }
 }
 
@@ -198,7 +207,15 @@ class ReplyText extends SpecialText {
   }
 
   void _handleTap(String text) {
-    print("Tapped on: $text");
+    Get.log("Tapped on: $text");
+    try {
+      String json = text.replaceAll('\u200B', '');
+      Map<String, dynamic> map = jsonDecode(json.substring(1, text.length - 1));
+      Get.log('id: ${map['userId']}');
+      Get.toNamed('/other/mine', arguments: map['userId'].toString());
+    } catch (e) {
+      Get.log('不是有效的json格式');
+    }
   }
 }
 

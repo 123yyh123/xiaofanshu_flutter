@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animated_progress_bar/flutter_animated_progress_bar.dart';
 import 'package:get/get.dart';
 import 'package:heart_overlay/heart_overlay.dart';
+import 'package:lifecycle_lite/lifecycle_mixin.dart';
 import 'package:like_button/like_button.dart';
 
 import '../../apis/app.dart';
@@ -23,7 +24,7 @@ class NoteDetailsVideo extends StatefulWidget {
 }
 
 class _NoteDetailsVideoState extends State<NoteDetailsVideo>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, LifecycleStatefulMixin {
   NoteDetailsVideoController noteDetailsVideoController = Get.find();
 
   @override
@@ -40,6 +41,21 @@ class _NoteDetailsVideoState extends State<NoteDetailsVideo>
     super.dispose();
     Get.log('dispose');
     noteDetailsVideoController.videoController.pause();
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+    Get.log('deactivate');
+    noteDetailsVideoController.videoController.pause();
+  }
+
+  @override
+  void activate() {
+    // TODO: implement activate
+    super.activate();
+    noteDetailsVideoController.videoController.play();
   }
 
   @override
@@ -626,5 +642,19 @@ class _NoteDetailsVideoState extends State<NoteDetailsVideo>
               ),
       ),
     );
+  }
+
+  @override
+  void whenHide() {
+    // TODO: implement whenHide
+    Get.log('whenHide');
+    noteDetailsVideoController.videoController.pause();
+  }
+
+  @override
+  void whenShow() {
+    // TODO: implement whenShow
+    Get.log('whenShow');
+    noteDetailsVideoController.videoController.play();
   }
 }

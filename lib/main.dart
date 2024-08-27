@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
+import 'package:lifecycle_lite/life_navigator_observer.dart';
+import 'package:tencent_calls_uikit/tuicall_kit.dart';
 import 'package:xiaofanshu_flutter/controller/websocket_controller.dart';
 import 'package:xiaofanshu_flutter/pages/auth/login.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
@@ -30,6 +32,10 @@ class MyApp extends StatelessWidget {
       supportedLocales: const [
         Locale('zh', 'CN'),
         Locale('en', 'US'),
+      ],
+      navigatorObservers: [
+        LifeNavigatorObserver(),
+        TUICallKit.navigatorObserver,
       ],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -67,11 +73,13 @@ class _InitializationPageState extends State<InitializationPage> {
     // TODO: implement initState
     super.initState();
     readData('token').then((value) {
-      if (value != null && value != '') {
-        Get.offAllNamed('/home');
-      } else {
-        Get.offAllNamed('/login');
-      }
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (value != null && value != '') {
+          Get.offAllNamed('/home');
+        } else {
+          Get.offAllNamed('/login');
+        }
+      });
     });
   }
 

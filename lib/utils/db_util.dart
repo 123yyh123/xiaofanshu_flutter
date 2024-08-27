@@ -16,7 +16,11 @@ class DBManager {
 
   // 销毁
   static void dispose() {
-    _database?.close();
+    try {
+      _database?.close();
+    } catch (e) {
+      Get.log('数据库关闭');
+    }
     _database = null;
     _instance = null;
   }

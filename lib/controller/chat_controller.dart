@@ -31,6 +31,7 @@ import '../static/default_data.dart';
 import '../utils/permission_apply.dart';
 import '../utils/snackbar_util.dart';
 import '../utils/store_util.dart';
+import 'home_controller.dart';
 
 class ChatController extends GetxController {
   WebsocketController websocketController = Get.find();
@@ -39,6 +40,7 @@ class ChatController extends GetxController {
   var otherUserInfo = OtherUser.defaultUser.obs;
   var hasText = false.obs;
   var isShowEmoji = false.obs;
+  var isShowMore = false.obs;
   var chatList = [].obs;
   var hasMore = true.obs;
   var isLoading = false.obs;
@@ -93,6 +95,8 @@ class ChatController extends GetxController {
         } else {
           Get.log('RecentlyMessageController未注册');
         }
+        // 通知HomeController更新角标
+        Get.find<HomeController>().refreshUnReadCount();
       }
     });
   }

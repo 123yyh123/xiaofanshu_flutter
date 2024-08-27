@@ -40,7 +40,11 @@ class _AudioAnimationState extends State<AudioAnimation>
       if (AudioPlayManager.instance.audioPlayer.source == null ||
           (AudioPlayManager.instance.audioPlayer.source as UrlSource).url !=
               widget.message) {
-        animationController.stop();
+        try {
+          animationController.stop();
+        } catch (e) {
+          Get.log('动画控制器已经被释放');
+        }
         return;
       }
       Get.log('语音状态变为了: $event');

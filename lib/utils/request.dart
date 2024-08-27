@@ -154,12 +154,12 @@ class Request {
           await removeData('token');
           await removeData('userInfo');
           Get.Get.off(const LoginPage());
-          Get.Get.delete<WebsocketController>(force: true);
+          Get.Get.find<WebsocketController>().disconnect();
         } else if (e.response?.data['code'] == StatusCode.accountOtherLogin) {
           SnackbarUtil.showError(AuthErrorString.loginOnOtherDevice);
           await removeData('token');
           await removeData('userInfo');
-          Get.Get.delete<WebsocketController>(force: true);
+          Get.Get.find<WebsocketController>().disconnect();
           Get.Get.off(const LoginPage());
         } else {
           SnackbarUtil.showError(e.response?.data['msg']);

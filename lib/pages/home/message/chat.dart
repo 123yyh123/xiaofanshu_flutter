@@ -5,11 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:lifecycle_lite/lifecycle_mixin.dart';
+import 'package:tencent_calls_uikit/tencent_calls_uikit.dart';
 import 'package:xiaofanshu_flutter/components/audio_animation.dart';
 import 'package:xiaofanshu_flutter/controller/chat_controller.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/static/emoji_map.dart';
 import 'package:xiaofanshu_flutter/utils/Adapt.dart';
+import 'package:xiaofanshu_flutter/utils/audio_play_manager.dart';
 import 'package:xiaofanshu_flutter/utils/date_show_util.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/toast_util.dart';
@@ -27,7 +30,10 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage>
-    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+    with
+        WidgetsBindingObserver,
+        SingleTickerProviderStateMixin,
+        LifecycleStatefulMixin {
   ChatController chatController = Get.find();
   late OverlayState _overlayState;
   late OverlayEntry _overlayEntry;
@@ -56,6 +62,13 @@ class _ChatPageState extends State<ChatPage>
             .jumpTo(chatController.scrollController.position.maxScrollExtent);
       }
     });
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+    AudioPlayManager.instance.audioPlayer.stop();
   }
 
   @override
@@ -252,31 +265,49 @@ class _ChatPageState extends State<ChatPage>
                       : Container(),
               isMe
                   ? _messageBox(message, isMe, chatType, audioTime)
-                  : Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        image: DecorationImage(
-                          image: NetworkImage(
-                              chatController.otherUserInfo.value.avatarUrl),
-                          fit: BoxFit.cover,
+                  : GestureDetector(
+                      onTap: () {
+                        Get.toNamed(
+                          '/other/mine',
+                          arguments:
+                              chatController.otherUserInfo.value.id.toString(),
+                        );
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                chatController.otherUserInfo.value.avatarUrl),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                    ).marginOnly(right: 10),
+                      ).marginOnly(right: 10),
+                    ),
               isMe
-                  ? Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        image: DecorationImage(
-                          image: NetworkImage(
-                              chatController.userInfo.value.avatarUrl),
-                          fit: BoxFit.cover,
+                  ? GestureDetector(
+                      onTap: () {
+                        Get.toNamed(
+                          '/other/mine',
+                          arguments:
+                              chatController.otherUserInfo.value.id.toString(),
+                        );
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                                chatController.userInfo.value.avatarUrl),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                    ).marginOnly(left: 10)
+                      ).marginOnly(left: 10),
+                    )
                   : _messageBox(message, isMe, chatType, audioTime),
             ],
           ).paddingOnly(
@@ -384,14 +415,22 @@ class _ChatPageState extends State<ChatPage>
   }
 
   Widget _emojiMessage(String message) {
-    return Container(
+    return SizedBox(
       width: 100,
       height: 100,
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: CachedNetworkImageProvider(
-              EmojiMap.getEmojiUrl(message.substring(1, message.length - 1))),
-          fit: BoxFit.cover,
+      child: CachedNetworkImage(
+        imageUrl:
+            EmojiMap.getEmojiUrl(message.substring(1, message.length - 1)),
+        progressIndicatorBuilder: (context, url, downloadProgress) {
+          return Center(
+            child: CircularProgressIndicator(
+              value: downloadProgress.progress,
+            ),
+          );
+        },
+        errorWidget: (context, url, error) => const Icon(
+          Icons.error,
+          size: 10,
         ),
       ),
     );
@@ -416,6 +455,9 @@ class _ChatPageState extends State<ChatPage>
                     onTap: () {
                       if (chatController.isShowEmoji.value) {
                         chatController.isShowEmoji.value = false;
+                      }
+                      if (chatController.isShowMore.value) {
+                        chatController.isShowMore.value = false;
                       }
                       if (chatController.readyRecord.value) {
                         if (chatController.inputController.text.isNotEmpty) {
@@ -535,6 +577,7 @@ class _ChatPageState extends State<ChatPage>
                               autofocus: true,
                               onTap: () {
                                 chatController.isShowEmoji.value = false;
+                                chatController.isShowMore.value = false;
                               },
                               maxLines: 4,
                               minLines: 1,
@@ -549,6 +592,7 @@ class _ChatPageState extends State<ChatPage>
                   ),
                   GestureDetector(
                     onTap: () {
+                      chatController.isShowMore.value = false;
                       if (!chatController.isShowEmoji.value) {
                         closeKeyboardButKeepFocus();
                       } else {
@@ -597,7 +641,14 @@ class _ChatPageState extends State<ChatPage>
                         )
                       : GestureDetector(
                           onTap: () {
-                            ToastUtil.showSimpleToast('暂未开放');
+                            chatController.isShowEmoji.value = false;
+                            if (!chatController.isShowMore.value) {
+                              closeKeyboardButKeepFocus();
+                            } else {
+                              showKeyboard();
+                            }
+                            chatController.isShowMore.value =
+                                !chatController.isShowMore.value;
                           },
                           child: const SizedBox(
                             width: 30,
@@ -652,10 +703,136 @@ class _ChatPageState extends State<ChatPage>
                         },
                       ),
                     )
-                  : const SizedBox()
+                  : const SizedBox(),
+              chatController.isShowMore.value
+                  ? _moreWidget()
+                  : const SizedBox(),
             ],
           ),
         ));
+  }
+
+  Widget _moreWidget() {
+    return Container(
+      height: Adapt.setRpx(400),
+      width: double.infinity,
+      color: const Color(0xfff3f3f3),
+      child: GridView(
+        padding: const EdgeInsets.all(10),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          //横轴元素个数
+          crossAxisCount: 4,
+          //纵轴间距
+          mainAxisSpacing: 10.0,
+          //横轴间距
+          crossAxisSpacing: 5.0,
+        ),
+        children: [
+          ..._moreElementList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _moreElement(IconData icon, String text) {
+    return Column(
+      children: [
+        Container(
+          width: Adapt.setRpx(100),
+          height: Adapt.setRpx(100),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: Icon(icon, color: Colors.black, size: 30),
+          ),
+        ),
+        Text(
+          text,
+          style: const TextStyle(color: Colors.black54, fontSize: 12),
+        ).marginOnly(top: 5),
+      ],
+    );
+  }
+
+  List<Widget> _moreElementList() {
+    return [
+      GestureDetector(
+        onTap: () {
+          ToastUtil.showSimpleToast('暂未开放');
+        },
+        child: _moreElement(Icons.image_rounded, '相册'),
+      ),
+      GestureDetector(
+        onTap: () {
+          ToastUtil.showSimpleToast('暂未开放');
+        },
+        child: _moreElement(Icons.camera_alt_rounded, '拍摄'),
+      ),
+      GestureDetector(
+        onTap: () {
+          ToastUtil.showSimpleToast('暂未开放');
+        },
+        child: _moreElement(Icons.video_collection_rounded, '视频'),
+      ),
+      GestureDetector(
+        onTap: () {
+          ToastUtil.showSimpleToast('暂未开放');
+        },
+        child: _moreElement(Icons.file_open_sharp, '文件'),
+      ),
+      GestureDetector(
+        onTap: () {
+          chatController.isShowMore.value = false;
+          TUICallKit.instance.call(
+            chatController.otherUserInfo.value.id.toString(),
+            TUICallMediaType.audio,
+          );
+        },
+        child: _moreElement(Icons.call, '语音通话'),
+      ),
+      GestureDetector(
+        onTap: () {
+          chatController.isShowMore.value = false;
+          TUICallKit.instance.call(
+            chatController.otherUserInfo.value.id.toString(),
+            TUICallMediaType.video,
+          );
+        },
+        child: _moreElement(Icons.videocam_rounded, '视频通话'),
+      ),
+      GestureDetector(
+        onTap: () {
+          chatController.isShowMore.value = false;
+          chatController.readyRecord.value = true;
+        },
+        child: _moreElement(Icons.mic_rounded, '语音输入'),
+      ),
+      GestureDetector(
+        onTap: () {},
+        child: _moreElement(Icons.location_on_rounded, '位置'),
+      ),
+      GestureDetector(
+        onTap: () {
+          ToastUtil.showSimpleToast('暂未开放');
+        },
+        child: _moreElement(Icons.person_rounded, '好友名片'),
+      ),
+    ];
+  }
+
+  @override
+  void whenHide() {
+    // TODO: implement whenHide
+    Get.log('ChatPage hide');
+    AudioPlayManager.instance.audioPlayer.stop();
+  }
+
+  @override
+  void whenShow() {
+    // TODO: implement whenShow
+    Get.log('ChatPage show');
   }
 }
 

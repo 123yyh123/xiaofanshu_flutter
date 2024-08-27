@@ -62,6 +62,7 @@ dependencies:
   wechat_assets_picker: ^9.2.1
   video_editor: ^3.0.0
   fraction: ^4.1.4
+  lifecycle_lite: ^0.0.3
   ffmpeg_kit_flutter: ^6.0.3
   photo_view: ^0.15.0
   amap_flutter_location: ^3.0.0
@@ -75,6 +76,7 @@ dependencies:
   mc_flutter_recorder: ^0.0.1
   audioplayers: ^6.0.0
   badges: ^3.1.2
+  tencent_calls_uikit: ^2.5.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -12,13 +12,11 @@ class AttentionPage extends StatefulWidget {
   State<AttentionPage> createState() => _AttentionPageState();
 }
 
-class _AttentionPageState extends State<AttentionPage>
-    with AutomaticKeepAliveClientMixin {
+class _AttentionPageState extends State<AttentionPage> {
   AttentionController attentionController = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
       backgroundColor: const Color(0xfff3f3f2),
       body: RefreshIndicator(

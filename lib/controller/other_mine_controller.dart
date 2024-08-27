@@ -37,7 +37,7 @@ class OtherMineController extends GetxController {
     myUserId.value = int.parse(jsonDecode(
             await readData('userInfo') ?? jsonEncode(DefaultData.user))['id']
         .toString());
-    int userId = int.parse(Get.arguments);
+    int userId = int.parse(Get.arguments.toString());
     HttpResponse response = await UserApi.viewUserInfo(userId);
     if (response.code == StatusCode.getSuccess) {
       userInfo.value = response.data;

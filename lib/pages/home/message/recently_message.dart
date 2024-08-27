@@ -35,13 +35,20 @@ class _RecentlyMessageState extends State<RecentlyMessage> {
           await Future.delayed(const Duration(seconds: 1));
           Get.snackbar('刷新成功', '刷新成功');
         },
+        notificationPredicate: (ScrollNotification notification) {
+          return true;
+        },
         color: CustomColor.primaryColor,
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _topMessage(),
-              _chatRecentlyMessage(),
-            ],
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height - 56,
+          width: double.infinity,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _topMessage(),
+                _chatRecentlyMessage(),
+              ],
+            ),
           ),
         ),
       ),

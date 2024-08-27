@@ -69,4 +69,13 @@ class RecentlyMessageMapper {
     return await database
         .delete(RecentlyMessage.tableName, where: 'id = ?', whereArgs: [id]);
   }
+
+  static Future<int> countUnRead() async {
+    // 统计未读消息总数
+    Database database = await DBManager.instance.database;
+    List<Map<String, dynamic>> result = await database.query(
+        RecentlyMessage.tableName,
+        columns: ['SUM(unread_num) as count']);
+    return result.first['count'] as int;
+  }
 }

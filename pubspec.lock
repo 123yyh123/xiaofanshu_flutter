@@ -333,10 +333,10 @@ packages:
     dependency: transitive
     description:
       name: file
-      sha256: "5fc22d7c25582e38ad9a8515372cd9a93834027aacf1801cf01164dac0ffa08c"
+      sha256: "1b92bec4fc2a72f59a8e15af5f52cd441e4a7860b49499d69dfa817af20e925d"
       url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
     source: hosted
-    version: "7.0.0"
+    version: "6.1.4"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -537,10 +537,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
+      sha256: cf7243a0c29626284ada2add68a33f5b1102affe3509393e75136e0f6616bd68
       url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
     source: hosted
-    version: "0.7.1"
+    version: "0.6.8"
   leak_tracker:
     dependency: transitive
     description:
@@ -565,6 +565,14 @@ packages:
       url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
     source: hosted
     version: "3.0.1"
+  lifecycle_lite:
+    dependency: "direct main"
+    description:
+      name: lifecycle_lite
+      sha256: "17e4d7962ad001049c1961ac4e2b5b5cd4058cd5e49266ea2485d042b80ed97a"
+      url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
+    source: hosted
+    version: "0.0.3"
   like_button:
     dependency: "direct main"
     description:
@@ -629,6 +637,14 @@ packages:
       url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
     source: hosted
     version: "1.12.0"
+  mime_type:
+    dependency: transitive
+    description:
+      name: mime_type
+      sha256: "2ad6e67d3d2de9ac0f8ef5352d998fd103cb21351ae8c02fb0c78b079b37d275"
+      url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
+    source: hosted
+    version: "1.0.0"
   nested:
     dependency: transitive
     description:
@@ -938,6 +954,38 @@ packages:
       url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
     source: hosted
     version: "3.1.0+1"
+  tencent_calls_engine:
+    dependency: transitive
+    description:
+      name: tencent_calls_engine
+      sha256: e2f965cd04501108e3c103a97b3470a7fa71ace5e7e3fe0f0eed90c774475c13
+      url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
+    source: hosted
+    version: "2.5.0"
+  tencent_calls_uikit:
+    dependency: "direct main"
+    description:
+      name: tencent_calls_uikit
+      sha256: "03b6949c3cc40999ae6b08fe7232dc61110329362820c5649cb3d614cf733a62"
+      url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
+    source: hosted
+    version: "2.5.0"
+  tencent_cloud_chat_sdk:
+    dependency: transitive
+    description:
+      name: tencent_cloud_chat_sdk
+      sha256: "99bb7c61719a710646ea4556c24372ce823a3e5cbf4b0745daeb9aac1ee98321"
+      url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
+    source: hosted
+    version: "8.0.5903"
+  tencent_cloud_uikit_core:
+    dependency: transitive
+    description:
+      name: tencent_cloud_uikit_core
+      sha256: "987e266dec10801510ada00411ddb063de8129bf550d2d25ba32d88afa272a67"
+      url: "https://mirrors.tuna.tsinghua.edu.cn/dart-pub/"
+    source: hosted
+    version: "1.7.0"
   term_glyph:
     dependency: transitive
     description:

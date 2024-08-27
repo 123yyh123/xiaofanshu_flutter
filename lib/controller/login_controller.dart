@@ -106,8 +106,9 @@ class LoginController extends GetxController {
         // 保存token
         await saveData('token', response.data['token']);
         await saveData('userInfo', jsonEncode(response.data));
-        Get.delete<WebsocketController>(force: true);
         DBManager.dispose();
+        // 初始化websocket
+        Get.find<WebsocketController>().connect();
         Get.log('userInfo: ${jsonEncode(response.data)}');
       } else {
         SnackbarUtil.showError(ErrorString.unknownError);

@@ -36,6 +36,15 @@ class AuthApi {
       isShowLoading: true,
     ));
   }
+
+  // 获取TRTC的userSig
+  static Future<HttpResponse> getTrtcUserSig(String userId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getTrtcUserSig",
+      method: DioMethod.post,
+      params: {"userId": userId},
+    ));
+  }
 }
 
 class UserApi {
@@ -119,7 +128,7 @@ class NoteApi {
       "$prefix/getAttentionUserNotes",
       method: DioMethod.get,
       params: {"page": page, "pageSize": size},
-      isShowLoading: true,
+      // isShowLoading: true,
     ));
   }
 
