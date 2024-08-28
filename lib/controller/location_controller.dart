@@ -42,7 +42,7 @@ class LocationController extends GetxController {
   Future<void> onInit() async {
     Get.log('LocationController初始化');
     super.onInit();
-    requestPermission();
+    await requestPermission();
     AMapFlutterLocation.updatePrivacyAgree(true);
     AMapFlutterLocation.updatePrivacyShow(true, true);
     AMapFlutterLocation.setApiKey(AMapConfig.androidKey, AMapConfig.iosKey);
@@ -130,7 +130,7 @@ class LocationController extends GetxController {
   }
 
 //  动态申请定位权限
-  void requestPermission() async {
+  Future<void> requestPermission() async {
     // 申请权限
     bool hasLocationPermission = await requestLocationPermission();
     if (hasLocationPermission) {

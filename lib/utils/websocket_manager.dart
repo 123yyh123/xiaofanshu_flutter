@@ -199,8 +199,19 @@ class WebSocketManager {
     if (data['messageType'] == 3) {
       // 设置定时器，如果超过10秒，没有把该定时器清除，就认为发送失败
       var timer = Timer(const Duration(seconds: 10), () {
-        ChatMessageMapper.updateMessageStatus(int.parse(data['id'].toString()),
-            int.parse(data['to'].toString()), 2);
+        ChatMessageMapper.updateMessageStatus(
+          int.parse(data['id'].toString()),
+          int.parse(data['to'].toString()),
+          2,
+        ).then((value) {
+          Get.log('更新消息状态成功');
+          // 告知chatController更新消息状态
+          if (value > 0 && Get.isRegistered<ChatController>()) {
+            ChatController chatController = Get.find<ChatController>();
+            chatController.updateMessageStatus(
+                int.parse(data['id'].toString()), data['to'].toString(), 2);
+          }
+        });
       });
       _timerMap['time${data['id']}${data['to']}'] = timer;
     }
@@ -293,13 +304,13 @@ class WebSocketManager {
         ChatController chatController = Get.find<ChatController>();
         if (chatController.otherUserInfo.value.id.toString() ==
             message['from'].toString()) {
-          chatController.addMessage(message);
+          await chatController.addMessage(message['from'].toString());
           Get.log('更新最新消息');
           await RecentlyMessageMapper.update(RecentlyMessage(
               userId: message['from'].toString(),
               avatarUrl: message['fromAvatar'],
               userName: message['fromName'],
-              lastMessage: message['chatType'] == 1 || message['chatType'] == 6
+              lastMessage: message['chatType'] == 1
                   ? message['content']
                   : message['chatType'] == 2
                       ? '[图片]'
@@ -309,7 +320,11 @@ class WebSocketManager {
                               ? '[语音]'
                               : message['chatType'] == 5
                                   ? '[视频]'
-                                  : '',
+                                  : message['chatType'] == 6
+                                      ? GetUtils.isURL(message['content'])
+                                          ? '[表情]'
+                                          : message['content']
+                                      : '',
               lastTime: message['time'],
               unreadNum: 0,
               stranger: 1));
@@ -323,17 +338,20 @@ class WebSocketManager {
                   userId: value.userId,
                   avatarUrl: message['fromAvatar'],
                   userName: message['fromName'],
-                  lastMessage:
-                      message['chatType'] == 1 || message['chatType'] == 6
-                          ? message['content']
-                          : message['chatType'] == 2
-                              ? '[图片]'
-                              : message['chatType'] == 3
-                                  ? '[文件]'
-                                  : message['chatType'] == 4
-                                      ? '[语音]'
-                                      : message['chatType'] == 5
-                                          ? '[视频]'
+                  lastMessage: message['chatType'] == 1
+                      ? message['content']
+                      : message['chatType'] == 2
+                          ? '[图片]'
+                          : message['chatType'] == 3
+                              ? '[文件]'
+                              : message['chatType'] == 4
+                                  ? '[语音]'
+                                  : message['chatType'] == 5
+                                      ? '[视频]'
+                                      : message['chatType'] == 6
+                                          ? GetUtils.isURL(message['content'])
+                                              ? '[表情]'
+                                              : message['content']
                                           : '',
                   lastTime: message['time'],
                   unreadNum: value.unreadNum + 1,
@@ -343,17 +361,20 @@ class WebSocketManager {
                   userId: message['from'].toString(),
                   avatarUrl: message['fromAvatar'],
                   userName: message['fromName'],
-                  lastMessage:
-                      message['chatType'] == 1 || message['chatType'] == 6
-                          ? message['content']
-                          : message['chatType'] == 2
-                              ? '[图片]'
-                              : message['chatType'] == 3
-                                  ? '[文件]'
-                                  : message['chatType'] == 4
-                                      ? '[语音]'
-                                      : message['chatType'] == 5
-                                          ? '[视频]'
+                  lastMessage: message['chatType'] == 1
+                      ? message['content']
+                      : message['chatType'] == 2
+                          ? '[图片]'
+                          : message['chatType'] == 3
+                              ? '[文件]'
+                              : message['chatType'] == 4
+                                  ? '[语音]'
+                                  : message['chatType'] == 5
+                                      ? '[视频]'
+                                      : message['chatType'] == 6
+                                          ? GetUtils.isURL(message['content'])
+                                              ? '[表情]'
+                                              : message['content']
                                           : '',
                   lastTime: message['time'],
                   unreadNum: 1,
@@ -373,17 +394,20 @@ class WebSocketManager {
                 userId: value.userId,
                 avatarUrl: message['fromAvatar'],
                 userName: message['fromName'],
-                lastMessage:
-                    message['chatType'] == 1 || message['chatType'] == 6
-                        ? message['content']
-                        : message['chatType'] == 2
-                            ? '[图片]'
-                            : message['chatType'] == 3
-                                ? '[文件]'
-                                : message['chatType'] == 4
-                                    ? '[语音]'
-                                    : message['chatType'] == 5
-                                        ? '[视频]'
+                lastMessage: message['chatType'] == 1
+                    ? message['content']
+                    : message['chatType'] == 2
+                        ? '[图片]'
+                        : message['chatType'] == 3
+                            ? '[文件]'
+                            : message['chatType'] == 4
+                                ? '[语音]'
+                                : message['chatType'] == 5
+                                    ? '[视频]'
+                                    : message['chatType'] == 6
+                                        ? GetUtils.isURL(message['content'])
+                                            ? '[表情]'
+                                            : message['content']
                                         : '',
                 lastTime: message['time'],
                 unreadNum: value.unreadNum + 1,
@@ -393,26 +417,45 @@ class WebSocketManager {
                 userId: message['from'].toString(),
                 avatarUrl: message['fromAvatar'],
                 userName: message['fromName'],
-                lastMessage:
-                    message['chatType'] == 1 || message['chatType'] == 6
-                        ? message['content']
-                        : message['chatType'] == 2
-                            ? '[图片]'
-                            : message['chatType'] == 3
-                                ? '[文件]'
-                                : message['chatType'] == 4
-                                    ? '[语音]'
-                                    : message['chatType'] == 5
-                                        ? '[视频]'
+                lastMessage: message['chatType'] == 1
+                    ? message['content']
+                    : message['chatType'] == 2
+                        ? '[图片]'
+                        : message['chatType'] == 3
+                            ? '[文件]'
+                            : message['chatType'] == 4
+                                ? '[语音]'
+                                : message['chatType'] == 5
+                                    ? '[视频]'
+                                    : message['chatType'] == 6
+                                        ? GetUtils.isURL(message['content'])
+                                            ? '[表情]'
+                                            : message['content']
                                         : '',
                 lastTime: message['time'],
                 unreadNum: 1,
                 stranger: 1));
           }
         });
-        // SnackbarUtil.showNewMessage(avatar, nickname, message, userId)
-        SnackbarUtil.showNewMessage(message['fromAvatar'], message['fromName'],
-            message['content'], message['from']);
+        SnackbarUtil.showNewMessage(
+            message['fromAvatar'],
+            message['fromName'],
+            message['chatType'] == 1
+                ? message['content']
+                : message['chatType'] == 2
+                    ? '[图片]'
+                    : message['chatType'] == 3
+                        ? '[文件]'
+                        : message['chatType'] == 4
+                            ? '[语音]'
+                            : message['chatType'] == 5
+                                ? '[视频]'
+                                : message['chatType'] == 6
+                                    ? GetUtils.isURL(message['content'])
+                                        ? '[表情]'
+                                        : message['content']
+                                    : '',
+            message['from']);
       }
 
       // 通知HomeController更新消息角标
@@ -432,6 +475,7 @@ class WebSocketManager {
   }
 
   _onMessageServerResponse(Map<String, dynamic> message) {
+    Get.log('服务器应答信息$message');
     int status = 1;
     if (message.containsKey('content') &&
         message['content'].toString().isNotEmpty) {
@@ -441,9 +485,11 @@ class WebSocketManager {
     Get.log('status: $status');
     // 清除发送中状态
     _timerMap['time${message['id']}${message['to']}']?.cancel();
-    ChatMessageMapper.updateMessageStatus(int.parse(message['id'].toString()),
-            int.parse(message['to'].toString()), status)
-        .then((value) {
+    ChatMessageMapper.updateMessageStatus(
+      int.parse(message['id'].toString()),
+      int.parse(message['to'].toString()),
+      status,
+    ).then((value) {
       Get.log('更新消息状态成功');
       // 告知chatController更新消息状态
       if (value > 0 && Get.isRegistered<ChatController>()) {

@@ -87,6 +87,9 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(
+                    width: 10,
+                  ),
                 ],
               ),
               noteDetailsImageController.notes.value.belongUserId ==
@@ -270,6 +273,38 @@ class _NoteDetailsImageState extends State<NoteDetailsImage> {
                             ),
                           ],
                         ).paddingOnly(left: 10, right: 10),
+                        noteDetailsImageController.notes.value.address == ''
+                            ? const SizedBox()
+                            : SizedBox(
+                                width: double.infinity,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on,
+                                      color: CustomColor.primaryColor,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        noteDetailsImageController
+                                            .notes.value.address,
+                                        maxLines: 2,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: CustomColor.unselectedColor,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ).paddingOnly(left: 10, right: 10, bottom: 10),
                       ],
                     ),
                     // 分割线

@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:xiaofanshu_flutter/enum/chat_type.dart';
+import 'package:xiaofanshu_flutter/enum/message_type.dart';
+
 class WebsocketMessageVo {
   int? id;
 
@@ -50,7 +53,7 @@ class WebsocketMessageVo {
   static String loginMessage(String from) {
     return jsonEncode({
       'from': from,
-      'messageType': 0,
+      'messageType': MessageType.connect,
     });
   }
 
@@ -58,7 +61,7 @@ class WebsocketMessageVo {
     return jsonEncode({
       'from': from,
       'content': token,
-      'messageType': 1,
+      'messageType': MessageType.heartBeat,
     });
   }
 
@@ -69,7 +72,7 @@ class WebsocketMessageVo {
       'to_id': to,
       'content': content,
       'time': DateTime.now().millisecondsSinceEpoch,
-      'chat_type': 1,
+      'chat_type': ChatType.text,
       'is_read': 1,
       'is_send': 0,
       'audio_time': 0,
@@ -83,7 +86,7 @@ class WebsocketMessageVo {
       'to_id': to,
       'content': content,
       'time': DateTime.now().millisecondsSinceEpoch,
-      'chat_type': 6,
+      'chat_type': ChatType.emoji,
       'is_read': 1,
       'is_send': 0,
       'audio_time': 0,
@@ -100,8 +103,8 @@ class WebsocketMessageVo {
       'to': to,
       'content': content,
       'time': DateTime.now().millisecondsSinceEpoch,
-      'messageType': 3,
-      'chatType': 1,
+      'messageType': MessageType.chat,
+      'chatType': ChatType.text,
       'friendType': 0,
       'audioTime': 0,
     };
@@ -117,8 +120,8 @@ class WebsocketMessageVo {
       'to': to,
       'content': content,
       'time': DateTime.now().millisecondsSinceEpoch,
-      'messageType': 3,
-      'chatType': 6,
+      'messageType': MessageType.chat,
+      'chatType': ChatType.emoji,
       'friendType': 0,
       'audioTime': 0,
     };
@@ -131,7 +134,7 @@ class WebsocketMessageVo {
       'to_id': to,
       'content': content,
       'time': DateTime.now().millisecondsSinceEpoch,
-      'chat_type': 4,
+      'chat_type': ChatType.audio,
       'is_read': 1,
       'is_send': 0,
       'audio_time': audioTime,
@@ -154,10 +157,72 @@ class WebsocketMessageVo {
       'to': to,
       'content': content,
       'time': DateTime.now().millisecondsSinceEpoch,
-      'messageType': 3,
-      'chatType': 4,
+      'messageType': MessageType.chat,
+      'chatType': ChatType.audio,
       'friendType': 0,
       'audioTime': audioTime,
+    };
+  }
+
+  static Map<String, dynamic> chatLocalImageMessage(
+      String from, String to, String content) {
+    return {
+      'from_id': from,
+      'to_id': to,
+      'content': content,
+      'time': DateTime.now().millisecondsSinceEpoch,
+      'chat_type': ChatType.image,
+      'is_read': 1,
+      'is_send': 0,
+      'audio_time': 0,
+    };
+  }
+
+  static Map<String, dynamic> chatServerImageMessage(int id, String from,
+      String fromName, String fromAvatar, String to, String content) {
+    return {
+      'id': id,
+      'from': from,
+      'fromName': fromName,
+      'fromAvatar': fromAvatar,
+      'to': to,
+      'content': content,
+      'time': DateTime.now().millisecondsSinceEpoch,
+      'messageType': MessageType.chat,
+      'chatType': ChatType.image,
+      'friendType': 0,
+      'audioTime': 0,
+    };
+  }
+
+  static Map<String, dynamic> chatLocalVideoMessage(
+      String from, String to, String content) {
+    return {
+      'from_id': from,
+      'to_id': to,
+      'content': content,
+      'time': DateTime.now().millisecondsSinceEpoch,
+      'chat_type': ChatType.video,
+      'is_read': 1,
+      'is_send': 0,
+      'audio_time': 0,
+    };
+  }
+
+  static Map<String, dynamic> chatServerVideoMessage(int id, String from,
+      String fromName, String fromAvatar, String to, String content) {
+    return {
+      'id': id,
+      'from': from,
+      'fromName': fromName,
+      'fromAvatar': fromAvatar,
+      'to': to,
+      'content': content,
+      'time': DateTime.now().millisecondsSinceEpoch,
+      'messageType': MessageType.chat,
+      'chatType': ChatType.video,
+      'friendType': 0,
+      'audioTime': 0,
     };
   }
 }

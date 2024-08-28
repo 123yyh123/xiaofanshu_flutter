@@ -1,12 +1,17 @@
+import 'dart:io';
+
 import 'package:animation_wrappers/animations/faded_slide_animation.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:image_pickers/image_pickers.dart';
 import 'package:lifecycle_lite/lifecycle_mixin.dart';
 import 'package:tencent_calls_uikit/tencent_calls_uikit.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xiaofanshu_flutter/components/audio_animation.dart';
 import 'package:xiaofanshu_flutter/controller/chat_controller.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
@@ -58,6 +63,12 @@ class _ChatPageState extends State<ChatPage>
     super.didChangeMetrics();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        if (MediaQuery.of(context).viewInsets.bottom == 0) {
+          Get.log('键盘收起');
+        } else {
+          chatController.isShowEmoji.value = false;
+          chatController.isShowMore.value = false;
+        }
         chatController.scrollController
             .jumpTo(chatController.scrollController.position.maxScrollExtent);
       }
@@ -147,6 +158,16 @@ class _ChatPageState extends State<ChatPage>
                                   ['audio_time']);
                         },
                       ).paddingOnly(bottom: 60),
+                      chatController.isShowEmoji.value ||
+                              chatController.isShowMore.value
+                          ? Container(
+                              height: chatController.isShowEmoji.value
+                                  ? Adapt.setRpx(600) + 40
+                                  : Adapt.setRpx(400),
+                              width: double.infinity,
+                              color: Colors.transparent,
+                            )
+                          : Container(),
                     ],
                   ),
                 ),
@@ -371,17 +392,24 @@ class _ChatPageState extends State<ChatPage>
   }
 
   Widget _imageMessage(String message) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-          maxWidth: Adapt.setRpx(450),
-          minWidth: 0,
-          maxHeight: Adapt.setRpx(1000),
-          minHeight: 0),
-      child: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: CachedNetworkImageProvider(message),
-            fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        List<String> list = [message];
+        Get.toNamed('/image/simple/pre', arguments: list);
+      },
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+            maxWidth: Adapt.setRpx(450),
+            minWidth: 0,
+            maxHeight: Adapt.setRpx(500),
+            minHeight: 0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            image: DecorationImage(
+              image: CachedNetworkImageProvider(message),
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),
@@ -403,12 +431,19 @@ class _ChatPageState extends State<ChatPage>
 
   Widget _videoMessage(String message) {
     return Container(
-      width: 100,
-      height: 100,
+      width: 200,
+      height: 200,
       decoration: BoxDecoration(
-        image: DecorationImage(
-          image: CachedNetworkImageProvider(message),
-          fit: BoxFit.cover,
+        borderRadius: BorderRadius.circular(10),
+        color: const Color(0xff2b2b2b),
+      ),
+      child: Center(
+        child: GestureDetector(
+          onTap: () {
+            Get.toNamed('/video/simple/pre', arguments: message);
+          },
+          child: const Icon(Icons.play_circle_fill_rounded,
+              color: Colors.white, size: 50),
         ),
       ),
     );
@@ -419,8 +454,9 @@ class _ChatPageState extends State<ChatPage>
       width: 100,
       height: 100,
       child: CachedNetworkImage(
-        imageUrl:
-            EmojiMap.getEmojiUrl(message.substring(1, message.length - 1)),
+        imageUrl: GetUtils.isURL(message)
+            ? message
+            : EmojiMap.getEmojiUrl(message.substring(1, message.length - 1)),
         progressIndicatorBuilder: (context, url, downloadProgress) {
           return Center(
             child: CircularProgressIndicator(
@@ -432,6 +468,7 @@ class _ChatPageState extends State<ChatPage>
           Icons.error,
           size: 10,
         ),
+        fit: BoxFit.contain,
       ),
     );
   }
@@ -600,6 +637,11 @@ class _ChatPageState extends State<ChatPage>
                       }
                       chatController.isShowEmoji.value =
                           !chatController.isShowEmoji.value;
+                      // 滚动到底部
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        chatController.scrollController.jumpTo(chatController
+                            .scrollController.position.maxScrollExtent);
+                      });
                     },
                     child: SizedBox(
                       width: 30,
@@ -649,6 +691,12 @@ class _ChatPageState extends State<ChatPage>
                             }
                             chatController.isShowMore.value =
                                 !chatController.isShowMore.value;
+                            Future.delayed(const Duration(milliseconds: 100),
+                                () {
+                              chatController.scrollController.jumpTo(
+                                  chatController.scrollController.position
+                                      .maxScrollExtent);
+                            });
                           },
                           child: const SizedBox(
                             width: 30,
@@ -661,48 +709,7 @@ class _ChatPageState extends State<ChatPage>
                 ],
               ),
               chatController.isShowEmoji.value
-                  ? Container(
-                      height: Adapt.setRpx(600),
-                      width: double.infinity,
-                      color: const Color(0xfff3f3f3),
-                      child: GridView.builder(
-                        padding: const EdgeInsets.all(10),
-                        itemCount: EmojiMap.emojiList.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          //横轴元素个数
-                          crossAxisCount: 7,
-                          //纵轴间距
-                          mainAxisSpacing: 20.0,
-                          //横轴间距
-                          crossAxisSpacing: 20.0,
-                        ),
-                        itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () {
-                              Emoji emoji = EmojiMap.emojiList[index];
-                              String text = "『${emoji.name}』";
-                              insertText(text, chatController.inputController);
-                            },
-                            child: CachedNetworkImage(
-                              imageUrl: EmojiMap.emojiList[index].url,
-                              progressIndicatorBuilder:
-                                  (context, url, downloadProgress) {
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value: downloadProgress.progress,
-                                  ),
-                                );
-                              },
-                              errorWidget: (context, url, error) => const Icon(
-                                Icons.error,
-                                size: 10,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    )
+                  ? _emojiWidget()
                   : const SizedBox(),
               chatController.isShowMore.value
                   ? _moreWidget()
@@ -710,6 +717,167 @@ class _ChatPageState extends State<ChatPage>
             ],
           ),
         ));
+  }
+
+  Widget _emojiWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 40,
+          child: TabBar(
+            controller: chatController.emojiTabController,
+            tabAlignment: TabAlignment.start,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            enableFeedback: false,
+            isScrollable: true,
+            indicator: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            indicatorWeight: 0.1,
+            indicatorSize: TabBarIndicatorSize.label,
+            labelStyle: const TextStyle(fontSize: 16),
+            onTap: (index) {
+              chatController.emojiTabController.animateTo(index);
+            },
+            tabs: [
+              const Tab(
+                icon: Icon(Icons.emoji_emotions_outlined,
+                    color: Colors.black, size: 20),
+              ).marginSymmetric(horizontal: 10),
+              const Tab(
+                icon: Icon(Icons.favorite_border_rounded,
+                    color: Colors.black, size: 20),
+              ).marginSymmetric(horizontal: 10),
+            ],
+          ),
+        ),
+        Container(
+          height: Adapt.setRpx(600),
+          width: double.infinity,
+          color: const Color(0xfff3f3f3),
+          child: TabBarView(
+            controller: chatController.emojiTabController,
+            children: [
+              GridView.builder(
+                padding: const EdgeInsets.all(10),
+                itemCount: EmojiMap.emojiList.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  //横轴元素个数
+                  crossAxisCount: 7,
+                  //纵轴间距
+                  mainAxisSpacing: 20.0,
+                  //横轴间距
+                  crossAxisSpacing: 20.0,
+                ),
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Emoji emoji = EmojiMap.emojiList[index];
+                      String text = "『${emoji.name}』";
+                      insertText(text, chatController.inputController);
+                    },
+                    child: CachedNetworkImage(
+                      imageUrl: EmojiMap.emojiList[index].url,
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) {
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: downloadProgress.progress,
+                          ),
+                        );
+                      },
+                      errorWidget: (context, url, error) => const Icon(
+                        Icons.error,
+                        size: 10,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              GridView.builder(
+                padding: const EdgeInsets.all(10),
+                itemCount: chatController.emojiList.length + 1,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  //横轴元素个数
+                  crossAxisCount: 5,
+                  //纵轴间距
+                  mainAxisSpacing: 20.0,
+                  //横轴间距
+                  crossAxisSpacing: 20.0,
+                ),
+                itemBuilder: (BuildContext context, int index) {
+                  return index == 0
+                      ? GestureDetector(
+                          onTap: () async {
+                            List<AssetEntity>? result =
+                                await AssetPicker.pickAssets(
+                              context,
+                              pickerConfig: const AssetPickerConfig(
+                                maxAssets: 1,
+                                requestType: RequestType.image,
+                              ),
+                            );
+                            if (result != null && result.isNotEmpty) {
+                              await chatController
+                                  .addCollectEmoji(await result[0].originFile);
+                            }
+                          },
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border:
+                                  Border.all(color: Colors.black, width: 0.5),
+                            ),
+                            child: const Icon(Icons.add_rounded,
+                                color: Colors.black, size: 20),
+                          ),
+                        )
+                      : GestureDetector(
+                          onTap: () {
+                            chatController.sendImage(
+                              null,
+                              chatController.emojiList[index - 1].networkUrl,
+                              isUrl: true,
+                            );
+                          },
+                          child: Image.file(
+                            File(chatController.emojiList[index - 1].fileUrl),
+                            width: 30,
+                            height: 30,
+                            fit: BoxFit.cover,
+                            frameBuilder: (context, child, frame,
+                                wasSynchronouslyLoaded) {
+                              if (wasSynchronouslyLoaded) {
+                                return child;
+                              }
+                              return AnimatedOpacity(
+                                opacity: frame == null ? 0 : 1,
+                                duration: const Duration(seconds: 1),
+                                curve: Curves.easeOut,
+                                child: child,
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Center(
+                              child: Icon(
+                                Icons.error,
+                                size: 10,
+                              ),
+                            ),
+                          ),
+                        );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _moreWidget() {
@@ -759,26 +927,66 @@ class _ChatPageState extends State<ChatPage>
   List<Widget> _moreElementList() {
     return [
       GestureDetector(
-        onTap: () {
-          ToastUtil.showSimpleToast('暂未开放');
+        onTap: () async {
+          List<AssetEntity>? result = await AssetPicker.pickAssets(
+            context,
+            pickerConfig: const AssetPickerConfig(
+              maxAssets: 9,
+              requestType: RequestType.image,
+            ),
+          );
+          if (result != null && result.isNotEmpty) {
+            for (AssetEntity asset in result) {
+              await chatController.sendImage(await asset.originFile, null);
+            }
+          }
         },
         child: _moreElement(Icons.image_rounded, '相册'),
       ),
       GestureDetector(
         onTap: () {
-          ToastUtil.showSimpleToast('暂未开放');
+          ImagePickers.openCamera().then((value) async {
+            if (value != null && value.path != null) {
+              await chatController.sendImage(File(value.path!), null);
+            }
+          });
         },
         child: _moreElement(Icons.camera_alt_rounded, '拍摄'),
       ),
       GestureDetector(
-        onTap: () {
-          ToastUtil.showSimpleToast('暂未开放');
+        onTap: () async {
+          List<AssetEntity>? results = await AssetPicker.pickAssets(
+            context,
+            permissionRequestOption: const PermissionRequestOption(
+              androidPermission: AndroidPermission(
+                  type: RequestType.video, mediaLocation: true),
+            ),
+            pickerConfig: const AssetPickerConfig(
+              maxAssets: 1,
+              requestType: RequestType.video,
+            ),
+          );
+          if (results != null && results.isNotEmpty) {
+            for (AssetEntity asset in results) {
+              await chatController.sendVideo(await asset.originFile);
+            }
+          }
         },
         child: _moreElement(Icons.video_collection_rounded, '视频'),
       ),
       GestureDetector(
-        onTap: () {
-          ToastUtil.showSimpleToast('暂未开放');
+        onTap: () async {
+          List<AssetEntity>? results = await AssetPicker.pickAssets(
+            context,
+            permissionRequestOption: const PermissionRequestOption(
+              androidPermission: AndroidPermission(
+                  type: RequestType.video, mediaLocation: true),
+            ),
+            pickerConfig: const AssetPickerConfig(
+              maxAssets: 1,
+              requestType: RequestType.all,
+            ),
+          );
         },
         child: _moreElement(Icons.file_open_sharp, '文件'),
       ),

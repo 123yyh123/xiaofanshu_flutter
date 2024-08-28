@@ -12,10 +12,13 @@ import 'package:mc_flutter_recorder/recorder_config.dart';
 import 'package:mc_flutter_recorder/recorder_info.dart';
 import 'package:mc_flutter_recorder/recorder_state.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_manager/src/types/entity.dart';
 import 'package:xiaofanshu_flutter/controller/recently_message_controller.dart';
 import 'package:xiaofanshu_flutter/controller/websocket_controller.dart';
 import 'package:xiaofanshu_flutter/mapper/chat_message_mapper.dart';
+import 'package:xiaofanshu_flutter/mapper/collect_emoji_mapper.dart';
 import 'package:xiaofanshu_flutter/mapper/recently_message_mapper.dart';
+import 'package:xiaofanshu_flutter/model/collect_emoji.dart';
 import 'package:xiaofanshu_flutter/model/recently_message.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/model/websocket_message_vo.dart';
@@ -33,7 +36,7 @@ import '../utils/snackbar_util.dart';
 import '../utils/store_util.dart';
 import 'home_controller.dart';
 
-class ChatController extends GetxController {
+class ChatController extends GetxController with GetTickerProviderStateMixin {
   WebsocketController websocketController = Get.find();
   static bool isInitialized = false;
   var userInfo = DefaultData.user.obs;
@@ -50,8 +53,10 @@ class ChatController extends GetxController {
   var maxLength = 60;
   String audioPath = '';
   double audioTime = 0.0;
+  var emojiList = List<CollectEmoji>.empty(growable: true).obs;
   MCFlutterRecorder audioRecordPlugin = MCFlutterRecorder();
   ScrollController scrollController = ScrollController();
+  late TabController emojiTabController;
   TextEditingController inputController = TextEditingController();
 
   @override
@@ -73,6 +78,45 @@ class ChatController extends GetxController {
     }
     inputController.addListener(() {
       hasText.value = inputController.text.isNotEmpty;
+    });
+    emojiTabController = TabController(length: 2, vsync: this);
+    emojiTabController = TabController(length: 2, vsync: this, initialIndex: 0);
+    emojiTabController.addListener(() async {
+      if (emojiTabController.indexIsChanging) {
+        return;
+      }
+      if (emojiTabController.index == 0) {
+        Get.log('emoji');
+      } else if (emojiTabController.index == 1) {
+        // 获取收藏的表情
+        await DBManager.instance.createCollectEmojiTable();
+        List<CollectEmoji> emojis = await CollectEmojiMapper.queryAll();
+        Get.log('emojis: $emojis');
+        emojiList.clear();
+        emojiList.addAll(emojis);
+        // 判断文件是否存在
+        if (emojiList.isNotEmpty) {
+          for (var emoji in emojiList) {
+            File file = File(emoji.fileUrl);
+            file.exists().then((value) {
+              if (!value) {
+                // 根据url下载图片，保存到本地
+                dio.Response response = dio.Response(
+                    requestOptions: dio.RequestOptions(path: emoji.fileUrl));
+                dio.Dio()
+                    .download(emoji.networkUrl, emoji.fileUrl)
+                    .then((value) {
+                  Get.log('下载成功');
+                  CollectEmojiMapper.updatePath(emoji.id, emoji.fileUrl);
+                  emojiList.refresh();
+                }).catchError((error) {
+                  Get.log('下载失败');
+                });
+              }
+            });
+          }
+        }
+      }
     });
     audioRecordPlugin.recorderInfoStream().listen((event) async {
       audioTime = event.duration.inSeconds.toDouble();
@@ -124,6 +168,7 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     AudioPlayManager.dispose();
+    emojiTabController.dispose();
     super.onClose();
     isInitialized = false;
   }
@@ -163,6 +208,7 @@ class ChatController extends GetxController {
     List<Map<String, dynamic>> list =
         await ChatMessageMapper.queryRecentMessage(
             otherUserInfo.value.id, lastMessageId);
+    Get.log('list: $list');
     // 记录加载数据前的位置
     double before = scrollController.position.maxScrollExtent;
     // 将list倒序插入到chatList
@@ -208,12 +254,16 @@ class ChatController extends GetxController {
           otherUserInfo.value.id.toString(),
           inputController.text);
     }
-    await ChatMessageMapper.insert(data, otherUserInfo.value.id.toString());
-    // 取最新的一条消息插入到聊天列表
-    Map<String, dynamic> map =
-        await ChatMessageMapper.queryLatestMessage(otherUserInfo.value.id);
-    Get.log('map: $map');
-    chatList.add(map);
+    String content = inputController.text;
+    int id =
+        await ChatMessageMapper.insert(data, otherUserInfo.value.id.toString());
+    Get.log('id: $id');
+    // 取最新的消息插入到聊天列表
+    // Map<String, dynamic> map =
+    //     await ChatMessageMapper.queryLatestMessage(otherUserInfo.value.id);
+    // Get.log('map: $map');
+    // chatList.add(map);
+    await addMessage(otherUserInfo.value.id.toString());
     inputController.clear();
     hasText.value = false;
     scrollController.jumpTo(scrollController.position.maxScrollExtent);
@@ -222,7 +272,21 @@ class ChatController extends GetxController {
         userId: otherUserInfo.value.id.toString(),
         avatarUrl: otherUserInfo.value.avatarUrl,
         userName: otherUserInfo.value.nickname,
-        lastMessage: map['content'],
+        lastMessage: chatList.last['chat_type'] == 1
+            ? chatList.last['content']
+            : chatList.last['chat_type'] == 2
+                ? '[图片]'
+                : chatList.last['chat_type'] == 3
+                    ? '[文件]'
+                    : chatList.last['chat_type'] == 4
+                        ? '[语音]'
+                        : chatList.last['chat_type'] == 5
+                            ? '[视频]'
+                            : chatList.last['chat_type'] == 6
+                                ? GetUtils.isURL(chatList.last['content'])
+                                    ? '[表情]'
+                                    : chatList.last['content']
+                                : '',
         lastTime: DateTime.now().millisecondsSinceEpoch,
         unreadNum: 0,
         stranger: 0));
@@ -237,20 +301,20 @@ class ChatController extends GetxController {
     websocketController.webSocketManager.sendMessage(
       isEmoji
           ? WebsocketMessageVo.chatServerEmojiMessage(
-              map['id'],
+              id,
               userInfo.value.id.toString(),
               userInfo.value.nickname,
               userInfo.value.avatarUrl,
               otherUserInfo.value.id.toString(),
-              map['content'],
+              content,
             )
           : WebsocketMessageVo.chatServerTextMessage(
-              map['id'],
+              id,
               userInfo.value.id.toString(),
               userInfo.value.nickname,
               userInfo.value.avatarUrl,
               otherUserInfo.value.id.toString(),
-              map['content'],
+              content,
             ),
     );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -286,19 +350,35 @@ class ChatController extends GetxController {
         otherUserInfo.value.id.toString(),
         response.data.toString(),
         audioTime.toInt());
-    await ChatMessageMapper.insert(data, otherUserInfo.value.id.toString());
+    int id =
+        await ChatMessageMapper.insert(data, otherUserInfo.value.id.toString());
     // 取最新的一条消息插入到聊天列表
-    Map<String, dynamic> map =
-        await ChatMessageMapper.queryLatestMessage(otherUserInfo.value.id);
-    Get.log('map: $map');
-    chatList.add(map);
+    // Map<String, dynamic> map =
+    //     await ChatMessageMapper.queryLatestMessage(otherUserInfo.value.id);
+    // Get.log('map: $map');
+    // chatList.add(map);
+    await addMessage(otherUserInfo.value.id.toString());
     scrollController.jumpTo(scrollController.position.maxScrollExtent);
     // 更新最近聊天列表
     await RecentlyMessageMapper.update(RecentlyMessage(
         userId: otherUserInfo.value.id.toString(),
         avatarUrl: otherUserInfo.value.avatarUrl,
         userName: otherUserInfo.value.nickname,
-        lastMessage: '[语音]',
+        lastMessage: chatList.last['chat_type'] == 1
+            ? chatList.last['content']
+            : chatList.last['chat_type'] == 2
+                ? '[图片]'
+                : chatList.last['chat_type'] == 3
+                    ? '[文件]'
+                    : chatList.last['chat_type'] == 4
+                        ? '[语音]'
+                        : chatList.last['chat_type'] == 5
+                            ? '[视频]'
+                            : chatList.last['chat_type'] == 6
+                                ? GetUtils.isURL(chatList.last['content'])
+                                    ? '[表情]'
+                                    : chatList.last['content']
+                                : '',
         lastTime: DateTime.now().millisecondsSinceEpoch,
         unreadNum: 0,
         stranger: 0));
@@ -312,7 +392,7 @@ class ChatController extends GetxController {
     }
     websocketController.webSocketManager.sendMessage(
       WebsocketMessageVo.chatServerAudioMessage(
-        map['id'],
+        id,
         userInfo.value.id.toString(),
         userInfo.value.nickname,
         userInfo.value.avatarUrl,
@@ -326,6 +406,191 @@ class ChatController extends GetxController {
       scrollController.jumpTo(scrollController.position.maxScrollExtent);
     });
     isRecording.value = false;
+  }
+
+  Future<void> sendImage(File? file, String? url, {bool isUrl = false}) async {
+    if (file == null && url == null) {
+      return;
+    }
+    String imageUrl = '';
+    if (!isUrl) {
+      dio.MultipartFile multipartFile = dio.MultipartFile.fromFileSync(
+        file!.path,
+        filename: file.path.split('/').last,
+        contentType: dio.DioMediaType('image', 'jpg'),
+      );
+      dio.FormData formData = dio.FormData.fromMap({
+        'file': multipartFile,
+      });
+      HttpResponse response = await ThirdApi.uploadImage(formData);
+      if (response.code != StatusCode.postSuccess) {
+        SnackbarUtil.showError('发送失败');
+        return;
+      }
+      Get.log('上传成功');
+      Get.log('data: ${response.data.toString()}');
+      imageUrl = response.data.toString();
+    } else {
+      imageUrl = url!;
+    }
+    if (imageUrl.isEmpty) {
+      return;
+    }
+    Map<String, dynamic> data;
+    if (!isUrl) {
+      data = WebsocketMessageVo.chatLocalImageMessage(
+          userInfo.value.id.toString(),
+          otherUserInfo.value.id.toString(),
+          imageUrl);
+    } else {
+      data = WebsocketMessageVo.chatLocalEmojiMessage(
+          userInfo.value.id.toString(),
+          otherUserInfo.value.id.toString(),
+          imageUrl);
+    }
+    Get.log('data: $data');
+    int id =
+        await ChatMessageMapper.insert(data, otherUserInfo.value.id.toString());
+    // 取最新的一条消息插入到聊天列表
+    // Map<String, dynamic> map =
+    //     await ChatMessageMapper.queryLatestMessage(otherUserInfo.value.id);
+    // Get.log('map: $map');
+    // chatList.add(map);
+    await addMessage(otherUserInfo.value.id.toString());
+    scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    // 更新最近聊天列表
+    await RecentlyMessageMapper.update(RecentlyMessage(
+        userId: otherUserInfo.value.id.toString(),
+        avatarUrl: otherUserInfo.value.avatarUrl,
+        userName: otherUserInfo.value.nickname,
+        lastMessage: chatList.last['chat_type'] == 1
+            ? chatList.last['content']
+            : chatList.last['chat_type'] == 2
+                ? '[图片]'
+                : chatList.last['chat_type'] == 3
+                    ? '[文件]'
+                    : chatList.last['chat_type'] == 4
+                        ? '[语音]'
+                        : chatList.last['chat_type'] == 5
+                            ? '[视频]'
+                            : chatList.last['chat_type'] == 6
+                                ? GetUtils.isURL(chatList.last['content'])
+                                    ? '[表情]'
+                                    : chatList.last['content']
+                                : '',
+        lastTime: DateTime.now().millisecondsSinceEpoch,
+        unreadNum: 0,
+        stranger: 0));
+    if (RecentlyMessageController.isInitialized) {
+      Get.log('RecentlyMessageController已注册');
+      RecentlyMessageController recentlyMessageController =
+          Get.find<RecentlyMessageController>();
+      recentlyMessageController.updateRecentlyMessageList();
+    } else {
+      Get.log('RecentlyMessageController未注册');
+    }
+    websocketController.webSocketManager.sendMessage(
+      isUrl
+          ? WebsocketMessageVo.chatServerEmojiMessage(
+              id,
+              userInfo.value.id.toString(),
+              userInfo.value.nickname,
+              userInfo.value.avatarUrl,
+              otherUserInfo.value.id.toString(),
+              imageUrl,
+            )
+          : WebsocketMessageVo.chatServerImageMessage(
+              id,
+              userInfo.value.id.toString(),
+              userInfo.value.nickname,
+              userInfo.value.avatarUrl,
+              otherUserInfo.value.id.toString(),
+              imageUrl,
+            ),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // 滚动到底部
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    });
+  }
+
+  Future<void> sendVideo(File? file) async {
+    if (file == null) {
+      return;
+    }
+    dio.MultipartFile multipartFile = dio.MultipartFile.fromFileSync(
+      file.path,
+      filename: file.path.split('/').last,
+    );
+    dio.FormData formData = dio.FormData.fromMap({
+      'file': multipartFile,
+    });
+    HttpResponse response = await ThirdApi.uploadVideo(formData);
+    if (response.code != StatusCode.postSuccess) {
+      SnackbarUtil.showError('发送失败');
+      return;
+    }
+    Get.log('上传成功');
+    Get.log('data: ${response.data.toString()}');
+    Map<String, dynamic> data = WebsocketMessageVo.chatLocalVideoMessage(
+        userInfo.value.id.toString(),
+        otherUserInfo.value.id.toString(),
+        response.data.toString());
+    Get.log('data: $data');
+    int id =
+        await ChatMessageMapper.insert(data, otherUserInfo.value.id.toString());
+    // 取最新的一条消息插入到聊天列表
+    // Map<String, dynamic> map =
+    //     await ChatMessageMapper.queryLatestMessage(otherUserInfo.value.id);
+    // Get.log('map: $map');
+    // chatList.add(map);
+    await addMessage(otherUserInfo.value.id.toString());
+    scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    // 更新最近聊天列表
+    await RecentlyMessageMapper.update(RecentlyMessage(
+        userId: otherUserInfo.value.id.toString(),
+        avatarUrl: otherUserInfo.value.avatarUrl,
+        userName: otherUserInfo.value.nickname,
+        lastMessage: chatList.last['chat_type'] == 1
+            ? chatList.last['content']
+            : chatList.last['chat_type'] == 2
+                ? '[图片]'
+                : chatList.last['chat_type'] == 3
+                    ? '[文件]'
+                    : chatList.last['chat_type'] == 4
+                        ? '[语音]'
+                        : chatList.last['chat_type'] == 5
+                            ? '[视频]'
+                            : chatList.last['chat_type'] == 6
+                                ? GetUtils.isURL(chatList.last['content'])
+                                    ? '[表情]'
+                                    : chatList.last['content']
+                                : '',
+        lastTime: DateTime.now().millisecondsSinceEpoch,
+        unreadNum: 0,
+        stranger: 0));
+    if (RecentlyMessageController.isInitialized) {
+      Get.log('RecentlyMessageController已注册');
+      RecentlyMessageController recentlyMessageController =
+          Get.find<RecentlyMessageController>();
+      recentlyMessageController.updateRecentlyMessageList();
+    } else {
+      Get.log('RecentlyMessageController未注册');
+    }
+    websocketController.webSocketManager.sendMessage(
+      WebsocketMessageVo.chatServerVideoMessage(
+        id,
+        userInfo.value.id.toString(),
+        userInfo.value.nickname,
+        userInfo.value.avatarUrl,
+        otherUserInfo.value.id.toString(),
+        response.data.toString(),
+      ),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      // 滚动到底部
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    });
   }
 
   void updateMessageStatus(int messageId, String toId, int status) {
@@ -345,20 +610,21 @@ class ChatController extends GetxController {
     chatList.refresh();
   }
 
-  void addMessage(Map<String, dynamic> message) {
+  Future<void> addMessage(String from) async {
     // 判断该消息是否是当前聊天对象的消息
-    if (message['from'].toString() == otherUserInfo.value.id.toString() ||
-        message['to'].toString() == otherUserInfo.value.id.toString()) {
+    Get.log('from: $from');
+    Get.log('otherUserInfo.value.id: ${otherUserInfo.value.id}');
+    if (from == otherUserInfo.value.id.toString()) {
       // 更新最近聊天列表
-      ChatMessageMapper.queryNewMessage(otherUserInfo.value.id,
-              chatList.isEmpty ? -1 : chatList.last['id'])
-          .then((value) async {
-        Get.log('value: $value');
-        if (value.isNotEmpty) {
-          // 将消息插入到聊天列表
-          chatList.addAll(value);
-        }
-      });
+      Get.log('更新最近聊天列表');
+      List<Map<String, dynamic>> value =
+          await ChatMessageMapper.queryNewMessage(otherUserInfo.value.id,
+              chatList.isEmpty ? -1 : chatList.last['id']);
+      Get.log('value: $value');
+      if (value.isNotEmpty) {
+        // 将消息插入到聊天列表
+        chatList.addAll(value);
+      }
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
         // 滚动到底部
         scrollController.jumpTo(scrollController.position.maxScrollExtent);
@@ -375,6 +641,53 @@ class ChatController extends GetxController {
       }
     }
     return false;
+  }
+
+  addCollectEmoji(File? file) {
+    if (file == null) {
+      return;
+    }
+    dio.MultipartFile multipartFile = dio.MultipartFile.fromFileSync(
+      file.path,
+      filename: file.path.split('/').last,
+      contentType: dio.DioMediaType('image', 'jpg'),
+    );
+    dio.FormData formData = dio.FormData.fromMap({
+      'file': multipartFile,
+    });
+    ThirdApi.uploadImage(formData).then((response) async {
+      if (response.code != StatusCode.postSuccess) {
+        SnackbarUtil.showError('上传失败');
+        return;
+      }
+      Get.log('上传成功');
+      Get.log('data: ${response.data.toString()}');
+      //获取软件的文件路径
+      var directory = await getApplicationDocumentsDirectory();
+      // 拼接文件路径
+      int time = DateTime.now().millisecondsSinceEpoch;
+      String path = '${directory.path}/collect_emoji/$time.jpg';
+      File newFile = File(path);
+      if (!newFile.existsSync()) {
+        newFile.createSync(recursive: true);
+        // 文件拷贝
+        file.copySync(path);
+      }
+      await DBManager.instance.createCollectEmojiTable();
+      CollectEmojiMapper.insert({
+        'networkUrl': response.data.toString(),
+        'fileUrl': path,
+        'time': time,
+      }).then((value) {
+        SnackbarUtil.showInfo('添加成功');
+        emojiList.add(CollectEmoji(
+          id: value,
+          time: time,
+          fileUrl: path,
+          networkUrl: response.data.toString(),
+        ));
+      });
+    });
   }
 }
 

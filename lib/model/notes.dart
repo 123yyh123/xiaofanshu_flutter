@@ -17,6 +17,7 @@ class Notes {
   bool isCollect;
   bool isFollow;
   List<ResourcesDTO> notesResources;
+  String address;
   String province;
   String createTime;
   String updateTime;
@@ -38,10 +39,12 @@ class Notes {
     required this.isFollow,
     required this.notesResources,
     required this.province,
+    address,
     required this.createTime,
     required this.updateTime,
   })  : id = int.parse(id.toString()),
-        belongUserId = int.parse(belongUserId.toString());
+        belongUserId = int.parse(belongUserId.toString()),
+        address = address ?? '';
 
   factory Notes.fromJson(Map<String, dynamic> json) {
     json['notesResources'] = json['notesResources']
@@ -66,6 +69,7 @@ class Notes {
       province: json['province'],
       createTime: json['createTime'],
       updateTime: json['updateTime'],
+      address: json['address'],
     );
   }
 
@@ -90,6 +94,7 @@ class Notes {
       'isCollect': isCollect,
       'isFollow': isFollow,
       'notesResources': notesResources.map((e) => e.toJson()).toList(),
+      'address': address,
       'province': province,
       'createTime': createTime,
       'updateTime': updateTime,

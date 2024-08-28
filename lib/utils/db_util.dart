@@ -77,6 +77,13 @@ class DBManager {
             stranger BOOLEAN
           );
         ''');
+        await db.execute('''
+          create table if not exists collect_emoji (
+            id integer primary key autoincrement,
+            time integer,
+            fileUrl text,
+            networkUrl text);
+        ''');
         Get.log('数据库初始化完成');
       },
     );
@@ -148,6 +155,17 @@ class DBManager {
 				is_read integer,
 				is_send integer,
 				audio_time integer);
+    ''');
+  }
+
+  // 创建收藏表情表
+  Future<void> createCollectEmojiTable() async {
+    await createTable('''
+      create table if not exists collect_emoji (
+        id integer primary key autoincrement,
+        time integer,
+        fileUrl text,
+        networkUrl text);
     ''');
   }
 }

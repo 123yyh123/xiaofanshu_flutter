@@ -135,6 +135,12 @@ class _HomePageState extends State<HomePage> {
                                 List<AssetEntity>? results =
                                     await AssetPicker.pickAssets(
                                   context,
+                                  permissionRequestOption:
+                                      const PermissionRequestOption(
+                                    androidPermission: AndroidPermission(
+                                        type: RequestType.video,
+                                        mediaLocation: true),
+                                  ),
                                   pickerConfig: const AssetPickerConfig(
                                     maxAssets: 1,
                                     requestType: RequestType.video,

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_progress_bar/flutter_animated_progress_bar.dart';
 import 'package:get/get.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:image_pickers/image_pickers.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -313,38 +314,23 @@ class _SimpleVideoPreState extends State<SimpleVideoPre>
     // TODO: implement initState
     super.initState();
     progressBarController = ProgressBarController(vsync: this);
-    videoController = CachedVideoPlayerPlusController.file(
-      File(Get.arguments as String),
-    )..initialize().then((value) async {
-        setState(() {
-          isInitVideo = true;
-          videoTotalTime = videoController.value.duration;
-        });
-        videoController.play();
-        videoController.setLooping(true);
-        videoController.addListener(() {
-          setState(() {
-            videoCurrentTime = videoController.value.position;
-            videoBuffered = videoController.value.buffered.isNotEmpty
-                ? videoController.value.buffered.last.end
-                : Duration.zero;
-            videoSpeed = videoController.value.playbackSpeed;
-            if (videoController.value.isPlaying) {
-              isVideoPause = false;
-            } else {
-              isVideoPause = true;
-            }
-          });
-        });
-      });
+    Get.log('SimpleVideoPre initState: ${Get.arguments}');
+    String videoSource = Get.arguments as String;
+    if (GetUtils.isURL(videoSource)) {
+      videoController =
+          CachedVideoPlayerPlusController.networkUrl(Uri.parse(videoSource));
+    } else {
+      videoController = CachedVideoPlayerPlusController.file(File(videoSource));
+    }
+    initializeVideoController(videoSource);
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    super.dispose();
+    videoController.pause();
     videoController.dispose();
     progressBarController.dispose();
+    super.dispose();
   }
 
   @override
@@ -432,5 +418,26 @@ class _SimpleVideoPreState extends State<SimpleVideoPre>
         ],
       ),
     );
+  }
+
+  void initializeVideoController(String videoSource) {
+    videoController.initialize().then((value) async {
+      setState(() {
+        isInitVideo = true;
+        videoTotalTime = videoController.value.duration;
+      });
+      videoController.play();
+      videoController.setLooping(true);
+      videoController.addListener(() {
+        setState(() {
+          videoCurrentTime = videoController.value.position;
+          videoBuffered = videoController.value.buffered.isNotEmpty
+              ? videoController.value.buffered.last.end
+              : Duration.zero;
+          videoSpeed = videoController.value.playbackSpeed;
+          isVideoPause = !videoController.value.isPlaying;
+        });
+      });
+    });
   }
 }

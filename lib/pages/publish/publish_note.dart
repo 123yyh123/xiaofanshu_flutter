@@ -618,30 +618,41 @@ class _PublishNotesState extends State<PublishNotes> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.add_location_alt_outlined,
-                  size: 16,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                publishNotesController.selectedLocationName.value == ''
-                    ? const Text(
-                        "添加地点",
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      )
-                    : Text(
-                        publishNotesController.selectedLocationName.value,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: CustomColor.primaryColor,
-                        ),
-                      ),
-              ],
+            Expanded(
+              flex: 1,
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.add_location_alt_outlined,
+                    size: 16,
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: publishNotesController.selectedLocationName.value ==
+                            ''
+                        ? const Text(
+                            "添加地点",
+                            maxLines: 1,
+                            style: TextStyle(
+                              fontSize: 14,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          )
+                        : Text(
+                            publishNotesController.selectedLocationName.value,
+                            maxLines: 1,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: CustomColor.primaryColor,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                  ),
+                ],
+              ),
             ),
             const Icon(
               Icons.arrow_forward_ios,
