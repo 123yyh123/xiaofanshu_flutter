@@ -19,6 +19,7 @@ import 'package:xiaofanshu_flutter/model/response.dart';
 
 // import 'package:image_picker/image_picker.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
+import 'package:xiaofanshu_flutter/utils/comment_util.dart';
 import 'package:xiaofanshu_flutter/utils/loading_util.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 
@@ -209,7 +210,7 @@ class _SimpleImagePreState extends State<SimpleImagePre> {
                   LoadingUtil.show();
                   if (await Permission.photos.status.isLimited ||
                       await Permission.photos.status.isGranted) {
-                    if (urls[currentIndex].isURL) {
+                    if (urls[currentIndex].isUrl) {
                       var response = await Dio().get(urls[currentIndex],
                           options: Options(responseType: ResponseType.bytes));
                       final result = await ImageGallerySaver.saveImage(
@@ -316,10 +317,12 @@ class _SimpleVideoPreState extends State<SimpleVideoPre>
     progressBarController = ProgressBarController(vsync: this);
     Get.log('SimpleVideoPre initState: ${Get.arguments}');
     String videoSource = Get.arguments as String;
-    if (GetUtils.isURL(videoSource)) {
+    if (videoSource.isUrl) {
+      Get.log('SimpleVideoPre videoSource isURL');
       videoController =
           CachedVideoPlayerPlusController.networkUrl(Uri.parse(videoSource));
     } else {
+      Get.log('SimpleVideoPre videoSource isFile');
       videoController = CachedVideoPlayerPlusController.file(File(videoSource));
     }
     initializeVideoController(videoSource);

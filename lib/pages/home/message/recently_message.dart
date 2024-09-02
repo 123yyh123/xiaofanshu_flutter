@@ -4,8 +4,7 @@ import 'package:flutter_swipe_action_cell/core/cell.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/recently_message_controller.dart';
 import 'package:xiaofanshu_flutter/utils/date_show_util.dart';
-import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
-
+import 'package:badges/badges.dart' as badges;
 import '../../../static/custom_color.dart';
 
 class RecentlyMessage extends StatefulWidget {
@@ -32,8 +31,7 @@ class _RecentlyMessageState extends State<RecentlyMessage> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
-          Get.snackbar('刷新成功', '刷新成功');
+          controller.updateRecentlyMessageList();
         },
         notificationPredicate: (ScrollNotification notification) {
           return true;
@@ -43,6 +41,7 @@ class _RecentlyMessageState extends State<RecentlyMessage> {
           height: MediaQuery.of(context).size.height - 56,
           width: double.infinity,
           child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               children: [
                 _topMessage(),
@@ -56,89 +55,130 @@ class _RecentlyMessageState extends State<RecentlyMessage> {
   }
 
   Widget _topMessage() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Column(
-          children: [
-            Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xfffdeff2),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.favorite_rounded,
-                  color: Color(0xffe9546b),
-                  size: 26,
+    return Obx(
+      () => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          GestureDetector(
+            onTap: () async {
+              await controller.clearPraiseAndCollectionUnreadNum();
+              Get.toNamed('/message/praiseAndCollection');
+            },
+            child: Column(
+              children: [
+                badges.Badge(
+                  showBadge: controller.praiseAndCollectionUnreadNum.value > 0,
+                  badgeContent: Text(
+                    controller.praiseAndCollectionUnreadNum.value.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                  ),
+                  badgeAnimation: const badges.BadgeAnimation.scale(),
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: const Color(0xfffdeff2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.favorite_rounded,
+                        color: Color(0xffe9546b),
+                        size: 26,
+                      ),
+                    ),
+                  ),
+                ),
+                const Text(
+                  '赞和收藏',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xff595857),
+                  ),
+                ).marginOnly(top: 5)
+              ],
+            ),
+          ),
+          Column(
+            children: [
+              badges.Badge(
+                showBadge: controller.attentionUnreadNum.value > 0,
+                badgeContent: Text(
+                  controller.attentionUnreadNum.value.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+                badgeAnimation: const badges.BadgeAnimation.scale(),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xffebf6f7),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.person,
+                      color: Color(0xff38a1db),
+                      size: 26,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            const Text(
-              '赞和收藏',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff595857),
-              ),
-            ).marginOnly(top: 5)
-          ],
-        ),
-        Column(
-          children: [
-            Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xffebf6f7),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.person,
-                  color: Color(0xff38a1db),
-                  size: 26,
+              const Text(
+                '新增关注',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xff595857),
+                ),
+              ).marginOnly(top: 5)
+            ],
+          ),
+          Column(
+            children: [
+              badges.Badge(
+                showBadge: controller.commentUnreadNum.value > 0,
+                badgeContent: Text(
+                  controller.commentUnreadNum.value.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                  ),
+                ),
+                badgeAnimation: const badges.BadgeAnimation.scale(),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: const Color(0xffd6e9ca).withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.maps_ugc,
+                      color: Color(0xff68be8d),
+                      size: 26,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            const Text(
-              '新增关注',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff595857),
-              ),
-            ).marginOnly(top: 5)
-          ],
-        ),
-        Column(
-          children: [
-            Container(
-              height: 50,
-              width: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xffd6e9ca).withOpacity(0.5),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.maps_ugc,
-                  color: Color(0xff68be8d),
-                  size: 26,
+              const Text(
+                '评论和@',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xff595857),
                 ),
-              ),
-            ),
-            const Text(
-              '评论和@',
-              style: TextStyle(
-                fontSize: 12,
-                color: Color(0xff595857),
-              ),
-            ).marginOnly(top: 5)
-          ],
-        ),
-      ],
-    ).paddingOnly(top: 10, bottom: 10);
+              ).marginOnly(top: 5)
+            ],
+          ),
+        ],
+      ).paddingOnly(top: 10, bottom: 10),
+    );
   }
 
   Widget _chatRecentlyMessage() {
@@ -148,7 +188,6 @@ class _RecentlyMessageState extends State<RecentlyMessage> {
         child: ListView.builder(
           shrinkWrap: true,
           itemCount: controller.recentlyMessageList.length,
-          physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {

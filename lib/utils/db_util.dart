@@ -84,6 +84,44 @@ class DBManager {
             fileUrl text,
             networkUrl text);
         ''');
+        // 系统消息的表，主要为了显示未读数，1为赞和收藏，2为新增关注，3为评论和@，unread_num为未读数
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS system_message (
+            id INTEGER PRIMARY KEY,
+            type INTEGER,
+            unread_num INTEGER
+          );
+        ''');
+        await db.execute('''
+          INSERT OR IGNORE INTO system_message (id, type, unread_num) VALUES
+          (1, 1, 0),
+          (2, 2, 0),
+          (3, 3, 0);
+        ''');
+        // 创建关注消息表
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS attention_message (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            avatar_url TEXT,
+            user_name TEXT,
+            content TEXT
+          );
+        ''');
+        // 创建点赞和收藏消息表
+        await db.execute('''
+          CREATE TABLE IF NOT EXISTS praise_and_collection (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            avatar_url TEXT,
+            user_name TEXT,
+            content TEXT,
+            notes_id TEXT,
+            notes_type TEXT,
+            notes_cover_picture TEXT,
+            time INTEGER
+          );
+        ''');
         Get.log('数据库初始化完成');
       },
     );
@@ -166,6 +204,53 @@ class DBManager {
         time integer,
         fileUrl text,
         networkUrl text);
+    ''');
+  }
+
+  // 创建系统消息表
+  Future<void> createSystemMessageTable() async {
+    await createTable('''
+      CREATE TABLE IF NOT EXISTS system_message (
+        id INTEGER PRIMARY KEY,
+        type INTEGER,
+        unread_num INTEGER
+      );
+    ''');
+    await createTable('''
+      INSERT OR IGNORE INTO system_message (id, type, unread_num) VALUES
+      (1, 1, 0),
+      (2, 2, 0),
+      (3, 3, 0);
+    ''');
+  }
+
+  // 创建关注消息表
+  Future<void> createAttentionMessageTable() async {
+    await createTable('''
+      CREATE TABLE IF NOT EXISTS attention_message (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        avatar_url TEXT,
+        user_name TEXT,
+        content TEXT
+      );
+    ''');
+  }
+
+  // 创建点赞和收藏消息表
+  Future<void> createPraiseAndCollectionTable() async {
+    await createTable('''
+      CREATE TABLE IF NOT EXISTS praise_and_collection (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id TEXT,
+        avatar_url TEXT,
+        user_name TEXT,
+        content TEXT,
+        notes_id TEXT,
+        notes_type TEXT,
+        notes_cover_picture TEXT,
+        time INTEGER
+      );
     ''');
   }
 }

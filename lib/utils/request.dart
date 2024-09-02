@@ -129,8 +129,10 @@ class Request {
     // 特殊长接收时间
     reactiveTime ??= BaseRequest.receiveTimeout;
     // 默认配置选项
-    options ??=
-        Options(method: methodValues[method], receiveTimeout: reactiveTime);
+    options ??= Options(
+        method: methodValues[method],
+        receiveTimeout: reactiveTime,
+        sendTimeout: reactiveTime);
     try {
       Response response;
       // 开始发送请求

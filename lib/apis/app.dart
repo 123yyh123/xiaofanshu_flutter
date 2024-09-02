@@ -192,6 +192,16 @@ class NoteApi {
     ));
   }
 
+  static Future<HttpResponse> getNotesByView(
+      int page, int size, int type, int userId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/getNotesByView",
+      method: DioMethod.get,
+      params: {"page": page, "pageSize": size, "type": type, "userId": userId},
+      isShowLoading: true,
+    ));
+  }
+
   static Future<HttpResponse> getMyCollects(int page, int size) async {
     return HttpResponse.fromJson(await Request().request(
       "$prefix/getNotesByUserId",
@@ -322,6 +332,7 @@ class ThirdApi {
       "$prefix/uploadImg",
       method: DioMethod.post,
       data: data,
+      reactiveTime: const Duration(seconds: 20),
     ));
   }
 
@@ -330,7 +341,7 @@ class ThirdApi {
       "$prefix/uploadVideo",
       method: DioMethod.post,
       data: data,
-      reactiveTime: const Duration(seconds: 2000),
+      reactiveTime: const Duration(seconds: 100),
     ));
   }
 
@@ -339,6 +350,7 @@ class ThirdApi {
       "$prefix/uploadAudio",
       method: DioMethod.post,
       data: data,
+      reactiveTime: const Duration(seconds: 20),
     ));
   }
 

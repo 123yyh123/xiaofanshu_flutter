@@ -12,6 +12,7 @@ import '../controller/chat_controller.dart';
 import '../controller/login_controller.dart';
 import '../controller/home_controller.dart';
 import '../controller/other_mine_controller.dart';
+import '../controller/praise_and_collection_controller.dart';
 
 class ControllerBinding extends Bindings {
   @override
@@ -29,5 +30,6 @@ class ControllerBinding extends Bindings {
     Get.lazyPut(() => OtherMineController());
     Get.lazyPut(() => ChatController());
     Get.lazyPut(() => RecentlyMessageController());
+    Get.lazyPut(() => PraiseAndCollectionController());
   }
 }

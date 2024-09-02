@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/controller/websocket_controller.dart';
 import 'package:xiaofanshu_flutter/mapper/recently_message_mapper.dart';
+import 'package:xiaofanshu_flutter/mapper/system_message_mapper.dart';
 import 'package:xiaofanshu_flutter/utils/permission_apply.dart';
 import '../utils/db_util.dart';
 
@@ -25,7 +26,8 @@ class HomeController extends GetxController {
 
   Future<void> refreshUnReadCount() async {
     // TODO 暂时只计算未读消息总数
-    var count = await RecentlyMessageMapper.countUnRead();
-    unReadCount.value = count;
+    var messageCount = await RecentlyMessageMapper.countUnRead();
+    var systemMessageCount = await SystemMessageMapper.getUnreadCount();
+    unReadCount.value = messageCount + systemMessageCount;
   }
 }

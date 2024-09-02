@@ -403,14 +403,47 @@ class _ChatPageState extends State<ChatPage>
             minWidth: 0,
             maxHeight: Adapt.setRpx(500),
             minHeight: 0),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            image: DecorationImage(
-              image: CachedNetworkImageProvider(message),
-              fit: BoxFit.cover,
-            ),
-          ),
+        child: FutureBuilder<Size>(
+          future: getImageDimensions(message),
+          builder: (BuildContext context, AsyncSnapshot<Size> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (snapshot.hasError) {
+              return const Center(child: Text('Error loading image'));
+            }
+            final size = snapshot.data!;
+            double width = size.width;
+            double height = size.height;
+            // 最大宽度和高度
+            double maxWidth = Adapt.setRpx(450);
+            double maxHeight = Adapt.setRpx(550);
+            // 适配逻辑
+            if (width > maxWidth || height > maxHeight) {
+              if (width > maxWidth) {
+                height = height * maxWidth / width;
+                width = maxWidth;
+              }
+              if (height > maxHeight) {
+                width = width * maxHeight / height;
+                height = maxHeight;
+              }
+            }
+            return Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                image: DecorationImage(
+                  image: message.isURL
+                      ? CachedNetworkImageProvider(message)
+                      : FileImage(File(message)),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

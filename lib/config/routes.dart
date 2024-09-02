@@ -6,6 +6,7 @@ import 'package:xiaofanshu_flutter/pages/auth/login.dart';
 import 'package:xiaofanshu_flutter/pages/auth/retrieve_account.dart';
 import 'package:xiaofanshu_flutter/pages/home/home.dart';
 import 'package:xiaofanshu_flutter/pages/home/message/chat.dart';
+import 'package:xiaofanshu_flutter/pages/home/message/praise_and_collection.dart';
 import 'package:xiaofanshu_flutter/pages/home/mine/attention_fans.dart';
 import 'package:xiaofanshu_flutter/pages/notesDetail/note_details_video.dart';
 import 'package:xiaofanshu_flutter/pages/publish/publish_note.dart';
@@ -104,6 +105,12 @@ class RouteConfig {
       name: '/test',
       page: () => const TestPage(),
       transition: Transition.rightToLeftWithFade,
+    ),
+    GetPage(
+      name: '/message/praiseAndCollection',
+      page: () => const PraiseAndCollection(),
+      transition: Transition.rightToLeftWithFade,
+      binding: ControllerBinding(),
     ),
   ];
 }

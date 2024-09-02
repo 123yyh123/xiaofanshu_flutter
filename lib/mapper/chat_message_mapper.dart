@@ -51,6 +51,15 @@ class ChatMessageMapper {
         where: 'id = ?', whereArgs: [id]);
   }
 
+  // 更新消息状态和url
+  static Future<int> updateMessageStatusAndUrl(
+      int id, int toId, int status, String url) async {
+    Database database = await DBManager.instance.database;
+    return await database.update(
+        tableName + toId.toString(), {'is_send': status, 'content': url},
+        where: 'id = ?', whereArgs: [id]);
+  }
+
   // 取10条消息，分页查询
   // SELECT *
   // FROM tableName

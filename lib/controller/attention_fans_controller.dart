@@ -51,6 +51,17 @@ class AttentionFansController extends GetxController {
     });
   }
 
+  Future<void> onRefresh() async {
+    attentionList.clear();
+    fansList.clear();
+    attentionPage.value = 1;
+    fansPage.value = 1;
+    hasMoreAttention.value = true;
+    hasMoreFans.value = true;
+    await loadAttentionList();
+    await loadFansList();
+  }
+
   loadAttentionList() async {
     if (isLoading.value || !hasMoreAttention.value) {
       return;

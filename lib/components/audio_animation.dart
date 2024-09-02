@@ -37,9 +37,10 @@ class _AudioAnimationState extends State<AudioAnimation>
       ..value = 1.0;
     AudioPlayManager.instance.audioPlayer.onPlayerStateChanged.listen((event) {
       // 判断当前播放的语音是否是当前点击的语音
-      if (AudioPlayManager.instance.audioPlayer.source == null ||
-          (AudioPlayManager.instance.audioPlayer.source as UrlSource).url !=
-              widget.message) {
+      var source = AudioPlayManager.instance.audioPlayer.source;
+      if (source == null ||
+          (source is UrlSource && source.url != widget.message) ||
+          (source is DeviceFileSource && source.path != widget.message)) {
         try {
           animationController.stop();
         } catch (e) {
@@ -69,31 +70,45 @@ class _AudioAnimationState extends State<AudioAnimation>
     return GestureDetector(
       onTap: () {
         Get.log('点击了语音消息');
-        if (AudioPlayManager.instance.audioPlayer.source == null ||
-            (AudioPlayManager.instance.audioPlayer.source as UrlSource).url !=
-                widget.message) {
+        var source = AudioPlayManager.instance.audioPlayer.source;
+        if (source == null ||
+            (source is UrlSource && source.url != widget.message) ||
+            (source is DeviceFileSource && source.path != widget.message)) {
+          // 执行对应的逻辑
           Get.log('播放新的语音');
-          // Get.log(
-          //     '当前语音url: ${(AudioPlayManager.instance.audioPlayer.source as UrlSource).url}');
           // 如果当前播放的语音不是当前点击的语音，则停止当前播放的语音，播放当前点击的语音
           AudioPlayManager.instance.audioPlayer.stop();
           AudioPlayManager.instance.audioPlayer.setSource(
-            UrlSource(
-              widget.message,
-            ),
+            widget.message.isUrl
+                ? UrlSource(
+                    widget.message,
+                  )
+                : DeviceFileSource(
+                    widget.message,
+                  ),
           );
-          AudioPlayManager.instance.audioPlayer.play(UrlSource(
-            widget.message,
-          ));
+          AudioPlayManager.instance.audioPlayer.play(widget.message.isUrl
+              ? UrlSource(
+                  widget.message,
+                )
+              : DeviceFileSource(
+                  widget.message,
+                ));
         } else {
           Get.log('播放当前的语音');
           Get.log('当前语音状态: ${AudioPlayManager.instance.audioPlayer.state}');
           // 如果当前播放的语音是当前点击的语音，则暂停或者继续播放
           if (AudioPlayManager.instance.audioPlayer.state ==
               PlayerState.completed) {
-            AudioPlayManager.instance.audioPlayer.play(UrlSource(
-              widget.message,
-            ));
+            AudioPlayManager.instance.audioPlayer.play(
+              widget.message.isUrl
+                  ? UrlSource(
+                      widget.message,
+                    )
+                  : DeviceFileSource(
+                      widget.message,
+                    ),
+            );
           } else if (AudioPlayManager.instance.audioPlayer.state ==
               PlayerState.playing) {
             AudioPlayManager.instance.audioPlayer.pause();

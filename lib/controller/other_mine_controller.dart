@@ -76,7 +76,9 @@ class OtherMineController extends GetxController {
       if (!isHasMyNotesMore) {
         return;
       }
-      NoteApi.getMyNotes(0, myNotesPage, myNotesSize).then((res) {
+      NoteApi.getNotesByView(
+              myNotesPage, myNotesSize, 0, int.parse(userInfo['id'].toString()))
+          .then((res) {
         if (res.code == StatusCode.getSuccess) {
           if (res.data['list'].length < myNotesSize) {
             isHasMyNotesMore = false;

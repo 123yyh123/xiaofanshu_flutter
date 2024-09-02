@@ -9,12 +9,16 @@ import 'package:xiaofanshu_flutter/config/base_request.dart';
 import 'package:xiaofanshu_flutter/controller/chat_controller.dart';
 import 'package:xiaofanshu_flutter/controller/home_controller.dart';
 import 'package:xiaofanshu_flutter/controller/recently_message_controller.dart';
+import 'package:xiaofanshu_flutter/enum/message_type.dart';
 import 'package:xiaofanshu_flutter/mapper/chat_message_mapper.dart';
+import 'package:xiaofanshu_flutter/mapper/praise_and_collection_mapper.dart';
 import 'package:xiaofanshu_flutter/mapper/recently_message_mapper.dart';
+import 'package:xiaofanshu_flutter/mapper/system_message_mapper.dart';
 import 'package:xiaofanshu_flutter/model/response.dart';
 import 'package:xiaofanshu_flutter/model/user.dart';
 import 'package:xiaofanshu_flutter/model/websocket_message_vo.dart';
 import 'package:xiaofanshu_flutter/static/custom_code.dart';
+import 'package:xiaofanshu_flutter/utils/comment_util.dart';
 import 'package:xiaofanshu_flutter/utils/db_util.dart';
 import 'package:xiaofanshu_flutter/utils/snackbar_util.dart';
 import 'package:xiaofanshu_flutter/utils/store_util.dart';
@@ -33,6 +37,7 @@ class WebSocketManager {
   final Duration _reconnectInterval = const Duration(seconds: 5); //重新连接间隔时间
   StreamController<String> _messageController = StreamController<String>();
   final _lock = Lock();
+  final _lockSystemMessage = Lock();
 
   Stream<String> get messageStream => _messageController.stream; //监听的消息
   late String token;
@@ -213,7 +218,7 @@ class WebSocketManager {
           }
         });
       });
-      _timerMap['time${data['id']}${data['to']}'] = timer;
+      _timerMap.addAll({'time_${data['id']}_${data['to']}': timer});
     }
     final jsonString = jsonEncode(data); // 将消息对象转换为 JSON 字符串
     _channel.sink.add(jsonString); // 发送 JSON 字符串
@@ -266,19 +271,21 @@ class WebSocketManager {
     Get.log('处理消息$data');
     Map<String, dynamic> message = jsonDecode(data.toString());
     // 判断消息类型
-    if (message['messageType'] == 3) {
+    if (message['messageType'] == MessageType.chat) {
       // 聊天信息
       _onMessageChat(message);
-    } else if (message['messageType'] == 4) {
+    } else if (message['messageType'] == MessageType.follow) {
       // 新增关注
-    } else if (message['messageType'] == 5) {
+      _onAttentionMessage(message);
+    } else if (message['messageType'] == MessageType.serverAnswer) {
       // 服务器应答
       _onMessageServerResponse(message);
-    } else if (message['messageType'] == 6) {
+    } else if (message['messageType'] == MessageType.tokenAuth) {
       // token鉴权失败
       _tokenAuthFailed(message);
-    } else if (message['messageType'] == 8) {
+    } else if (message['messageType'] == MessageType.likeAndCollect) {
       // 新增点赞或收藏
+      _onMessageLikeAndCollect(message);
     }
   }
 
@@ -321,7 +328,7 @@ class WebSocketManager {
                               : message['chatType'] == 5
                                   ? '[视频]'
                                   : message['chatType'] == 6
-                                      ? GetUtils.isURL(message['content'])
+                                      ? message['content'].toString().isUrl
                                           ? '[表情]'
                                           : message['content']
                                       : '',
@@ -349,7 +356,7 @@ class WebSocketManager {
                                   : message['chatType'] == 5
                                       ? '[视频]'
                                       : message['chatType'] == 6
-                                          ? GetUtils.isURL(message['content'])
+                                          ? message['content'].toString().isUrl
                                               ? '[表情]'
                                               : message['content']
                                           : '',
@@ -372,7 +379,7 @@ class WebSocketManager {
                                   : message['chatType'] == 5
                                       ? '[视频]'
                                       : message['chatType'] == 6
-                                          ? GetUtils.isURL(message['content'])
+                                          ? message['content'].toString().isUrl
                                               ? '[表情]'
                                               : message['content']
                                           : '',
@@ -405,7 +412,7 @@ class WebSocketManager {
                                 : message['chatType'] == 5
                                     ? '[视频]'
                                     : message['chatType'] == 6
-                                        ? GetUtils.isURL(message['content'])
+                                        ? message['content'].toString().isUrl
                                             ? '[表情]'
                                             : message['content']
                                         : '',
@@ -428,7 +435,7 @@ class WebSocketManager {
                                 : message['chatType'] == 5
                                     ? '[视频]'
                                     : message['chatType'] == 6
-                                        ? GetUtils.isURL(message['content'])
+                                        ? message['content'].toString().isUrl
                                             ? '[表情]'
                                             : message['content']
                                         : '',
@@ -451,7 +458,7 @@ class WebSocketManager {
                             : message['chatType'] == 5
                                 ? '[视频]'
                                 : message['chatType'] == 6
-                                    ? GetUtils.isURL(message['content'])
+                                    ? message['content'].toString().isUrl
                                         ? '[表情]'
                                         : message['content']
                                     : '',
@@ -474,7 +481,35 @@ class WebSocketManager {
     });
   }
 
-  _onMessageServerResponse(Map<String, dynamic> message) {
+  void _onAttentionMessage(Map<String, dynamic> message) async {
+    // Get.log('新增关注信息$message');
+    // await DBManager.instance.createAttentionMessageTable();
+    // Map<String, dynamic> data = {
+    //   'user_id': message['from'].toString(),
+    //   'avatar_url': message['fromAvatar'].toString(),
+    //   'user_name': message['fromName'].toString(),
+    //   'content': message['content'].toString()
+    // };
+    // await AttentionMessageMapper.insert(data);
+    // // 更新systemMessage表的未读数量
+    // _lockSystemMessage.synchronized(() async {
+    //   await SystemMessageMapper.updateUnreadCount(2);
+    // });
+    // // 通知RecentlyMessageController更新最近消息列表
+    // if (RecentlyMessageController.isInitialized) {
+    //   Get.log('RecentlyMessageController已注册');
+    //   RecentlyMessageController recentlyMessageController =
+    //       Get.find<RecentlyMessageController>();
+    //   recentlyMessageController.updateSystemMessageUnreadNum();
+    // } else {
+    //   Get.log('RecentlyMessageController未注册');
+    // }
+    // // 通知HomeController更新消息角标
+    // HomeController homeController = Get.find<HomeController>();
+    // homeController.refreshUnReadCount();
+  }
+
+  void _onMessageServerResponse(Map<String, dynamic> message) async {
     Get.log('服务器应答信息$message');
     int status = 1;
     if (message.containsKey('content') &&
@@ -484,20 +519,33 @@ class WebSocketManager {
     }
     Get.log('status: $status');
     // 清除发送中状态
-    _timerMap['time${message['id']}${message['to']}']?.cancel();
-    ChatMessageMapper.updateMessageStatus(
-      int.parse(message['id'].toString()),
-      int.parse(message['to'].toString()),
-      status,
-    ).then((value) {
-      Get.log('更新消息状态成功');
-      // 告知chatController更新消息状态
-      if (value > 0 && Get.isRegistered<ChatController>()) {
-        ChatController chatController = Get.find<ChatController>();
-        chatController.updateMessageStatus(int.parse(message['id'].toString()),
-            message['to'].toString(), status);
-      }
-    });
+    _timerMap['time_${message['id']}_${message['to']}']?.cancel();
+    // 如果需要更新消息路径，更新消息路径  saveData('${id}_${userInfo.value.id}_${otherUserInfo.value.id}', imageUrl);
+    String? url =
+        await readData('${message['id']}_${userInfo.id}_${message['to']}');
+    int value = 0;
+    if (url != null) {
+      removeData('${message['id']}_${userInfo.id}_${message['to']}');
+      value = await ChatMessageMapper.updateMessageStatusAndUrl(
+        int.parse(message['id'].toString()),
+        int.parse(message['to'].toString()),
+        status,
+        url,
+      );
+    } else {
+      value = await ChatMessageMapper.updateMessageStatus(
+        int.parse(message['id'].toString()),
+        int.parse(message['to'].toString()),
+        status,
+      );
+    }
+    Get.log('更新消息状态成功');
+    // 告知chatController更新消息状态
+    if (value > 0 && Get.isRegistered<ChatController>()) {
+      ChatController chatController = Get.find<ChatController>();
+      chatController.updateMessageStatus(int.parse(message['id'].toString()),
+          message['to'].toString(), status);
+    }
   }
 
   void _tokenAuthFailed(Map<String, dynamic> message) {
@@ -514,5 +562,39 @@ class WebSocketManager {
     Future.delayed(const Duration(seconds: 1), () {
       Get.offAllNamed('/login');
     });
+  }
+
+  void _onMessageLikeAndCollect(Map<String, dynamic> message) async {
+    Get.log('新增点赞或收藏信息$message');
+    await DBManager.instance.createPraiseAndCollectionTable();
+    await DBManager.instance.createSystemMessageTable();
+    Map<String, dynamic> content = jsonDecode(message['content'].toString());
+    Map<String, dynamic> data = {
+      'user_id': message['from'].toString(),
+      'avatar_url': message['fromAvatar'].toString(),
+      'user_name': message['fromName'].toString(),
+      'content': content['text'].toString(),
+      'notes_id': content['notesId'].toString(),
+      'notes_type': content['notesType'].toString(),
+      'notes_cover_picture': content['notesCoverPicture'].toString(),
+      'time': int.parse(message['time'].toString())
+    };
+    await PraiseAndCollectionMapper.insert(data);
+    // 更新systemMessage表的未读数量
+    _lockSystemMessage.synchronized(() async {
+      await SystemMessageMapper.updateUnreadCount(1);
+    });
+    // 通知RecentlyMessageController更新最近消息列表
+    if (RecentlyMessageController.isInitialized) {
+      Get.log('RecentlyMessageController已注册');
+      RecentlyMessageController recentlyMessageController =
+          Get.find<RecentlyMessageController>();
+      recentlyMessageController.updateSystemMessageUnreadNum();
+    } else {
+      Get.log('RecentlyMessageController未注册');
+    }
+    // 通知HomeController更新消息角标
+    HomeController homeController = Get.find<HomeController>();
+    homeController.refreshUnReadCount();
   }
 }
