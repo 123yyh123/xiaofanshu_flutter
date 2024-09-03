@@ -122,6 +122,14 @@ class DBManager {
             time INTEGER
           );
         ''');
+        // 初始化搜索记录表
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS search_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          content TEXT UNIQUE,
+          updateTime INTEGER
+        );
+      ''');
         Get.log('数据库初始化完成');
       },
     );
@@ -250,6 +258,17 @@ class DBManager {
         notes_type TEXT,
         notes_cover_picture TEXT,
         time INTEGER
+      );
+    ''');
+  }
+
+  // 创建搜索记录表
+  Future<void> createSearchHistoryTable() async {
+    await createTable('''
+      CREATE TABLE IF NOT EXISTS search_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        content TEXT UNIQUE,
+        updateTime INTEGER
       );
     ''');
   }

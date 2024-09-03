@@ -8,11 +8,13 @@ import 'package:xiaofanshu_flutter/controller/note_details_video_controller.dart
 import 'package:xiaofanshu_flutter/controller/publish_notes_controller.dart';
 import 'package:xiaofanshu_flutter/controller/recently_message_controller.dart';
 import 'package:xiaofanshu_flutter/controller/recommend_controller.dart';
+import 'package:xiaofanshu_flutter/controller/search_controller.dart';
 import '../controller/chat_controller.dart';
 import '../controller/login_controller.dart';
 import '../controller/home_controller.dart';
 import '../controller/other_mine_controller.dart';
 import '../controller/praise_and_collection_controller.dart';
+import '../controller/search_result_controller.dart';
 
 class ControllerBinding extends Bindings {
   @override
@@ -31,5 +33,7 @@ class ControllerBinding extends Bindings {
     Get.lazyPut(() => ChatController());
     Get.lazyPut(() => RecentlyMessageController());
     Get.lazyPut(() => PraiseAndCollectionController());
+    Get.lazyPut(() => SearchController());
+    Get.lazyPut(() => SearchResultController());
   }
 }

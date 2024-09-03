@@ -10,6 +10,8 @@ import 'package:xiaofanshu_flutter/pages/home/message/praise_and_collection.dart
 import 'package:xiaofanshu_flutter/pages/home/mine/attention_fans.dart';
 import 'package:xiaofanshu_flutter/pages/notesDetail/note_details_video.dart';
 import 'package:xiaofanshu_flutter/pages/publish/publish_note.dart';
+import 'package:xiaofanshu_flutter/pages/search/search.dart';
+import 'package:xiaofanshu_flutter/pages/search/search_result.dart';
 
 import '../bindings/controller_binding.dart';
 import '../components/image_preview.dart';
@@ -110,6 +112,18 @@ class RouteConfig {
       name: '/message/praiseAndCollection',
       page: () => const PraiseAndCollection(),
       transition: Transition.rightToLeftWithFade,
+      binding: ControllerBinding(),
+    ),
+    GetPage(
+      name: '/search',
+      page: () => const Search(),
+      binding: ControllerBinding(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: '/search/result',
+      page: () => const SearchResultPage(),
+      transition: Transition.rightToLeft,
       binding: ControllerBinding(),
     ),
   ];

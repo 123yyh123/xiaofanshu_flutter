@@ -108,7 +108,9 @@ class _IndexPageState extends State<IndexPage> with TickerProviderStateMixin {
         actions: [
           IconButton(
             icon: const Icon(Icons.search, color: Colors.black87, size: 30),
-            onPressed: () {},
+            onPressed: () {
+              Get.toNamed('/search');
+            },
           ),
         ],
         backgroundColor: const Color(0xffffffff),

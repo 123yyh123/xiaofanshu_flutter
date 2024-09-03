@@ -250,6 +250,34 @@ class NoteApi {
   }
 }
 
+class SearchApi {
+  static String prefix = "/search";
+
+  static Future<HttpResponse> searchUser(
+      String keyword, int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/user/getUser",
+      method: DioMethod.get,
+      params: {"keyword": keyword, "page": page, "pageSize": size},
+    ));
+  }
+
+  static Future<HttpResponse> searchNotes(
+      String keyword, int page, int size, int notesType, int hot) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/notes/getNotesByKeyword",
+      method: DioMethod.get,
+      params: {
+        "keyword": keyword,
+        "page": page,
+        "pageSize": size,
+        "notesType": notesType,
+        "hot": hot
+      },
+    ));
+  }
+}
+
 class CommentApi {
   static String prefix = "/comment";
 
