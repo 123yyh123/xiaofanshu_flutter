@@ -25,35 +25,45 @@ class _AttentionPageState extends State<AttentionPage> {
         },
         color: CustomColor.primaryColor,
         child: Obx(
-          () => StaggeredGridView.countBuilder(
-            controller: attentionController.scrollController,
-            crossAxisCount: 2,
-            itemCount: attentionController.attentionNotesList.length,
-            mainAxisSpacing: 6,
-            crossAxisSpacing: 8,
-            padding: const EdgeInsets.all(10),
-            itemBuilder: (BuildContext context, int index) {
-              return ItemView(
-                id: attentionController.attentionNotesList[index]['id'],
-                authorId: attentionController.attentionNotesList[index]
-                    ['belongUserId'],
-                coverPicture: attentionController.attentionNotesList[index]
-                    ['coverPicture'],
-                noteTitle: attentionController.attentionNotesList[index]
-                    ['title'],
-                authorAvatar: attentionController.attentionNotesList[index]
-                    ['avatarUrl'],
-                authorName: attentionController.attentionNotesList[index]
-                    ['nickname'],
-                notesLikeNum: attentionController.attentionNotesList[index]
-                    ['notesLikeNum'],
-                notesType: attentionController.attentionNotesList[index]
-                    ['notesType'],
-                isLike: attentionController.attentionNotesList[index]['isLike'],
-              );
-            },
-            staggeredTileBuilder: (int index) => const StaggeredTile.fit(1),
-          ),
+          () => attentionController.isRefresh.value &&
+                  attentionController.attentionNotesList.isEmpty
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation(CustomColor.primaryColor),
+                  ),
+                )
+              : StaggeredGridView.countBuilder(
+                  controller: attentionController.scrollController,
+                  crossAxisCount: 2,
+                  itemCount: attentionController.attentionNotesList.length,
+                  mainAxisSpacing: 6,
+                  crossAxisSpacing: 8,
+                  padding: const EdgeInsets.all(10),
+                  itemBuilder: (BuildContext context, int index) {
+                    return ItemView(
+                      id: attentionController.attentionNotesList[index]['id'],
+                      authorId: attentionController.attentionNotesList[index]
+                          ['belongUserId'],
+                      coverPicture: attentionController
+                          .attentionNotesList[index]['coverPicture'],
+                      noteTitle: attentionController.attentionNotesList[index]
+                          ['title'],
+                      authorAvatar: attentionController
+                          .attentionNotesList[index]['avatarUrl'],
+                      authorName: attentionController.attentionNotesList[index]
+                          ['nickname'],
+                      notesLikeNum: attentionController
+                          .attentionNotesList[index]['notesLikeNum'],
+                      notesType: attentionController.attentionNotesList[index]
+                          ['notesType'],
+                      isLike: attentionController.attentionNotesList[index]
+                          ['isLike'],
+                    );
+                  },
+                  staggeredTileBuilder: (int index) =>
+                      const StaggeredTile.fit(1),
+                ),
         ),
       ),
     );

@@ -472,37 +472,58 @@ class _SearchResultPageState extends State<SearchResultPage>
               },
               color: CustomColor.primaryColor,
               child: Obx(
-                () => StaggeredGridView.countBuilder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  controller: searchResultController.notesScrollController,
-                  crossAxisCount: 2,
-                  itemCount: searchResultController.notesList.length,
-                  mainAxisSpacing: 6,
-                  crossAxisSpacing: 8,
-                  padding: const EdgeInsets.all(10),
-                  itemBuilder: (BuildContext context, int index) {
-                    return ItemView(
-                      id: searchResultController.notesList[index]['id'],
-                      authorId: searchResultController.notesList[index]
-                          ['belongUserId'],
-                      coverPicture: searchResultController.notesList[index]
-                          ['coverPicture'],
-                      noteTitle: searchResultController.notesList[index]
-                          ['title'],
-                      authorAvatar: searchResultController.notesList[index]
-                          ['avatarUrl'],
-                      authorName: searchResultController.notesList[index]
-                          ['nickname'],
-                      notesLikeNum: searchResultController.notesList[index]
-                          ['notesLikeNum'],
-                      notesType: searchResultController.notesList[index]
-                          ['notesType'],
-                      isLike: searchResultController.notesList[index]['isLike'],
-                    );
-                  },
-                  staggeredTileBuilder: (int index) =>
-                      const StaggeredTile.fit(1),
-                ),
+                () => searchResultController.isNotesLoading.value &&
+                        searchResultController.notesList.isEmpty
+                    ? const Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation(CustomColor.primaryColor),
+                        ),
+                      )
+                    : searchResultController.notesList.isEmpty
+                        ? const Center(
+                            child: Text(
+                              '暂无数据',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                          )
+                        : StaggeredGridView.countBuilder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            controller:
+                                searchResultController.notesScrollController,
+                            crossAxisCount: 2,
+                            itemCount: searchResultController.notesList.length,
+                            mainAxisSpacing: 6,
+                            crossAxisSpacing: 8,
+                            padding: const EdgeInsets.all(10),
+                            itemBuilder: (BuildContext context, int index) {
+                              return ItemView(
+                                id: searchResultController.notesList[index]
+                                    ['id'],
+                                authorId: searchResultController
+                                    .notesList[index]['belongUserId'],
+                                coverPicture: searchResultController
+                                    .notesList[index]['coverPicture'],
+                                noteTitle: searchResultController
+                                    .notesList[index]['title'],
+                                authorAvatar: searchResultController
+                                    .notesList[index]['avatarUrl'],
+                                authorName: searchResultController
+                                    .notesList[index]['nickname'],
+                                notesLikeNum: searchResultController
+                                    .notesList[index]['notesLikeNum'],
+                                notesType: searchResultController
+                                    .notesList[index]['notesType'],
+                                isLike: searchResultController.notesList[index]
+                                    ['isLike'],
+                              );
+                            },
+                            staggeredTileBuilder: (int index) =>
+                                const StaggeredTile.fit(1),
+                          ),
               ),
             ),
           ),
@@ -514,80 +535,88 @@ class _SearchResultPageState extends State<SearchResultPage>
               },
               color: CustomColor.primaryColor,
               child: Obx(
-                () => searchResultController.userList.isEmpty
+                () => searchResultController.isUserLoading.value
                     ? const Center(
-                        child: Text(
-                          '暂无数据',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 16,
-                          ),
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation(CustomColor.primaryColor),
                         ),
                       )
-                    : ListView.builder(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        controller: searchResultController.userScrollController,
-                        itemCount: searchResultController.userList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return GestureDetector(
-                            onTap: () {
-                              Get.toNamed(
-                                "/other/mine",
-                                arguments: searchResultController
-                                    .userList[index]['id'],
+                    : searchResultController.userList.isEmpty
+                        ? const Center(
+                            child: Text(
+                              '暂无数据',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            controller:
+                                searchResultController.userScrollController,
+                            itemCount: searchResultController.userList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(
+                                    "/other/mine",
+                                    arguments: searchResultController
+                                        .userList[index]['id'],
+                                  );
+                                },
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 45,
+                                      height: 45,
+                                      margin: const EdgeInsets.only(
+                                          left: 10, right: 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(30),
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            searchResultController
+                                                .userList[index]['avatarUrl'],
+                                          ),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            searchResultController
+                                                .userList[index]['nickname'],
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 16,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          Text(
+                                            "小番薯号：${searchResultController.userList[index]['uid']}",
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 14,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ).paddingOnly(top: 10, bottom: 10),
                               );
                             },
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 45,
-                                  height: 45,
-                                  margin: const EdgeInsets.only(
-                                      left: 10, right: 10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(30),
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        searchResultController.userList[index]
-                                            ['avatarUrl'],
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        searchResultController.userList[index]
-                                            ['nickname'],
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        "小番薯号：${searchResultController.userList[index]['uid']}",
-                                        style: const TextStyle(
-                                          color: Colors.grey,
-                                          fontSize: 14,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ).paddingOnly(top: 10, bottom: 10),
-                          );
-                        },
-                      ),
+                          ),
               ),
             ),
           ),

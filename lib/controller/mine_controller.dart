@@ -381,6 +381,18 @@ class MineController extends GetxController {
       },
     );
   }
+
+  void refreshInfo() async {
+    if (userInfo.value.id == 1) {
+      return;
+    }
+    var response = await UserApi.getUserInfo(userInfo.value.id);
+    if (response.code == StatusCode.getSuccess) {
+      userInfo.value = User.fromJson(response.data);
+    } else {
+      SnackbarUtil.showError(response.msg);
+    }
+  }
 }
 
 class TabsType {

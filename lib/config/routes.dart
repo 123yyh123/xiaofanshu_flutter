@@ -8,6 +8,8 @@ import 'package:xiaofanshu_flutter/pages/home/home.dart';
 import 'package:xiaofanshu_flutter/pages/home/message/chat.dart';
 import 'package:xiaofanshu_flutter/pages/home/message/praise_and_collection.dart';
 import 'package:xiaofanshu_flutter/pages/home/mine/attention_fans.dart';
+import 'package:xiaofanshu_flutter/pages/home/mine/edit_information.dart';
+import 'package:xiaofanshu_flutter/pages/home/mine/settings.dart';
 import 'package:xiaofanshu_flutter/pages/notesDetail/note_details_video.dart';
 import 'package:xiaofanshu_flutter/pages/publish/publish_note.dart';
 import 'package:xiaofanshu_flutter/pages/search/search.dart';
@@ -123,6 +125,18 @@ class RouteConfig {
     GetPage(
       name: '/search/result',
       page: () => const SearchResultPage(),
+      transition: Transition.rightToLeft,
+      binding: ControllerBinding(),
+    ),
+    GetPage(
+      name: '/editInfo',
+      page: () => const EditInformationPage(),
+      transition: Transition.rightToLeftWithFade,
+      binding: ControllerBinding(),
+    ),
+    GetPage(
+      name: '/settings',
+      page: () => const SettingsPage(),
       transition: Transition.rightToLeft,
       binding: ControllerBinding(),
     ),

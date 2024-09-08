@@ -99,4 +99,14 @@ class DefaultData {
     createTime: '',
     updateTime: '',
   );
+
+  static List<String> specialAreaList = [
+    '北京市',
+    '天津市',
+    '上海市',
+    '重庆市',
+    '澳门特别行政区',
+    '香港特别行政区',
+    '台湾省',
+  ];
 }

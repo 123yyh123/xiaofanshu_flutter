@@ -5,6 +5,7 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:lifecycle_lite/lifecycle_mixin.dart';
 import 'package:xiaofanshu_flutter/config/custom_icon.dart';
 import 'package:xiaofanshu_flutter/controller/mine_controller.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
@@ -600,7 +601,9 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          Get.toNamed('/test');
+                                          Get.toNamed('/editInfo',
+                                              arguments: mineController
+                                                  .userInfo.value.id);
                                         },
                                         child: Container(
                                           height: 30,
@@ -620,20 +623,28 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                                           ).paddingOnly(left: 15, right: 15),
                                         ),
                                       ),
-                                      Container(
-                                        height: 30,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
-                                        child: const Icon(
-                                          Icons.settings,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ).paddingOnly(left: 15, right: 15),
-                                      ).marginOnly(left: 15),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Get.toNamed('/settings',
+                                              arguments: mineController
+                                                  .userInfo.value.id);
+                                        },
+                                        child: Container(
+                                          height: 30,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.2),
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
+                                          child: const Icon(
+                                            Icons.settings,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ).paddingOnly(left: 15, right: 15),
+                                        ).marginOnly(left: 15),
+                                      ),
                                     ],
                                   ).paddingOnly(left: 10, right: 15),
                                 ),

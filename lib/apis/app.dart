@@ -27,6 +27,15 @@ class AuthApi {
     ));
   }
 
+  static Future<HttpResponse> logout(int userId) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/logout",
+      method: DioMethod.post,
+      isShowLoading: true,
+      params: {'userId': userId},
+    ));
+  }
+
   static Future<HttpResponse> register(
       String email, String password, String code) async {
     return HttpResponse.fromJson(await Request().request(
@@ -72,6 +81,49 @@ class UserApi {
       "$prefix/updateBackgroundImage",
       method: DioMethod.post,
       data: {"id": id, "homePageBackground": background},
+    ));
+  }
+
+  static Future<HttpResponse> updateUserNickname(
+      String nickname, int id) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/updateNickname",
+      method: DioMethod.post,
+      data: {"id": id, "nickname": nickname},
+    ));
+  }
+
+  static Future<HttpResponse> updateUserIntroduction(
+      String introduction, int id) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/updateIntroduction",
+      method: DioMethod.post,
+      data: {"id": id, "selfIntroduction": introduction},
+    ));
+  }
+
+  static Future<HttpResponse> updateUserSex(int sex, int id) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/updateSex",
+      method: DioMethod.post,
+      data: {"id": id, "sex": sex},
+    ));
+  }
+
+  static Future<HttpResponse> updateUserBirthday(
+      String birthday, int id) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/updateBirthday",
+      method: DioMethod.post,
+      data: {"id": id, "birthday": birthday},
+    ));
+  }
+
+  static Future<HttpResponse> updateUserArea(String area, int id) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/updateArea",
+      method: DioMethod.post,
+      data: {"id": id, "area": area},
     ));
   }
 
@@ -273,6 +325,20 @@ class SearchApi {
         "pageSize": size,
         "notesType": notesType,
         "hot": hot
+      },
+    ));
+  }
+
+  static Future<HttpResponse> getNotesNearBy(
+      double latitude, double longitude, int page, int size) async {
+    return HttpResponse.fromJson(await Request().request(
+      "$prefix/notes/getNotesNearBy",
+      method: DioMethod.post,
+      data: {
+        "longitude": longitude,
+        "latitude": latitude,
+        "page": page,
+        "pageSize": size
       },
     ));
   }

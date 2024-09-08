@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:xiaofanshu_flutter/config/custom_icon.dart';
 import 'package:xiaofanshu_flutter/controller/attention_controller.dart';
+import 'package:xiaofanshu_flutter/controller/near_notes_controller.dart';
 import 'package:xiaofanshu_flutter/controller/recommend_controller.dart';
 import 'package:xiaofanshu_flutter/mapper/recommend_tab_mapper.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/attention.dart';
+import 'package:xiaofanshu_flutter/pages/home/index/near_notes.dart';
 import 'package:xiaofanshu_flutter/pages/home/index/recommend.dart';
 import 'package:xiaofanshu_flutter/static/custom_color.dart';
 import 'package:xiaofanshu_flutter/static/custom_string.dart';
@@ -19,6 +21,7 @@ class IndexPage extends StatefulWidget {
 class _IndexPageState extends State<IndexPage> with TickerProviderStateMixin {
   AttentionController attentionController = Get.find();
   RecommendController recommendController = Get.find();
+  NearNotesController nearNotesController = Get.find();
   late TabController _tabController;
 
   @override
@@ -36,7 +39,7 @@ class _IndexPageState extends State<IndexPage> with TickerProviderStateMixin {
       } else if (_tabController.index == 1) {
         recommendController.onTap();
       } else if (_tabController.index == 2) {
-        print('南京');
+        nearNotesController.onTap();
       }
     });
   }
@@ -120,9 +123,7 @@ class _IndexPageState extends State<IndexPage> with TickerProviderStateMixin {
         children: const [
           AttentionPage(),
           RecommendPage(),
-          Center(
-            child: Text('南京'),
-          ),
+          NearNotesPage(),
         ],
       ),
     );
